@@ -10,3 +10,4 @@ __pycache__/
 reports/
 research_notes/
 brand/concepts/
+.claude/

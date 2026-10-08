@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/newsreader-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<title>Lokra · Lock rows for AI agents</title>
+<meta name="description" content="Lokra sits between AI agents and Postgres, and lets the database itself decide what each agent can see and change. Open source.">
+<link rel="canonical" href="https://lokra.dev/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lokra.dev/">
+<meta property="og:title" content="Lokra · Lock rows for AI agents">
+<meta property="og:description" content="Database-enforced access, masking and approvals for AI agents on Postgres.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<script src="/site.js" defer></script>
+</head>
+<body>
+<div class="page">
+  <a class="logo" href="/" aria-label="Lokra home"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg></a>
+  <main>
+    <p class="lead">Lokra locks rows for AI agents. It sits between your agents and Postgres, and lets the database itself decide what each one can see and change.</p>
+    <p>There is nothing new to learn. Agents connect over MCP like any other tool. Each one gets its own database role, identifiers are masked before the agent sees them, writes wait for a person to approve, and every action lands in a signed log.</p>
+    <p>It can stop an agent from <a href="https://github.com/lokrahq/lokra#security-model">reading another clinic's patients</a>, <a href="https://github.com/lokrahq/lokra#quick-start">cancelling the wrong appointment</a>, or <a href="https://github.com/lokrahq/lokra#security-model">pasting a Medicare number into a chat</a>. It works with Claude Code, Cursor and any MCP client, and it is <a href="https://github.com/lokrahq/lokra">open source</a>.</p>
+    <form class="waitlist" action="/api/waitlist" method="post" novalidate>
+      <label class="sr-only" for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required maxlength="254">
+      <span class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
+      <button class="cta" type="submit">Join the waitlist</button>
+    </form>
+    <p class="status" role="status" aria-live="polite"></p>
+  </main>
+  <footer>
+    <span>© 2026 Lokra</span>
+    <a href="https://github.com/lokrahq/lokra">GitHub</a>
+    <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+    <a href="/privacy">Privacy</a>
+    <a href="mailto:hello@lokra.dev">hello@lokra.dev</a>
+  </footer>
+</div>
+</body>
+</html>

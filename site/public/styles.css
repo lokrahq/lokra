@@ -1,0 +1,67 @@
+@font-face { font-family: "Newsreader"; src: url("/fonts/newsreader-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Newsreader"; src: url("/fonts/newsreader-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/fonts/geist-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("/fonts/geist-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+
+:root {
+  --ink: #141413;
+  --muted: #6f6d68;
+  --rule: #cfc9be;
+  --mark: #e9e2d6;
+  --paper: #ffffff;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #ecebe6; --muted: #9a988f; --rule: #4a4843; --mark: #3a352d; --paper: #0d0d0d; }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 21px/1.45 "Newsreader", Georgia, serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+.page { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; padding: 48px 28px 28px; max-width: 640px; }
+.logo { display: inline-flex; color: var(--ink); width: 44px; height: 37px; margin-bottom: 64px; }
+.logo svg { width: 100%; height: 100%; }
+main p { margin: 0 0 1.15em; max-width: 34em; }
+.lead { font-weight: 500; }
+a { color: inherit; text-decoration: underline; text-decoration-color: var(--rule); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--ink); }
+
+.cta {
+  font: inherit; color: var(--ink); background: linear-gradient(transparent 62%, var(--mark) 62%);
+  border: 0; padding: 0 2px; line-height: 1.15; cursor: pointer; text-decoration: none;
+}
+.cta::after { content: " \203A"; }
+.cta:hover { background: linear-gradient(transparent 50%, var(--mark) 50%); }
+
+.waitlist { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 20px; margin: 1.6em 0 0; }
+.waitlist input[type="email"] {
+  font: inherit; color: var(--ink); background: transparent;
+  border: 0; border-bottom: 1px solid var(--rule); border-radius: 0;
+  padding: 2px 0; width: min(100%, 16em);
+}
+.waitlist input[type="email"]::placeholder { color: var(--muted); }
+.waitlist input[type="email"]:focus { outline: none; border-bottom-color: var(--ink); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.status { min-height: 1.5em; margin: 0.6em 0 0; color: var(--muted); font-size: 18px; }
+
+footer {
+  margin-top: auto; padding-top: 72px;
+  font: 400 13px/1.5 "Geist", system-ui, sans-serif; color: var(--muted);
+  display: flex; flex-wrap: wrap; gap: 6px 24px;
+}
+footer a { text-decoration: none; }
+footer a:hover { color: var(--ink); }
+
+@media (max-width: 520px) {
+  body { font-size: 19px; }
+  .page { padding: 32px 22px 22px; }
+  .logo { margin-bottom: 44px; }
+}
