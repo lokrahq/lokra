@@ -8,8 +8,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff">
 <title>Lokra · Lock rows for AI agents</title>
 <meta name="description" content="Open-source MCP server between AI agents and Postgres. Database-enforced access, masking and human approval for writes.">
 <link rel="canonical" href="https://lokra.dev/">
@@ -32,64 +31,75 @@
 </header>
 <main class="wrap">
   <section class="hero">
-    <p class="eyebrow mono"><span>Open source</span><span>Apache-2.0</span><span>v0.1</span></p>
-    <h1>Lock rows for AI&nbsp;agents.</h1>
-    <p class="sub">An MCP server that sits between your agents and Postgres. <strong>The database decides</strong> what each agent can read and change, identifiers are masked, and every write waits for a human.</p>
+    <a class="pill" href="https://github.com/lokrahq/lokra"><b>v0.1 is open source</b><span>Star it on GitHub &rsaquo;</span></a>
+    <h1>Lock rows for <mark>AI&nbsp;agents</mark>.</h1>
+    <p class="sub">Lokra sits between your agents and Postgres. The database decides what each agent can see, sensitive values are masked, and every write waits for a human.</p>
     <div class="actions">
-      <a class="btn primary" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> View on GitHub</a>
-      <div class="clone mono"><code><span class="p">$</span> git clone https://github.com/lokrahq/lokra</code><button class="copy" type="button" data-copy="git clone https://github.com/lokrahq/lokra">Copy</button></div>
+      <a class="btn primary" href="https://github.com/lokrahq/lokra#quick-start"><span class="chev"></span>Get started</a>
+      <a class="btn" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> View on GitHub</a>
     </div>
   </section>
 
-  <div class="term" role="img" aria-label="Terminal example: an agent's query returns masked Medicare numbers, a query on clinical notes is refused, and a write waits for approval">
-    <div class="term-bar"><i></i><i></i><i></i><span>scheduling-bot · clinic 1</span></div>
-<pre><span class="p">$</span> <span class="c">lokra try scheduling-bot "SELECT full_name, medicare_number FROM patients LIMIT 2"</span>
-<span class="o">{ "rows": [["Noah Nguyen", "<span class="hl">******1957</span>"], ["Priya Martin", "<span class="hl">******4028</span>"]],</span>
-<span class="o">  "row_count": 2, "masked": { "column:last4": 2 } }</span>
+  <section class="demo" aria-label="Example of the Lokra audit ledger">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="tabs"><span class="on">Audit ledger</span><span>Pending writes&nbsp;1</span><span>Policies</span></div>
+        <span class="verified"><span class="dot"></span>Chain verified &middot; 34 entries</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time</th><th>Agent</th><th>For</th><th>Request</th><th>Rows</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">09:41:02</td><td>scheduling-bot</td><td>sam</td><td class="q">SELECT full_name, medicare_number FROM patients</td><td>12</td><td><span class="res ok">12 masked</span></td></tr>
+            <tr><td class="mono">09:41:19</td><td>scheduling-bot</td><td>sam</td><td class="q">SELECT note FROM clinical_notes</td><td>&mdash;</td><td><span class="res err">Refused by Postgres</span></td></tr>
+            <tr><td class="mono">09:42:05</td><td>scheduling-bot</td><td>sam</td><td class="q">UPDATE appointments SET status='cancelled' WHERE id=1</td><td>1</td><td><span class="res wait">Awaiting approval</span></td></tr>
+            <tr><td class="mono">09:42:31</td><td>research-agent</td><td>priya</td><td class="q">SELECT note FROM clinical_notes</td><td>40</td><td><span class="res ok">31 masked</span></td></tr>
+            <tr><td class="mono">09:43:10</td><td>scheduling-bot</td><td>sam</td><td class="q">COMMIT; DROP TABLE patients</td><td>&mdash;</td><td><span class="res err">Blocked</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="approve" aria-hidden="true">
+      <p class="t">Approve write?</p>
+      <p class="m">scheduling-bot for sam &middot; would affect 1 row</p>
+      <code>UPDATE appointments SET status='cancelled' WHERE id=1</code>
+      <div class="row"><span>Deny</span><span class="yes">Approve</span></div>
+    </div>
+  </section>
 
-<span class="p">$</span> <span class="c">lokra try scheduling-bot "SELECT note FROM clinical_notes"</span>
-<span class="err">REFUSED: database refused the query: permission denied for table clinical_notes</span>
+  <section class="stats">
+    <div><b>0</b><span>database passwords handed to agents</span></div>
+    <div><b>4</b><span>checks on every request</span></div>
+    <div><b>1</b><span>policy file to configure</span></div>
+  </section>
 
-<span class="p">$</span> <span class="c">lokra try scheduling-bot "UPDATE appointments SET status='cancelled' WHERE id=1" --write</span>
-<span class="o">{ "write_id": "w_443d8430", "status": "pending", "would_affect_rows": 1 }</span>
-
-<span class="p">$</span> <span class="c">lokra approve w_443d8430</span>
-<span class="ok">approved by sam</span></pre>
-  </div>
-
-  <p class="section-label">// how it works</p>
-  <div class="features">
-    <div class="feature"><span class="n">01</span><h3>Database-enforced</h3><p>Each agent logs in as its own Postgres role. Grants and row-level security decide access, not a SQL parser.</p></div>
-    <div class="feature"><span class="n">02</span><h3>Masked by default</h3><p>Medicare and IHI numbers, emails and phone numbers are hidden before the agent sees them, even inside free text.</p></div>
-    <div class="feature"><span class="n">03</span><h3>Humans approve writes</h3><p>Every INSERT, UPDATE and DELETE is dry-run, shows how many rows it would touch, and waits for a person.</p></div>
-    <div class="feature"><span class="n">04</span><h3>Signed audit ledger</h3><p>A hash-chained log of every request: which agent, on whose behalf, and what happened.</p></div>
-  </div>
-
-  <p class="section-label">// works with</p>
   <ul class="works">
-    <li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>any MCP client</li><li>PostgreSQL</li><li>Supabase (soon)</li>
+    <li class="label">Works with</li><li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>Any MCP client</li><li>PostgreSQL</li><li>Supabase, soon</li>
   </ul>
 
-  <section class="hosted" id="hosted">
-    <h2>Hosted version coming soon</h2>
-    <p>Policy editor, Slack approvals and long-term audit retention, without running anything yourself. Leave your email and we'll tell you when it's ready.</p>
+  <section class="notify" id="hosted">
+    <div>
+      <h2>Hosted version coming soon</h2>
+      <p>Policy editor, Slack approvals and long-term audit retention.</p>
+    </div>
     <form class="waitlist" action="/api/waitlist" method="post" novalidate>
       <label class="sr-only" for="email">Email address</label>
       <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required maxlength="254">
       <span class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
       <button class="btn primary" type="submit">Get notified</button>
+      <p class="status" role="status" aria-live="polite"></p>
     </form>
-    <p class="status" role="status" aria-live="polite"></p>
   </section>
 </main>
 <footer>
   <div class="wrap">
-    <span>© 2026 Lokra · Apache-2.0</span>
+    <span>© 2026 Lokra</span>
     <nav>
+      <a href="https://github.com/lokrahq/lokra#quick-start">Docs</a>
       <a href="https://github.com/lokrahq/lokra">GitHub</a>
       <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
       <a href="/privacy">Privacy</a>
-      <a href="mailto:hello@lokra.dev">hello@lokra.dev</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
     </nav>
   </div>
 </footer>
