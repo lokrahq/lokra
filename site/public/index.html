@@ -41,39 +41,48 @@
   </section>
 
   <section class="demo" aria-label="Interactive Lokra demo">
-    <div class="panel">
-      <div class="panel-head">
+    <div class="app">
+      <div class="app-head">
         <div class="tabs" role="tablist">
           <button type="button" role="tab" class="tab on" aria-selected="true" data-tab="ledger">Audit ledger</button>
-          <button type="button" role="tab" class="tab" aria-selected="false" data-tab="pending">Pending writes <span class="count" data-pending-count>1</span></button>
-          <button type="button" role="tab" class="tab" aria-selected="false" data-tab="policies">Policies</button>
+          <button type="button" role="tab" class="tab" aria-selected="false" data-tab="policies">Policy</button>
         </div>
-        <span class="verified"><span class="dot"></span>Chain verified &middot; <span data-chain>34</span> entries</span>
+        <div class="head-right">
+          <span class="verified"><span class="dot"></span><span><span data-chain>34</span> entries &middot; chain verified</span></span>
+          <button type="button" class="icon-btn" data-reset aria-label="Reset demo" title="Reset demo">&#8635;</button>
+        </div>
       </div>
-      <div class="try" aria-label="Run a request as scheduling-bot">
-        <span class="try-label mono">Run as scheduling-bot</span>
+      <div class="try">
+        <span class="try-label">Try</span>
         <button type="button" class="chip" data-run="patients">Read patients</button>
-        <button type="button" class="chip" data-run="otherClinic">Read another clinic</button>
-        <button type="button" class="chip" data-run="notes">Read clinical notes</button>
-        <button type="button" class="chip" data-run="cancel">Cancel an appointment</button>
-        <button type="button" class="chip danger" data-run="drop">DROP TABLE</button>
+        <button type="button" class="chip" data-run="otherClinic">Another clinic</button>
+        <button type="button" class="chip" data-run="notes">Clinical notes</button>
+        <button type="button" class="chip" data-run="cancel">Cancel appointment</button>
+        <button type="button" class="chip" data-run="drop">DROP TABLE</button>
       </div>
-      <div data-panel="ledger" role="tabpanel">
-        <div class="table-wrap">
+      <div class="app-body" data-panel="ledger" role="tabpanel">
+        <div class="list">
           <table>
-            <thead><tr><th>Time</th><th>Agent</th><th>For</th><th>Request</th><th>Rows</th><th>Result</th></tr></thead>
+            <thead><tr><th>Time</th><th>Agent</th><th>Request</th><th>Result</th></tr></thead>
             <tbody data-ledger>
-              <tr><td class="mono">09:41:02</td><td>scheduling-bot</td><td>sam</td><td class="q">SELECT full_name, medicare_number FROM patients</td><td>12</td><td><span class="res ok">12 masked</span></td></tr>
-              <tr><td class="mono">09:41:19</td><td>scheduling-bot</td><td>sam</td><td class="q">SELECT note FROM clinical_notes</td><td>&mdash;</td><td><span class="res err">Refused by Postgres</span></td></tr>
-              <tr><td class="mono">09:42:05</td><td>scheduling-bot</td><td>sam</td><td class="q">UPDATE appointments SET status='cancelled' WHERE id=1</td><td>1</td><td><span class="res wait">Awaiting approval</span></td></tr>
-              <tr><td class="mono">09:42:31</td><td>research-agent</td><td>priya</td><td class="q">SELECT note FROM clinical_notes</td><td>40</td><td><span class="res ok">31 masked</span></td></tr>
-              <tr><td class="mono">09:43:10</td><td>scheduling-bot</td><td>sam</td><td class="q">COMMIT; DROP TABLE patients</td><td>&mdash;</td><td><span class="res err">Blocked</span></td></tr>
+              <tr><td class="t">09:41:02</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">SELECT full_name, medicare_number FROM patients</td><td><span class="b ok">12 masked</span></td></tr>
+              <tr><td class="t">09:41:19</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">SELECT note FROM clinical_notes</td><td><span class="b err">Refused</span></td></tr>
+              <tr class="sel"><td class="t">09:42:05</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">UPDATE appointments SET status='cancelled' WHERE id=1</td><td><span class="b wait">Needs approval</span></td></tr>
+              <tr><td class="t">09:42:31</td><td><span class="who">research-agent</span><span class="for">for priya</span></td><td class="q">SELECT note FROM clinical_notes</td><td><span class="b ok">31 masked</span></td></tr>
+              <tr><td class="t">09:43:10</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">COMMIT; DROP TABLE patients</td><td><span class="b err">Blocked</span></td></tr>
             </tbody>
           </table>
         </div>
+        <aside class="inspector" data-inspector aria-live="polite">
+          <span class="b wait">Needs approval</span>
+          <h3>Approve this write?</h3>
+          <p class="meta">scheduling-bot for sam &middot; dry run: 1 row would change</p>
+          <code class="sql">UPDATE appointments SET status='cancelled' WHERE id=1</code>
+          <div class="decide"><button type="button" class="btn-sm" data-act="deny">Deny</button><button type="button" class="btn-sm yes" data-act="approve">Approve</button></div>
+          <p class="sig">ledger #32 &middot; signed</p>
+        </aside>
       </div>
-      <div data-panel="pending" role="tabpanel" hidden><ul class="pending-list" data-pending-list></ul></div>
-      <div data-panel="policies" role="tabpanel" hidden>
+      <div class="app-body policy" data-panel="policies" role="tabpanel" hidden>
 <pre class="yaml"><span class="k">agents</span>:
   <span class="k">scheduling-bot</span>:
     <span class="k">clinic_ids</span>: [1]
@@ -87,13 +96,6 @@
   <span class="k">columns</span>: { medicare_number: last4, phone: last3, dob: year_only }
   <span class="k">detectors</span>: [ihi, medicare, email, au_phone]</pre>
       </div>
-      <div class="panel-foot"><span>Click a row to see what the agent received.</span><button type="button" class="link" data-reset>Reset demo</button></div>
-    </div>
-    <div class="approve" data-approve>
-      <p class="t" data-approve-title>Approve write?</p>
-      <p class="m" data-approve-meta>scheduling-bot for sam &middot; would affect 1 row</p>
-      <code data-approve-sql>UPDATE appointments SET status='cancelled' WHERE id=1</code>
-      <div class="row"><button type="button" data-act="deny">Deny</button><button type="button" class="yes" data-act="approve">Approve</button></div>
     </div>
   </section>
 
