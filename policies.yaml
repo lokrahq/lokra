@@ -1,0 +1,41 @@
+database:
+  host: 127.0.0.1
+  port: 55432
+  dbname: clinic
+
+agents:
+  scheduling-bot:
+    description: Books and moves appointments for Harbour GP Clinic only.
+    clinic_ids: [1]
+    read:
+      clinics: "*"
+      patients: [id, clinic_id, full_name, dob, phone, medicare_number]
+      appointments: "*"
+    write:
+      appointments: [insert, update]
+    max_rows: 100
+
+  research-agent:
+    description: De-identified analysis across all clinics. Read only.
+    clinic_ids: [1, 2, 3]
+    read:
+      clinics: "*"
+      patients: [id, clinic_id, dob]
+      appointments: [id, clinic_id, patient_id, starts_at, reason, status]
+      clinical_notes: [id, clinic_id, patient_id, created_at, note]
+    max_rows: 500
+
+masking:
+  columns:
+    medicare_number: last4
+    ihi: last4
+    phone: last3
+    email: redact
+    dob: year_only
+  detectors:
+    - ihi
+    - medicare
+    - email
+    - au_phone
+
+approval_ttl_seconds: 3600

@@ -1,0 +1,134 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/lokra-logo-white.svg">
+    <img src="brand/lokra-logo.svg" alt="Lokra" height="56">
+  </picture>
+</p>
+
+<p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a></p>
+
+Lokra sits between AI agents (Claude Code, Cursor, OpenClaw, custom agents) and your
+Postgres database, and lets the database itself decide what each agent may see and change.
+
+Agents today usually get a full database password. Lokra gives each agent its own
+locked-down identity instead, and puts four controls on every request:
+
+1. **Scoped identity.** Each agent logs in as its own Postgres role with only the tables,
+   columns and rows its policy allows. Agents receive a short-lived signed token, never a password.
+2. **Masking.** Medicare numbers, IHIs, phone numbers and emails are masked in results,
+   including inside free-text notes and renamed columns.
+3. **Human approval for writes.** INSERT, UPDATE and DELETE are dry-run, shown with the
+   number of rows they would change, and only run after a person approves them.
+4. **Tamper-evident audit ledger.** Every request is written to a hash-chained, signed log
+   recording which agent did what, on behalf of which human.
+
+> v0.1, local prototype. The lab uses **synthetic data only**.
+
+## Quick start
+
+Needs Docker and Python 3.11+.
+
+```bash
+docker compose up -d                      # lab Postgres on 127.0.0.1:55432 with fake clinic data
+python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
+.venv/bin/lokra provision                   # creates one DB role per agent in policies.yaml
+.venv/bin/python -m pytest -q             # runs the test suite, including attack attempts
+```
+
+Try it from the terminal as an agent:
+
+```bash
+.venv/bin/lokra try scheduling-bot "SELECT full_name, medicare_number FROM patients LIMIT 3"
+.venv/bin/lokra try scheduling-bot "SELECT note FROM clinical_notes"          # refused: no access
+.venv/bin/lokra try scheduling-bot "UPDATE appointments SET status='cancelled' WHERE id=1" --write --reason "pt cancelled"
+.venv/bin/lokra pending
+.venv/bin/lokra approve <write_id>
+.venv/bin/lokra log
+.venv/bin/lokra verify-ledger
+```
+
+## Connect Claude Code
+
+**Desktop app or CLI:** put this `.mcp.json` in the folder where the agent works, then open a
+new Claude Code session in that folder and allow the `clinic-db` server when asked.
+
+```json
+{
+  "mcpServers": {
+    "clinic-db": {
+      "command": "/absolute/path/to/lokra/.venv/bin/lokra",
+      "args": ["--config", "/absolute/path/to/lokra/policies.yaml",
+               "serve", "--dev-agent", "scheduling-bot"]
+    }
+  }
+}
+```
+
+`--dev-agent` issues an 8-hour token when the server starts. It is for local development
+only; in production the token is issued by a human or the control plane and passed in
+`LOKRA_TOKEN`.
+
+**CLI alternative**, with an explicit token:
+
+```bash
+claude mcp add clinic-db \
+  -e LOKRA_TOKEN="$(.venv/bin/lokra mint-token scheduling-bot --ttl 28800)" \
+  -- "$PWD/.venv/bin/lokra" --config "$PWD/policies.yaml" serve
+```
+
+Then ask something like "which patients have appointments on Monday?".
+
+Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
+
+## Security model
+
+The SQL parser is **not** the security boundary. Several "read-only" database MCP servers
+were bypassed in 2025-26 because they relied on parsing SQL text. Here the database itself
+enforces access, and each layer still holds if the one before it fails:
+
+| Layer | Stops | Enforced by |
+|---|---|---|
+| Signed short-lived token | Unknown, forged or expired agents | Proxy (HMAC) |
+| SQL check | Writes in the read tool, stacked statements, DDL, `SET ROLE` | Proxy (sqlglot), fails closed |
+| Prepared statements only | `COMMIT; DROP ...` style stacking | Postgres protocol |
+| Per-agent login role | Tables and columns outside the policy | Postgres grants |
+| Row-level security | Rows from other clinics | Postgres RLS keyed on `session_user` |
+| Read-only transaction | Writes hidden in CTEs or functions | Postgres |
+| Statement timeout | Runaway queries | Postgres role setting |
+| Masking | Identifiers in results, aliases, free text | Proxy, checksum-validated detectors |
+| Ledger | Silent edits or deletions of history | SHA-256 chain + HMAC |
+
+The tests in `tests/test_integration.py` disable the SQL check on purpose and confirm the
+database still blocks the attack.
+
+## Layout
+
+```
+policies.yaml          who may do what
+lab/db/init/           lab schema (with RLS) and generated synthetic seed data
+scripts/generate_seed.py
+src/lokra/
+  config.py            loads policies.yaml, local state in .lokra/ (gitignored)
+  tokens.py            short-lived signed agent tokens
+  sqlcheck.py          read/write classification (usability layer)
+  provision.py         creates per-agent Postgres roles, grants and clinic scope
+  masking.py           column rules and Medicare/IHI/email/phone detectors
+  ledger.py            hash-chained, signed audit log
+  gateway.py           the request pipeline and write approvals
+  server.py            MCP server
+  cli.py               `lokra` command
+tests/
+```
+
+## Roadmap
+
+- [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
+- [ ] Slack approve/deny buttons instead of the CLI
+- [ ] Attack test suite for database MCP servers
+- [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
+- [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
+- [ ] DuckDB and Snowflake adapters
+
+## License
+
+Apache 2.0. See [LICENSE](LICENSE).

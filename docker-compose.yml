@@ -1,0 +1,18 @@
+name: lokra
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lokra-lab-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clinic
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - ./lab/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d clinic"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

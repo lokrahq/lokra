@@ -1,0 +1,30 @@
+[project]
+name = "lokra"
+version = "0.1.0"
+description = "Policy proxy between AI agents and databases: per-agent roles, masking, write approval, signed audit ledger."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+  "mcp>=2.3,<3",
+  "psycopg[binary]>=3.2",
+  "pyyaml>=6",
+  "sqlglot>=30",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+lokra = "lokra.cli:main"
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
