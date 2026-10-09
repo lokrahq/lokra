@@ -24,6 +24,8 @@
 <header class="wrap nav">
   <a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a>
   <nav class="links">
+    <a class="hide-sm" href="/#deploy">Self-host</a>
+    <a class="hide-sm" href="/#health">Healthcare</a>
     <a class="hide-sm" href="https://github.com/lokrahq/lokra#quick-start">Docs</a>
     <a class="hide-sm" href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
     <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
@@ -73,28 +75,64 @@
     </div>
   </section>
 
-  <section class="stats">
-    <div><b>0</b><span>database passwords handed to agents</span></div>
+  <section class="band">
+    <div><b>0</b><span>database passwords given to agents</span></div>
     <div><b>4</b><span>checks on every request</span></div>
-    <div><b>1</b><span>policy file to configure</span></div>
+    <div><b>1</b><span>YAML file to configure</span></div>
   </section>
 
   <ul class="works">
-    <li class="label">Works with</li><li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>Any MCP client</li><li>PostgreSQL</li><li>Supabase, soon</li>
+    <li class="label">Works with</li><li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>Any MCP client</li><li>PostgreSQL</li><li>Supabase <em>soon</em></li>
   </ul>
 
-  <section class="notify" id="hosted">
-    <div>
-      <h2>Hosted version coming soon</h2>
-      <p>Policy editor, Slack approvals and long-term audit retention.</p>
+  <section class="block" id="deploy">
+    <p class="eyebrow-sm">Deployment</p>
+    <h2>Run it your way.</h2>
+    <div class="deploy">
+      <article class="card">
+        <span class="tag">Open source &middot; Free</span>
+        <h3>Self-hosted</h3>
+        <ul class="ticks">
+          <li>Runs inside your own network</li>
+          <li>Patient data never leaves your servers</li>
+          <li>Apache-2.0, no usage limits</li>
+        </ul>
+        <pre class="cmd"><span>$</span> docker compose up -d
+<span>$</span> lokra provision</pre>
+        <a class="more" href="https://github.com/lokrahq/lokra#quick-start">Quick start &rarr;</a>
+      </article>
+      <article class="card" id="hosted">
+        <span class="tag soon">Coming soon</span>
+        <h3>Lokra Cloud</h3>
+        <ul class="ticks">
+          <li>Policy editor and Slack approvals</li>
+          <li>Long-term audit retention</li>
+          <li>SSO and team roles</li>
+        </ul>
+        <form class="waitlist" action="/api/waitlist" method="post" novalidate>
+          <label class="sr-only" for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required maxlength="254">
+          <span class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
+          <button class="btn primary" type="submit">Get notified</button>
+          <p class="status" role="status" aria-live="polite"></p>
+        </form>
+      </article>
     </div>
-    <form class="waitlist" action="/api/waitlist" method="post" novalidate>
-      <label class="sr-only" for="email">Email address</label>
-      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required maxlength="254">
-      <span class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
-      <button class="btn primary" type="submit">Get notified</button>
-      <p class="status" role="status" aria-live="polite"></p>
-    </form>
+  </section>
+
+  <section class="block" id="health">
+    <p class="eyebrow-sm">For healthcare teams</p>
+    <h2>Built for patient data.</h2>
+    <div class="features4">
+      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.4 1.5-2 2.5-2s1.9.6 2.5 2M14 10h4M14 13.5h3"/></svg><h4>Australian identifiers</h4><p>Medicare and IHI numbers masked by default, even in free text.</p></div>
+      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><h4>Stays in your region</h4><p>Self-host in Australia. Nothing is sent to us.</p></div>
+      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12.5l1.8 1.8 3.2-3.6"/></svg><h4>Audit-ready ledger</h4><p>Every agent action signed and verifiable with one command.</p></div>
+      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5"/></svg><h4>A human signs off</h4><p>Writes to clinical systems always wait for approval.</p></div>
+    </div>
+    <div class="partner">
+      <p>Working with patient data? We're taking on a few design partners.</p>
+      <a class="btn primary" href="mailto:hello@lokra.dev?subject=Design%20partner">Talk to us <span aria-hidden="true">&rarr;</span></a>
+    </div>
   </section>
 </main>
 <footer>
