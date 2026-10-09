@@ -43,60 +43,32 @@
   <section class="demo" aria-label="Interactive Lokra demo">
     <div class="app">
       <div class="app-head">
-        <div class="tabs" role="tablist">
-          <button type="button" role="tab" class="tab on" aria-selected="true" data-tab="ledger">Audit ledger</button>
-          <button type="button" role="tab" class="tab" aria-selected="false" data-tab="policies">Policy</button>
+        <div class="asks">
+          <button type="button" class="chip" data-run="patients">Who's booked today?</button>
+          <button type="button" class="chip" data-run="notes">Read Noah's notes</button>
+          <button type="button" class="chip" data-run="cancel">Cancel an appointment</button>
         </div>
-        <div class="head-right">
-          <span class="verified"><span class="dot"></span><span><span data-chain>34</span> entries &middot; chain verified</span></span>
-          <button type="button" class="play" data-play><span data-play-label>&#9654;&#xFE0E; Play</span><span class="long"> walkthrough</span></button>
-          <button type="button" class="icon-btn" data-reset aria-label="Reset demo" title="Reset demo">&#8635;</button>
-        </div>
+        <button type="button" class="play" data-play><span data-play-label>&#9654;&#xFE0E; Play</span><span class="long"> walkthrough</span></button>
       </div>
-      <div class="try">
-        <span class="try-label">Ask the bot</span>
-        <button type="button" class="chip" data-run="patients">Who's booked today?</button>
-        <button type="button" class="chip" data-run="otherClinic">Show Westside's patients</button>
-        <button type="button" class="chip" data-run="notes">Summarise Noah's notes</button>
-        <button type="button" class="chip" data-run="cancel">Cancel appointment #2</button>
-        <button type="button" class="chip" data-run="drop">Drop the patients table</button>
-      </div>
-      <div class="app-body" data-panel="ledger" role="tabpanel">
+      <div class="app-body">
         <div class="list">
           <table>
-            <thead><tr><th>Time</th><th>Agent</th><th>Request</th><th>Result</th></tr></thead>
+            <thead><tr><th>Agent asked</th><th>Lokra</th></tr></thead>
             <tbody data-ledger>
-              <tr><td class="t">09:41:02</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">SELECT full_name, medicare_number FROM patients</td><td><span class="b ok">12 masked</span></td></tr>
-              <tr><td class="t">09:41:19</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">SELECT note FROM clinical_notes</td><td><span class="b err">Refused</span></td></tr>
-              <tr class="sel"><td class="t">09:42:05</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">UPDATE appointments SET status='cancelled' WHERE id=1</td><td><span class="b wait">Needs approval</span></td></tr>
-              <tr><td class="t">09:42:31</td><td><span class="who">research-agent</span><span class="for">for priya</span></td><td class="q">SELECT note FROM clinical_notes</td><td><span class="b ok">31 masked</span></td></tr>
-              <tr><td class="t">09:43:10</td><td><span class="who">scheduling-bot</span><span class="for">for sam</span></td><td class="q">COMMIT; DROP TABLE patients</td><td><span class="b err">Blocked</span></td></tr>
+              <tr><td class="ask-cell">Who's booked today?</td><td><span class="b ok">12 masked</span></td></tr>
+              <tr><td class="ask-cell">Read Noah's notes</td><td><span class="b err">Refused</span></td></tr>
+              <tr class="sel"><td class="ask-cell">Cancel Noah's Monday appointment</td><td><span class="b wait">Needs approval</span></td></tr>
+              <tr><td class="ask-cell">Drop the patients table</td><td><span class="b err">Blocked</span></td></tr>
             </tbody>
           </table>
         </div>
         <aside class="inspector" data-inspector aria-live="polite">
           <span class="b wait">Needs approval</span>
-          <h3>Approve this write?</h3>
-          <p class="ask">&ldquo;Cancel Noah's appointment on Monday&rdquo;</p>
-          <p class="meta">scheduling-bot for sam &middot; dry run: 1 row would change</p>
-          <code class="sql">UPDATE appointments SET status='cancelled' WHERE id=1</code>
+          <h3>Approve this change?</h3>
+          <p class="meta">scheduling-bot &middot; for sam</p>
+          <div class="diff"><div class="diff-head"><b>Noah Nguyen</b><span>Mon 10:00</span></div><div class="diff-row"><span class="k">status</span><span><span class="old">booked</span><span class="arrow">&rarr;</span><span class="new">cancelled</span></span></div></div>
           <div class="decide"><button type="button" class="btn-sm" data-act="deny">Deny</button><button type="button" class="btn-sm yes" data-act="approve">Approve</button></div>
-          <p class="sig">ledger #32 &middot; signed</p>
         </aside>
-      </div>
-      <div class="app-body policy" data-panel="policies" role="tabpanel" hidden>
-<pre class="yaml"><span class="k">agents</span>:
-  <span class="k">scheduling-bot</span>:
-    <span class="k">clinic_ids</span>: [1]
-    <span class="k">read</span>:
-      <span class="k">patients</span>: [id, full_name, dob, phone, medicare_number]
-      <span class="k">appointments</span>: "*"
-    <span class="k">write</span>:
-      <span class="k">appointments</span>: [insert, update]
-
-<span class="k">masking</span>:
-  <span class="k">columns</span>: { medicare_number: last4, phone: last3, dob: year_only }
-  <span class="k">detectors</span>: [ihi, medicare, email, au_phone]</pre>
       </div>
     </div>
   </section>

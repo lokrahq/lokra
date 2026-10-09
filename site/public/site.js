@@ -7,73 +7,38 @@ if (demo) {
   const $ = (sel) => demo.querySelector(sel);
   const ledgerBody = $("[data-ledger]");
   const inspector = $("[data-inspector]");
+  const chips = [...demo.querySelectorAll("[data-run]")];
+  const playButton = $("[data-play]");
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const THINK = reduceMotion ? 0 : 900;
+  const HOLD = reduceMotion ? 1800 : 3600;
 
   const SCENARIOS = {
     patients: {
-      prompt: "Who's booked today?",
-      why: "medicare_number is masked by policy before the agent sees it, and only clinic 1's rows come back.",
-      sql: "SELECT full_name, medicare_number FROM patients", status: "ok", label: "12 masked", title: "Agent received",
-      meta: "12 rows from clinic 1 · Medicare numbers masked",
-      detail: "Noah Nguyen    ******1957\nPriya Martin   ******4028\nEthan Ali      ******2727\n… 9 more rows",
+      prompt: "Who's booked today?", status: "ok", label: "12 masked", title: "What the agent sees",
+      lines: ["Noah Nguyen   ******1957", "Priya Martin  ******4028", "Ethan Ali     ******2727"],
+      note: "Medicare numbers are hidden by policy.",
     },
     otherClinic: {
-      prompt: "Show Westside's patients",
-      why: "Row-level security tied to this agent's role hides other clinics. Postgres returns nothing instead of an error, so there's nothing to leak.",
-      sql: "SELECT full_name FROM patients WHERE clinic_id = 2", status: "ok", label: "0 rows", title: "Agent received",
-      meta: "Row-level security only shows clinic 1",
-      detail: "[]   -- clinic 2 is invisible to this agent, no error raised",
+      prompt: "Show Westside's patients", status: "ok", label: "0 rows", title: "Nothing returned",
+      note: "Other clinics are invisible to this agent.",
     },
     notes: {
-      prompt: "Summarise Noah's notes",
-      why: "The scheduling-bot role has no grant on clinical_notes, so Postgres itself refused. Lokra didn't have to guess.",
-      sql: "SELECT note FROM clinical_notes", status: "err", label: "Refused", title: "Refused by Postgres",
-      meta: "This agent's role has no grant on the table",
-      detail: "permission denied for table clinical_notes",
+      prompt: "Read Noah's notes", status: "err", label: "Refused", title: "Refused by Postgres",
+      note: "This agent has no access to clinical notes.",
     },
     drop: {
-      prompt: "Drop the patients table",
-      why: "Only one statement per call, sent as a prepared statement. Even if it slipped through, this role can't drop tables.",
-      sql: "COMMIT; DROP TABLE patients", status: "err", label: "Blocked", title: "Blocked before the database",
-      meta: "Stacked statements are rejected, and the role can't drop tables anyway",
-      detail: "send exactly one SQL statement per call",
+      prompt: "Drop the patients table", status: "err", label: "Blocked", title: "Blocked",
+      note: "Destructive statements never reach the database.",
     },
   };
-
-  const INITIAL = [
-    { time: "09:41:02", ...SCENARIOS.patients },
-    { time: "09:41:19", ...SCENARIOS.notes },
-    { time: "09:42:05", appt: 1, prompt: "Cancel Noah's appointment on Monday", sql: "UPDATE appointments SET status='cancelled' WHERE id=1", status: "wait", label: "Needs approval", writeId: "w_443d8430" },
-    {
-      time: "09:42:31", agent: "research-agent", who: "priya", prompt: "Find notes that mention a Medicare number",
-      why: "Identifiers inside free text are detected and masked too: Medicare, IHI, email and phone.",
-      sql: "SELECT note FROM clinical_notes", status: "ok", label: "31 masked", title: "Agent received",
-      meta: "40 notes across 3 clinics · identifiers masked in free text",
-      detail: '"Medicare [MEDICARE] verified, best contact [PHONE]."\n"IHI [IHI] attached to eReferral."\n"Asked for results by email ([EMAIL])."',
-    },
-    { time: "09:43:10", ...SCENARIOS.drop },
+  const APPOINTMENTS = [
+    ["Noah", "Noah Nguyen", "Mon 10:00", "Monday"], ["Priya", "Priya Martin", "Tue 12:00", "Tuesday"],
+    ["Ethan", "Ethan Ali", "Wed 09:00", "Wednesday"], ["Aisha", "Aisha Lee", "Thu 15:00", "Thursday"],
   ];
 
-  const APPOINTMENTS = {
-    1: ["Noah Nguyen", "Mon 10:00"], 2: ["Priya Martin", "Tue 12:00"], 3: ["Ethan Ali", "Wed 09:00"],
-    4: ["Aisha Lee", "Wed 15:00"], 5: ["Leo Sharma", "Thu 09:30"], 6: ["Mia Chen", "Thu 14:00"],
-  };
-  const appointment = (n) => APPOINTMENTS[n] || ["Olivia Smith", "Fri 11:00"];
-  const WRITE_WHY = "Every write is dry-run first and waits for a person. Nothing changes until someone approves.";
-  const chips = [...demo.querySelectorAll("[data-run]")];
-  const playButton = $("[data-play]");
-  let entries, chain, nextAppointment, selectedId, nextId, clock, playing = false;
+  let entries, nextAppointment, selectedId, nextId, playing = false;
 
-  const hash = (text) => {
-    let h = 0x811c9dc5;
-    for (const ch of text) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
-    return h.toString(16).padStart(8, "0");
-  };
-  const pad = (n) => String(n).padStart(2, "0");
-  const now = () => {
-    clock += 6 + Math.floor(Math.random() * 18);
-    return `${pad(Math.floor(clock / 3600) % 24)}:${pad(Math.floor(clock / 60) % 60)}:${pad(clock % 60)}`;
-  };
-  const randomId = () => "w_" + Math.random().toString(16).slice(2, 10);
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -81,15 +46,17 @@ if (demo) {
     return node;
   };
 
+  function pendingEntry(index) {
+    const [first, , , day] = APPOINTMENTS[index % APPOINTMENTS.length];
+    return { prompt: `Cancel ${first}'s ${day} appointment`, status: "wait", label: "Needs approval", appt: index % APPOINTMENTS.length };
+  }
+
   function reset(clean = false) {
-    chain = 34;
-    clock = 9 * 3600 + 43 * 60 + 10;
-    nextAppointment = 2;
     nextId = 0;
-    entries = clean ? [] : INITIAL.map((e, i) => ({ agent: "scheduling-bot", who: "sam", ...e, id: nextId++, seq: chain - INITIAL.length + 1 + i }));
-    selectedId = clean ? null : entries.find((e) => e.status === "wait").id;
-    entries.forEach((e) => { if (e.status === "wait") e.createdAt = Date.now() - 19000; });
-    demo.querySelector('[data-run="cancel"]').textContent = "Cancel appointment #2";
+    nextAppointment = clean ? 0 : 1;
+    entries = clean ? [] : [SCENARIOS.patients, SCENARIOS.notes, pendingEntry(0), SCENARIOS.drop].map((e) => ({ ...e, id: nextId++ }));
+    selectedId = clean ? null : entries[2].id;
+    chips.forEach((c) => c.classList.remove("active"));
     render();
   }
 
@@ -97,244 +64,130 @@ if (demo) {
     ledgerBody.replaceChildren();
     if (!entries.length) {
       const tr = el("tr", "empty-row");
-      const td = el("td", "empty", "No requests yet. The walkthrough is about to start.");
-      td.colSpan = 4;
+      const td = el("td", "empty", "Waiting for the agent…");
+      td.colSpan = 2;
       tr.append(td);
       ledgerBody.append(tr);
     }
-    for (const e of entries.slice(-6)) {
+    for (const e of entries.slice(-5)) {
       const tr = el("tr", [e.fresh && "fresh", e.id === selectedId && "sel"].filter(Boolean).join(" "));
       tr.tabIndex = 0;
       tr.dataset.id = e.id;
-      tr.setAttribute("aria-selected", String(e.id === selectedId));
-      const agent = el("td");
-      agent.append(el("span", "who", e.agent), el("span", "for", e.who === "—" ? "human" : `for ${e.who}`));
       const result = el("td");
       result.append(el("span", `b ${e.status}`, e.label));
-      const q = el("td", "q", e.sql);
-      q.title = e.sql;
-      tr.append(el("td", "t", e.time), agent, q, result);
+      tr.append(el("td", "ask-cell", e.prompt), result);
       ledgerBody.append(tr);
       delete e.fresh;
     }
   }
 
-  function remaining(e) {
-    const left = Math.max(0, 3600 - Math.floor((Date.now() - (e.createdAt || Date.now())) / 1000));
-    return `expires in ${pad(Math.floor(left / 60))}:${pad(left % 60)}`;
-  }
-
-  function diffBox(e, final) {
-    const [patient, when] = appointment(e.appt);
+  function diffBox(e) {
+    const [, name, when] = APPOINTMENTS[e.appt];
     const box = el("div", "diff");
     const head = el("div", "diff-head");
-    head.append(el("b", null, `Appointment #${e.appt}`), el("span", null, `${patient} · ${when}`));
+    head.append(el("b", null, name), el("span", null, when));
     const row = el("div", "diff-row");
     const change = el("span");
     change.append(el("span", "old", "booked"), el("span", "arrow", "→"), el("span", "new", "cancelled"));
     row.append(el("span", "k", "status"), change);
-    box.append(head, row, el("div", "diff-foot", final ? `1 row changed in ${e.ms} ms` : "Dry run: 1 row would change, nothing else is touched"));
+    box.append(head, row);
     return box;
-  }
-
-  function sqlToggle(sql) {
-    const wrap = el("div");
-    wrap.style.width = "100%";
-    const button = el("button", "toggle-sql", "Show SQL");
-    button.type = "button";
-    button.dataset.toggleSql = "";
-    const code = el("code", "sql", sql);
-    code.hidden = true;
-    code.style.marginTop = "8px";
-    wrap.append(button, code);
-    return wrap;
   }
 
   function renderInspector() {
     const e = entries.find((x) => x.id === selectedId) || entries[entries.length - 1];
+    inspector.replaceChildren();
     if (!e) {
-      inspector.replaceChildren(el("h3", null, "Waiting for the agent…"), el("p", "meta", "Each question appears here with what Lokra did and why."));
+      inspector.append(el("h3", null, "Ask the agent something"), el("p", "meta", "Or press Play to watch a walkthrough."));
       return;
     }
-    const ask = () => e.prompt && inspector.append(el("p", "ask", `“${e.prompt}”`));
-    const why = (text) => {
-      if (!text) return;
-      const p = el("p", "why");
-      p.append(el("span", "i", "i"), el("span", null, text));
-      inspector.append(p);
-    };
-    const requester = () => {
-      const r = el("div", "requester");
-      const who = el("div");
-      who.append(el("div", "name", e.agent), el("div", "sub2", `asking on behalf of ${e.who}`));
-      r.append(el("span", "avatar", e.agent === "research-agent" ? "RA" : "SB"), who);
-      inspector.append(r);
-    };
-    inspector.replaceChildren();
-
+    if (e.status === "run") {
+      inspector.append(el("span", "b run", "Checking"), el("h3", null, e.prompt));
+      return;
+    }
     if (e.status === "wait") {
-      const top = el("div", "ins-top");
-      const timer = el("span", "timer", remaining(e));
-      timer.dataset.timer = "";
-      top.append(el("span", "b wait", "Needs approval"), timer);
-      inspector.append(top, el("h3", null, "Approve this write?"));
-      requester();
-      ask();
-      inspector.append(diffBox(e, false), sqlToggle(e.sql));
+      inspector.append(el("span", "b wait", "Needs approval"), el("h3", null, "Approve this change?"), el("p", "meta", "scheduling-bot · for sam"), diffBox(e));
       const decide = el("div", "decide");
-      for (const [act, text, key] of [["deny", "Deny", "esc"], ["approve", "Approve", "↵"]]) {
-        const b = el("button", act === "approve" ? "btn-sm yes" : "btn-sm");
-        b.type = "button";
-        b.dataset.act = act;
-        b.append(el("span", "lbl", text), el("span", "kbd", key));
-        decide.append(b);
+      for (const [act, text] of [["deny", "Deny"], ["approve", "Approve"]]) {
+        const button = el("button", act === "approve" ? "btn-sm yes" : "btn-sm", text);
+        button.type = "button";
+        button.dataset.act = act;
+        decide.append(button);
       }
       inspector.append(decide);
-      why(WRITE_WHY);
-    } else if (e.status === "run") {
-      inspector.append(el("span", "b run", "Running"), el("h3", null, "Checking policy…"));
-      requester();
-      ask();
-      inspector.append(el("code", "sql", e.sql));
-    } else if (e.decision) {
+      return;
+    }
+    if (e.decision) {
       const approved = e.decision === "approved";
       const head = el("div", "outcome");
-      head.append(el("span", `mark ${approved ? "ok" : "err"}`, approved ? "✓" : "✕"), el("h3", null, approved ? "Approved and executed" : "Denied, nothing changed"));
-      inspector.append(head, el("p", "meta", approved ? `by you · ran as ${e.agent} for ${e.who}` : `by you · ${e.writeId} closed`));
-      ask();
-      if (approved) inspector.append(diffBox(e, true));
-      inspector.append(sqlToggle(e.sql));
-      why(e.why);
-    } else {
-      inspector.append(el("span", `b ${e.status}`, e.label), el("h3", null, e.title));
-      if (e.agent !== "you") requester();
-      ask();
-      inspector.append(el("p", "meta", e.meta || ""));
-      if (e.detail) inspector.append(el("p", "label", e.status === "err" ? "Response" : "Result"), el("code", "out", e.detail));
-      inspector.append(sqlToggle(e.sql));
-      why(e.why);
+      head.append(el("span", `mark ${approved ? "ok" : "err"}`, approved ? "✓" : "✕"), el("h3", null, approved ? "Approved" : "Denied"));
+      inspector.append(head, el("p", "meta", approved ? "1 row changed, logged with your name." : "Nothing changed. Decision logged."));
+      if (approved) inspector.append(diffBox(e));
+      return;
     }
-    const sig = e.status === "run" ? `ledger #${e.seq} · pending` : `ledger #${e.seq} · ${e.writeId || "hash " + hash(e.time + e.sql + e.label)} · signed`;
-    inspector.append(el("p", "sig", sig));
+    inspector.append(el("span", `b ${e.status}`, e.label), el("h3", null, e.title));
+    if (e.lines) inspector.append(el("code", "out", e.lines.join("\n")));
+    inspector.append(el("p", "meta", e.note));
   }
 
   function render() {
-    $("[data-chain]").textContent = chain;
     renderLedger();
     renderInspector();
   }
 
-  function showTab(name) {
-    demo.querySelectorAll("[data-tab]").forEach((t) => {
-      const on = t.dataset.tab === name;
-      t.classList.toggle("on", on);
-      t.setAttribute("aria-selected", String(on));
-    });
-    demo.querySelectorAll("[data-panel]").forEach((p) => { p.hidden = p.dataset.panel !== name; });
-  }
-
-  function run(key) {
-    showTab("ledger");
-    const n = nextAppointment++;
-    const sql = key === "cancel" ? `UPDATE appointments SET status='cancelled' WHERE id=${n}` : SCENARIOS[key].sql;
-    const prompt = key === "cancel" ? `Cancel appointment #${n}` : SCENARIOS[key].prompt;
-    if (key !== "cancel") nextAppointment--;
-    const entry = { id: nextId++, seq: ++chain, time: now(), agent: "scheduling-bot", who: "sam", sql, prompt, status: "run", label: "Running", fresh: true };
-    demo.querySelector(`[data-run="${key}"]`).classList.add("ran");
-    demo.querySelector('[data-run="cancel"]').textContent = `Cancel appointment #${nextAppointment}`;
+  async function run(key) {
+    const base = key === "cancel" ? pendingEntry(nextAppointment++) : SCENARIOS[key];
+    const entry = { id: nextId++, prompt: base.prompt, status: "run", label: "Checking", fresh: true };
     entries.push(entry);
     selectedId = entry.id;
     render();
-    setTimeout(() => {
-      if (key === "cancel") Object.assign(entry, { status: "wait", label: "Needs approval", writeId: randomId(), appt: n, createdAt: Date.now() });
-      else Object.assign(entry, SCENARIOS[key]);
-      entry.fresh = true;
-      render();
-    }, reduceMotion ? 0 : 600);
-  }
-
-  function decide(approve) {
-    const entry = entries.find((e) => e.id === selectedId);
-    if (!entry || entry.status !== "wait") return;
-    Object.assign(entry, { decision: approve ? "approved" : "denied", ms: 24 + Math.floor(Math.random() * 40) });
-    Object.assign(entry, approve
-      ? { status: "ok", label: "Executed", title: "Executed after approval", meta: "Approved by you · 1 row changed", detail: "UPDATE 1",
-          why: "It ran with the agent's own role, after your approval. The ledger links the request, the approval and the result." }
-      : { status: "err", label: "Denied", title: "Denied", meta: "Denied by you · nothing changed", detail: "write closed without running",
-          why: "Denied writes never reach the database, and the decision is still recorded." });
-    entries.push({
-      id: nextId++, seq: ++chain, time: now(), agent: "you", who: "—", sql: `lokra ${approve ? "approve" : "deny"} ${entry.writeId}`,
-      status: approve ? "ok" : "err", label: approve ? "Approved" : "Denied", title: "Decision recorded",
-      meta: "Signed into the ledger with your name", detail: `${entry.writeId} → ${approve ? "approved" : "denied"}`, fresh: true,
-      why: "Every decision is signed into the ledger, so you can prove who approved what, and when.",
-    });
-    entry.fresh = true;
+    await sleep(THINK);
+    Object.assign(entry, base, { fresh: true });
     render();
   }
 
-  function confirm(approve, button) {
-    const e = entries.find((x) => x.id === selectedId);
-    if (!e || e.status !== "wait" || inspector.querySelector(".decide [disabled]")) return;
+  async function decide(approve) {
+    const entry = entries.find((e) => e.id === selectedId);
+    if (!entry || entry.status !== "wait" || inspector.querySelector(".decide [disabled]")) return;
     inspector.querySelectorAll(".decide button").forEach((b) => { b.disabled = true; });
-    const target = button || inspector.querySelector(`[data-act="${approve ? "approve" : "deny"}"]`);
-    target.querySelector(".lbl").textContent = approve ? "Approving…" : "Denying…";
-    setTimeout(() => decide(approve), reduceMotion ? 0 : 450);
+    inspector.querySelector(`[data-act="${approve ? "approve" : "deny"}"]`).textContent = approve ? "Approving…" : "Denying…";
+    await sleep(reduceMotion ? 0 : 500);
+    Object.assign(entry, approve
+      ? { status: "ok", label: "Approved", decision: "approved", fresh: true }
+      : { status: "err", label: "Denied", decision: "denied", fresh: true });
+    render();
   }
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" && event.key !== "Escape") return;
-    const active = document.activeElement;
-    if (active && active.closest("input, textarea, button, a, tr")) return;
-    const box = demo.getBoundingClientRect();
-    if (box.bottom < 0 || box.top > window.innerHeight) return;
-    const e = entries.find((x) => x.id === selectedId);
-    if (!e || e.status !== "wait") return;
-    event.preventDefault();
-    confirm(event.key === "Enter");
-  });
-
-  setInterval(() => {
-    const timer = inspector.querySelector("[data-timer]");
-    const e = entries.find((x) => x.id === selectedId);
-    if (timer && e) timer.textContent = remaining(e);
-  }, 1000);
 
   function setPlaying(on) {
     playing = on;
     chips.forEach((c) => { c.disabled = on; });
     playButton.disabled = on;
-    playButton.querySelector("[data-play-label]").textContent = on ? "Playing…" : "▶\uFE0E Play";
+    playButton.querySelector("[data-play-label]").textContent = on ? "Playing…" : "▶︎ Play";
     playButton.querySelector(".long").hidden = on;
   }
 
-  function play() {
+  async function play() {
     if (playing) return;
     reset(true);
-    chips.forEach((c) => c.classList.remove("ran"));
-    showTab("ledger");
     setPlaying(true);
-    const steps = ["patients", "otherClinic", "notes", "drop", "cancel"];
-    const gap = reduceMotion ? 700 : 1500;
-    steps.forEach((key, i) => setTimeout(() => {
-      run(key);
-      if (i === steps.length - 1) setTimeout(() => setPlaying(false), reduceMotion ? 0 : 650);
-    }, i * gap));
+    await sleep(reduceMotion ? 0 : 600);
+    for (const key of ["patients", "notes", "drop", "cancel"]) {
+      const chip = demo.querySelector(`[data-run="${key}"]`);
+      chips.forEach((c) => c.classList.toggle("active", c === chip));
+      await run(key);
+      await sleep(HOLD);
+    }
+    chips.forEach((c) => c.classList.remove("active"));
+    setPlaying(false);
   }
 
   demo.addEventListener("click", (event) => {
     const target = event.target.closest("button, tbody tr");
     if (!target) return;
     if (target.hasAttribute("data-play")) play();
-    else if (playing && (target.dataset.run || target.hasAttribute("data-reset"))) return;
+    else if (playing) return;
     else if (target.dataset.run) run(target.dataset.run);
-    else if (target.dataset.tab) showTab(target.dataset.tab);
-    else if (target.hasAttribute("data-reset")) { reset(); chips.forEach((c) => c.classList.remove("ran")); showTab("ledger"); }
-    else if (target.dataset.act) confirm(target.dataset.act === "approve", target);
-    else if (target.hasAttribute("data-toggle-sql")) {
-      const code = target.nextElementSibling;
-      code.hidden = !code.hidden;
-      target.textContent = code.hidden ? "Show SQL" : "Hide SQL";
-    }
+    else if (target.dataset.act) decide(target.dataset.act === "approve");
     else if (target.dataset.id) { selectedId = Number(target.dataset.id); render(); }
   });
   demo.addEventListener("keydown", (event) => {
