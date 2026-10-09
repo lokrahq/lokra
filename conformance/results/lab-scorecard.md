@@ -13,6 +13,8 @@ Each row is a safety guarantee a scoped or read-only database access layer shoul
 | A read must not take write locks (FOR UPDATE) (CWE-667) | ✅ | ❌ |
 | An agent must not read another tenant's rows (CWE-639) | ✅ | ❌ |
 | Sensitive identifiers must be masked in results (CWE-200) | ✅ | ❌ |
+| Masking must survive a renamed column (CWE-200) | ✅ | ❌ |
+| Identifiers inside free text must be masked (CWE-200) | ✅ | ❌ |
 
-- **Lokra**: 9/9 upheld
-- **Naive proxy (keyword filter)**: 0/9 upheld
+- **Lokra**: 11/11 upheld
+- **Naive proxy (keyword filter)**: 0/11 upheld

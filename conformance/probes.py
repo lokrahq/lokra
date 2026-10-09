@@ -84,4 +84,12 @@ PROBES = [
           "Sensitive identifiers must be masked in results",
           "SELECT medicare_number FROM patients LIMIT 1",
           _masked, "CWE-200"),
+    Probe("identifier_alias",
+          "Masking must survive a renamed column",
+          "SELECT medicare_number AS code FROM patients LIMIT 1",
+          _masked, "CWE-200"),
+    Probe("identifier_in_free_text",
+          "Identifiers inside free text must be masked",
+          "SELECT note FROM clinical_notes WHERE note LIKE '%Medicare%' LIMIT 1",
+          _masked, "CWE-200"),
 ]
