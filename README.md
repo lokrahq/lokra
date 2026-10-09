@@ -88,6 +88,20 @@ The lokra.dev site lives in `site/`. Preview it locally with clean URLs:
 python3 scripts/serve_site.py
 ```
 
+## Conformance
+
+`conformance/` is a benchmark of nine safety guarantees a database access layer
+should uphold against a hostile agent (reject stacked statements, no OS command
+execution, no cross-tenant reads, identifiers masked, and more). It scores Lokra
+and a deliberately broken reference. Lokra upholds all nine.
+
+```bash
+python -m conformance.run
+```
+
+Run it only against layers you operate, in the disposable lab. See
+[conformance/README.md](conformance/README.md) for the safety and disclosure rules.
+
 ## Security model
 
 The SQL parser is **not** the security boundary. Several "read-only" database MCP servers
@@ -132,7 +146,7 @@ tests/
 
 - [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
 - [ ] Slack approve/deny buttons instead of the CLI
-- [ ] Attack test suite for database MCP servers
+- [x] Conformance suite: nine safety guarantees, scored in `conformance/`
 - [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters
