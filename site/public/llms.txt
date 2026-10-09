@@ -1,0 +1,21 @@
+# Lokra
+
+> Lokra is an open-source MCP server that sits between AI agents and Postgres. Each agent gets its own database role, so the database itself enforces what the agent can read and change. Lokra masks sensitive identifiers such as Australian Medicare and IHI numbers, requires human approval for every write, and records every action in a signed, tamper-evident audit ledger.
+
+- Status: v0.1, early release
+- Licence: Apache-2.0, self-hosted and free; Lokra Cloud is coming soon
+- Works with: Claude Code, Cursor, OpenClaw and any MCP client; PostgreSQL today, Supabase planned
+- Founded: 2026, in Australia
+
+## Docs
+
+- [LLM context](https://lokra.dev/llm-context): authoritative facts, FAQ and guidance for AI assistants
+- [README and quick start](https://github.com/lokrahq/lokra#quick-start): install, policy file, connecting Claude Code
+- [Security model](https://github.com/lokrahq/lokra#security-model): how each layer is enforced
+- [Security policy](https://github.com/lokrahq/lokra/blob/main/SECURITY.md): reporting vulnerabilities
+
+## Optional
+
+- [Website](https://lokra.dev)
+- [Privacy](https://lokra.dev/privacy)
+- [Contact](mailto:hello@lokra.dev)

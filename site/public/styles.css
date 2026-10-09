@@ -123,7 +123,8 @@ tbody tr.fresh td { animation: flash 1.4s ease-out; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.prose { padding: 72px 0 120px; max-width: 640px; }
+.prose { padding: 72px 28px 120px; }
+.prose > * { max-width: 640px; }
 .prose h1 { font-size: 44px; }
 .prose p { color: var(--muted); font-size: 17px; }
 .prose p a { color: var(--fg); }
@@ -139,6 +140,7 @@ footer a:hover { color: var(--fg); }
 }
 @media (max-width: 640px) {
   .wrap { padding: 0 20px; }
+  .prose { padding: 48px 20px 88px; }
   .links a.hide-sm { display: none; }
   .hero { padding-top: 40px; }
   .sub { font-size: 17px; }
@@ -334,3 +336,17 @@ footer a:hover { color: var(--fg); }
   .flow { padding: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .node, .stages li, .stages i, .w { transition: none; } }
+
+.llm > * { max-width: 760px; }
+.llm p.eyebrow-sm { font-size: 12px; color: var(--faint); margin-bottom: 10px; }
+.llm h2 { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin: 44px 0 12px; }
+.llm h3 { font-size: 16px; font-weight: 500; margin: 22px 0 4px; }
+.llm ul, .llm ol { color: var(--muted); font-size: 16px; padding-left: 20px; margin: 0; display: grid; gap: 8px; }
+.llm li b { color: var(--fg); font-weight: 500; }
+.llm a { color: var(--fg); }
+.llm .quote { border-left: 2px solid var(--hl); padding: 2px 0 2px 16px; color: var(--fg); }
+.facts { width: 100%; border-collapse: collapse; font-size: 15px; border-top: 1px solid var(--line); }
+.facts th { width: 150px; text-align: left; font: 500 13px var(--sans); color: var(--faint); text-transform: none; letter-spacing: 0; padding: 11px 16px 11px 0; vertical-align: top; }
+.facts td { padding: 11px 0; color: var(--muted); }
+.facts th, .facts td { border-bottom: 1px solid var(--line); }
+@media (max-width: 640px) { .facts th { width: 110px; } }
