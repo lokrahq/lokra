@@ -69,25 +69,67 @@ td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}t
 td.t{font:12px var(--mono);color:var(--faint);white-space:nowrap}td.d{color:var(--muted)}
 .ev{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500}.ev::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .ev.read{color:#7a827b}.ev.ok{color:var(--grn)}.ev.wait{color:var(--amb)}.ev.err{color:var(--red)}
-@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.grid2{grid-template-columns:1fr}.rail{display:none}main{padding:22px}td.hide{display:none}}
+[hidden]{display:none!important}
+/* policy editor */
+.note{display:flex;gap:11px;align-items:flex-start;background:linear-gradient(90deg,#fffdf6,#fff);border:1px solid #f0e6c8;border-left:3px solid var(--amb);border-radius:12px;padding:13px 16px;margin-bottom:20px;color:#92590e;font-size:13px}
+.note svg{width:17px;height:17px;flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pcols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.cfg{margin-bottom:18px}
+.ph2{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ph2 h2{font-size:17px;font-weight:600;letter-spacing:-.02em;margin:0}
+label.fl{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:0 0 5px}
+input,select,textarea{font:inherit;font-size:13.5px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 11px;width:100%;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:0;border-color:#b9c3b7;box-shadow:0 0 0 3px rgba(21,163,74,.1)}
+input::placeholder{color:var(--faint)}
+textarea{resize:vertical;min-height:38px;line-height:1.4}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23656b66' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
+.acard{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);padding:20px 22px;margin-bottom:16px}
+.acard .ah{display:flex;gap:12px;align-items:center;margin-bottom:4px}
+.acard .ah input{font-size:16px;font-weight:600;letter-spacing:-.01em;border-color:transparent;background:var(--soft)}
+.acard .role{font:12px var(--mono);color:var(--faint);margin:0 0 14px 2px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.fgrid .full{grid-column:1/-1}
+.sub2{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px}
+.grow{display:grid;grid-template-columns:1fr 1.3fr auto;gap:9px;align-items:center;margin-bottom:8px}
+.gwrite{grid-template-columns:1fr auto auto}
+.ops{display:flex;gap:6px}
+.op{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:6px 9px;cursor:pointer;user-select:none}
+.op input{width:auto;margin:0}
+.op.on{background:var(--grn-soft);border-color:#bbf0cb;color:#15803d}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;cursor:pointer;user-select:none}
+.chk input{width:auto;margin:0}.chk.on{background:var(--blu-soft);border-color:#bcdffb;color:#0369a1}
+.dets{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:13px;font-weight:500;border-radius:9px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);transition:.15s}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.primary:hover{background:#000}.btn.primary:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;border-style:dashed;color:var(--muted);width:100%;padding:9px}
+.btn.ghost:hover{border-color:#b9c3b7;color:var(--ink);background:var(--soft)}
+.ix{border:0;background:transparent;color:var(--faint);cursor:pointer;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;transition:.15s}
+.ix:hover{background:var(--red-soft);color:var(--red)}.ix svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+.savebar{position:sticky;bottom:0;margin:22px -40px -70px;padding:16px 40px;background:rgba(246,248,244,.86);backdrop-filter:blur(8px);border-top:1px solid var(--line);display:flex;align-items:center;gap:16px}
+.savemsg{font-size:13px;color:var(--muted);flex:1;min-width:0}.savemsg.err{color:var(--red)}.savemsg.ok{color:var(--grn)}
+.savemsg pre{font:12px/1.5 var(--mono);color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:8px 0 0;max-height:150px;overflow:auto;white-space:pre-wrap}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv .k{color:var(--muted)}.kv .v{font:12.5px var(--mono);color:var(--ink)}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}.grid,.grid2,.pcols{grid-template-columns:1fr}.rail{display:none}main{padding:22px}td.hide{display:none}.savebar{margin:22px -22px -70px;padding:14px 22px}}
 </style>
 </head>
 <body>
 <nav class="rail">
   <span class="logo"><svg viewBox="21.5 26 57 48"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg></span>
-  <button class="on" title="Overview"><svg viewBox="0 0 24 24"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM4 20h7v-5H4zM13 8h7V4h-7z"/></svg></button>
-  <button title="Agents"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 19c.7-3 2.7-4.5 5-4.5s4.3 1.5 5 4.5"/><path d="M16 6.5a3 3 0 0 1 0 5"/></svg></button>
-  <button title="Activity"><svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg></button>
-  <button title="Policy"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></button>
+  <button class="on" data-view="overview" title="Overview"><svg viewBox="0 0 24 24"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM4 20h7v-5H4zM13 8h7V4h-7z"/></svg></button>
+  <button data-view="policy" title="Agents"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 19c.7-3 2.7-4.5 5-4.5s4.3 1.5 5 4.5"/><path d="M16 6.5a3 3 0 0 1 0 5"/></svg></button>
+  <button data-view="overview" title="Activity"><svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg></button>
+  <button data-view="policy" title="Policy"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></button>
   <span class="sp"></span>
-  <button title="Ledger"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12.5l1.8 1.8L15.6 10"/></svg></button>
+  <button data-view="overview" title="Ledger"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12.5l1.8 1.8L15.6 10"/></svg></button>
 </nav>
 <main>
   <div class="top">
-    <div><h1>Overview</h1><div class="sub" data-sub>Loading your ledger…</div></div>
+    <div><h1 data-title>Overview</h1><div class="sub" data-sub>Loading your ledger…</div></div>
     <span class="pill" data-status><span class="dot"></span><span data-status-text>…</span></span>
   </div>
 
+  <section data-view="overview">
   <div class="kpis">
     <div class="kpi"><div class="ic b"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M4 19c.7-3 2.7-4.5 5-4.5s4.3 1.5 5 4.5"/><path d="M16 6.5a3 3 0 0 1 0 5"/></svg></div><div class="lbl">Agents</div><div class="val" data-kpi="agents">–</div><div class="ctx" data-ctx="agents">&nbsp;</div></div>
     <div class="kpi"><div class="ic n"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div><div class="lbl">Statements</div><div class="val" data-kpi="entries">–</div><div class="ctx" data-ctx="entries">&nbsp;</div></div>
@@ -119,13 +161,67 @@ td.t{font:12px var(--mono);color:var(--faint);white-space:nowrap}td.d{color:var(
     <div class="ph"><h2>Recent activity</h2><small>live · every 4s</small></div>
     <table><thead><tr><th>Time</th><th>Agent</th><th>Event</th><th class="hide">Detail</th></tr></thead><tbody data-recent></tbody></table>
   </div>
+  </section>
+
+  <section data-view="policy" hidden>
+    <div class="note"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      <div>Saving rewrites <b>policies.yaml</b> and reprovisions the database roles on this machine. Removing an agent drops its database role. Changes take effect immediately.</div></div>
+    <div class="pcols">
+      <div>
+        <div class="ph2"><h2>Agents</h2><button class="btn" data-add-agent>+ Add agent</button></div>
+        <div data-agents></div>
+      </div>
+      <div>
+        <div class="panel cfg">
+          <div class="ph2"><h2>Masking by column</h2></div>
+          <div data-cols></div>
+          <button class="btn ghost" data-add-col>+ Add column rule</button>
+        </div>
+        <div class="panel cfg">
+          <div class="ph2"><h2>Value detectors</h2></div>
+          <p class="role" style="margin:-6px 0 12px 0">Mask these wherever they appear, including free text.</p>
+          <div class="dets" data-dets></div>
+        </div>
+        <div class="panel cfg">
+          <div class="ph2"><h2>Settings</h2></div>
+          <label class="fl">Write approval window (seconds)</label>
+          <input type="number" min="1" data-ttl>
+          <div style="margin-top:16px">
+            <div class="kv"><span class="k">Database host</span><span class="v" data-db="host"></span></div>
+            <div class="kv"><span class="k">Port</span><span class="v" data-db="port"></span></div>
+            <div class="kv"><span class="k">Database</span><span class="v" data-db="dbname"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="savebar">
+      <div class="savemsg" data-save-msg>Edit the policy, then save to apply it to the database.</div>
+      <button class="btn" data-reload>Reset</button>
+      <button class="btn primary" data-save>Save &amp; apply</button>
+    </div>
+  </section>
 </main>
 
 <script>
 const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
 const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const COLORS=["#15a34a","#0ea5e9","#f59e0b","#8b5cf6","#ef4444","#14b8a6","#64748b","#e11d48"];
 const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok",write_approved:"ok",write_proposed:"wait",rejected:"err",db_refused:"err",write_denied:"err",denied:"err"}[ev]||"read");
+const TRASH='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>';
+
+/* ---------- view switching ---------- */
+const TITLES={overview:"Overview",policy:"Policy & agents"};
+function show(view){
+  $$("[data-view]").forEach(n=>{if(n.tagName==="SECTION")n.hidden=n.dataset.view!==view;});
+  $$(".rail button").forEach(b=>b.classList.toggle("on",b.dataset.view===view));
+  $("[data-title]").textContent=TITLES[view]||"Overview";
+  if(view==="policy"&&!policyLoaded)loadPolicy();
+}
+$$(".rail button[data-view]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.view)));
+
+/* ---------- overview ---------- */
 function niceMax(v){if(v<=5)return 5;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;const s=n<=1?1:n<=2?2:n<=5?5:10;return s*p;}
 function chart(ev){
   const g=[["Reads",ev.read||0,"b-read"],["Blocked",(ev.rejected||0)+(ev.db_refused||0)+(ev.denied||0),"b-blocked"],["Writes",ev.write_executed||0,"b-writes"],["Proposed",ev.write_proposed||0,"b-proposed"]];
@@ -139,7 +235,7 @@ function chart(ev){
 function donut(byType){
   const items=Object.entries(byType).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const total=items.reduce((a,[,v])=>a+v,0);const C=2*Math.PI*15.9155;let off=0;
-  const seg=items.map(([k,v],i)=>{const frac=total?v/total:0;const dash=(frac*C).toFixed(2);const el=`<circle cx="18" cy="18" r="15.9155" fill="none" stroke="${COLORS[i%COLORS.length]}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${Math.max(0,dash-1).toFixed(2)} ${(C-dash+1).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 18 18)"/>`;off+=frac;return el;}).join("");
+  const seg=items.map(([k,v],i)=>{const frac=total?v/total:0;const dash=(frac*C).toFixed(2);const e=`<circle cx="18" cy="18" r="15.9155" fill="none" stroke="${COLORS[i%COLORS.length]}" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="${Math.max(0,dash-1).toFixed(2)} ${(C-dash+1).toFixed(2)}" stroke-dashoffset="${(-off*C).toFixed(2)}" transform="rotate(-90 18 18)"/>`;off+=frac;return e;}).join("");
   $("[data-donut]").innerHTML=`<circle cx="18" cy="18" r="15.9155" fill="none" stroke="#eef1ec" stroke-width="4.5"/>`+seg;
   $("[data-donut-total]").textContent=total;
   $("[data-legend]").innerHTML=items.map(([k,v],i)=>`<div class="li"><span class="sw" style="background:${COLORS[i%COLORS.length]}"></span><span class="nm">${esc(k)}</span><span class="ct">${v}</span></div>`).join("")||'<div class="nm" style="color:var(--faint)">nothing masked yet</div>';
@@ -168,6 +264,127 @@ async function load(){
   $("[data-reasons]").innerHTML=rs.length?rs.map(x=>`<div class="reason"><div class="rr"><span class="rt">${esc(x.reason)}</span><b>${x.count}</b></div><div class="track"><div class="fill" style="width:${Math.round(x.count/rmax*100)}%"></div></div></div>`).join(""):'<div class="nm" style="color:var(--faint)">nothing blocked</div>';
   $("[data-recent]").innerHTML=d.recent.map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d hide">${esc(e.detail)}</td></tr>`).join("");
 }
+
+/* ---------- policy editor ---------- */
+let OPTS={write_ops:["insert","update","delete"],detectors:[],strategies:["none","redact","year_only","hash","last2","last3","last4"]};
+let policyLoaded=false;
+
+function colsToText(c){return c==="*"||(Array.isArray(c)&&(c.length===0||c[0]==="*"))?"*":(Array.isArray(c)?c.join(", "):String(c));}
+
+function readRow(table,cols){
+  const row=el("div","grow");
+  row.innerHTML=`<input data-k="table" placeholder="table" value="${esc(table)}">`+
+    `<input data-k="cols" placeholder="columns (comma-separated, or *)" value="${esc(cols)}">`;
+  const rm=el("button","ix",TRASH);rm.type="button";rm.onclick=()=>row.remove();
+  row.appendChild(rm);
+  return row;
+}
+function writeRow(table,ops){
+  const row=el("div","grow gwrite");
+  const tin=el("input");tin.setAttribute("data-k","table");tin.placeholder="table";tin.value=table||"";
+  row.appendChild(tin);
+  const opsWrap=el("div","ops");
+  OPTS.write_ops.forEach(o=>{
+    const on=ops.includes(o);
+    const lab=el("label","op"+(on?" on":""),`<input type="checkbox" data-op="${o}" ${on?"checked":""}>${o}`);
+    lab.querySelector("input").addEventListener("change",e=>lab.classList.toggle("on",e.target.checked));
+    opsWrap.appendChild(lab);
+  });
+  row.appendChild(opsWrap);
+  const rm=el("button","ix",TRASH);rm.type="button";rm.onclick=()=>row.remove();
+  row.appendChild(rm);
+  return row;
+}
+function agentCard(a){
+  a=a||{name:"",description:"",clinic_ids:[],read:[],write:[],max_rows:200};
+  const card=el("div","acard");
+  const head=el("div","ah");
+  head.innerHTML=`<input data-k="name" placeholder="agent-name" value="${esc(a.name)}">`;
+  const rm=el("button","ix",TRASH);rm.type="button";rm.title="Remove agent";rm.onclick=()=>card.remove();
+  head.appendChild(rm);
+  card.appendChild(head);
+  const role=el("p","role","role: "+(a.name?roleName(a.name):"lokra_…"));card.appendChild(role);
+  head.querySelector("input").addEventListener("input",e=>role.textContent="role: "+(e.target.value?roleName(e.target.value):"lokra_…"));
+  const fg=el("div","fgrid");
+  fg.innerHTML=`<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`+
+    `<div><label class="fl">Clinic IDs</label><input data-k="clinics" placeholder="e.g. 1, 2" value="${esc((a.clinic_ids||[]).join(", "))}"></div>`+
+    `<div><label class="fl">Max rows per read</label><input type="number" min="1" data-k="maxrows" value="${esc(a.max_rows||200)}"></div>`;
+  card.appendChild(fg);
+  card.appendChild(el("div","sub2",null)).textContent="Can read";
+  const reads=el("div","reads");(a.read&&a.read.length?a.read:[]).forEach(r=>reads.appendChild(readRow(r.table,colsToText(r.columns))));
+  card.appendChild(reads);
+  const addR=el("button","btn ghost","+ Add readable table");addR.type="button";addR.onclick=()=>reads.appendChild(readRow("",""));card.appendChild(addR);
+  card.appendChild(el("div","sub2",null)).textContent="Can write";
+  const writes=el("div","writes");(a.write&&a.write.length?a.write:[]).forEach(w=>writes.appendChild(writeRow(w.table,w.ops||[])));
+  card.appendChild(writes);
+  const addW=el("button","btn ghost","+ Add writable table");addW.type="button";addW.onclick=()=>writes.appendChild(writeRow("",[]));card.appendChild(addW);
+  card._reads=reads;card._writes=writes;
+  return card;
+}
+function roleName(n){return "lokra_"+n.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");}
+
+function colRule(column,strategy){
+  const row=el("div","grow");
+  const opts=OPTS.strategies.map(s=>`<option ${s===strategy?"selected":""}>${s}</option>`).join("");
+  row.innerHTML=`<input data-k="column" placeholder="column name" value="${esc(column)}"><select data-k="strategy">${opts}</select>`;
+  const rm=el("button","ix",TRASH);rm.type="button";rm.onclick=()=>row.remove();
+  row.appendChild(rm);
+  return row;
+}
+
+function renderPolicy(p){
+  OPTS=p.options||OPTS;
+  const ac=$("[data-agents]");ac.innerHTML="";
+  p.agents.forEach(a=>ac.appendChild(agentCard(a)));
+  const cc=$("[data-cols]");cc.innerHTML="";
+  p.masking.columns.forEach(c=>cc.appendChild(colRule(c.column,c.strategy)));
+  const dd=$("[data-dets]");dd.innerHTML="";
+  OPTS.detectors.forEach(d=>{
+    const on=p.masking.detectors.includes(d);
+    const lab=el("label","chk"+(on?" on":""),`<input type="checkbox" data-det="${d}" ${on?"checked":""}>${d}`);
+    lab.querySelector("input").addEventListener("change",e=>lab.classList.toggle("on",e.target.checked));
+    dd.appendChild(lab);
+  });
+  $("[data-ttl]").value=p.approval_ttl_seconds;
+  $('[data-db="host"]').textContent=p.database.host;
+  $('[data-db="port"]').textContent=p.database.port;
+  $('[data-db="dbname"]').textContent=p.database.dbname;
+  $("[data-add-agent]").onclick=()=>ac.appendChild(agentCard(null));
+  $("[data-add-col]").onclick=()=>cc.appendChild(colRule("",OPTS.strategies[0]));
+}
+function gather(){
+  const agents=$$("[data-agents] .acard").map(card=>{
+    const v=k=>{const n=card.querySelector(`.ah [data-k="${k}"],.fgrid [data-k="${k}"]`);return n?n.value:"";};
+    const clinics=v("clinics").split(",").map(s=>s.trim()).filter(Boolean).map(Number);
+    const read=[...card._reads.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),columns:r.querySelector('[data-k="cols"]').value.trim()})).filter(r=>r.table);
+    const write=[...card._writes.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),ops:[...r.querySelectorAll("[data-op]")].filter(x=>x.checked).map(x=>x.dataset.op)})).filter(r=>r.table);
+    return {name:v("name").trim(),description:v("description").trim(),clinic_ids:clinics,read,write,max_rows:Number(v("maxrows")||200)};
+  });
+  const columns=$$("[data-cols] .grow").map(r=>({column:r.querySelector('[data-k="column"]').value.trim(),strategy:r.querySelector('[data-k="strategy"]').value})).filter(r=>r.column);
+  const detectors=$$("[data-dets] [data-det]").filter(x=>x.checked).map(x=>x.dataset.det);
+  return {agents,masking:{columns,detectors},approval_ttl_seconds:Number($("[data-ttl]").value||3600)};
+}
+async function loadPolicy(){
+  try{const p=await (await fetch("/api/policy",{cache:"no-store"})).json();renderPolicy(p);policyLoaded=true;}
+  catch(e){msg("Could not load the policy.","err");}
+}
+function msg(text,cls,log){
+  const m=$("[data-save-msg]");m.className="savemsg"+(cls?" "+cls:"");
+  m.innerHTML=esc(text)+(log&&log.length?`<pre>${esc(log.join("\n"))}</pre>`:"");
+}
+async function savePolicy(){
+  const btn=$("[data-save]");btn.disabled=true;msg("Applying…","");
+  try{
+    const res=await fetch("/api/policy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(gather())});
+    const r=await res.json();
+    if(r.ok){msg(`Applied. ${r.roles.length} role${r.roles.length===1?"":"s"} provisioned.`,"ok",r.log);await loadPolicy();}
+    else{msg(r.error||"Could not apply the policy.","err");}
+  }catch(e){msg("Request failed — is the dashboard still running?","err");}
+  btn.disabled=false;
+}
+$("[data-save]").addEventListener("click",savePolicy);
+$("[data-reload]").addEventListener("click",()=>{policyLoaded=false;loadPolicy();msg("Reloaded from policies.yaml.","");});
+
 load();setInterval(load,4000);
 </script>
 </body>

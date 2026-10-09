@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import psycopg
 import pytest
@@ -222,4 +223,70 @@ def test_dashboard_api_payload(cfg):
     assert payload["report"]["chain_verified"] is True
     assert isinstance(payload["recent"], list)
     assert any(a["agent"] == "test-scheduler" for a in payload["report"]["agents"])
-    make_handler(cfg)  # loads the packaged dashboard.html
+    make_handler(cfg, LAB_ADMIN_DSN)  # loads the packaged dashboard.html
+
+
+def test_dashboard_applies_policy_and_drops_removed_roles(tmp_path):
+    from lokra.dashboard import apply_policy, policy_payload
+    (tmp_path / "policies.yaml").write_text(
+        "database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+        "agents:\n  ui-alpha:\n    clinic_ids: [1]\n    read: {patients: [id, clinic_id]}\n    max_rows: 10\n"
+        "  ui-beta:\n    clinic_ids: [2]\n    read: {clinics: \"*\"}\n"
+        "masking: {columns: {}, detectors: []}\n")
+    c = load_config(tmp_path / "policies.yaml")
+    try:
+        provision(c, LAB_ADMIN_DSN)
+        payload = policy_payload(c)
+        assert {a["name"] for a in payload["agents"]} == {"ui-alpha", "ui-beta"}
+        # drop ui-beta, add a write grant to ui-alpha, through the same path the UI uses
+        new = {
+            "agents": [{"name": "ui-alpha", "clinic_ids": [1],
+                        "read": [{"table": "patients", "columns": "id, clinic_id"}],
+                        "write": [{"table": "appointments", "ops": ["insert"]}], "max_rows": 10}],
+            "masking": {"columns": [{"column": "phone", "strategy": "last3"}], "detectors": ["medicare"]},
+            "approval_ttl_seconds": 1800,
+        }
+        res = apply_policy(c, LAB_ADMIN_DSN, new)
+        assert res["ok"] and res["roles"] == ["lokra_ui_alpha"]
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            assert conn.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_ui_beta'").fetchone() is None
+            assert conn.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_ui_alpha'").fetchone() is not None
+        reloaded = policy_payload(load_config(tmp_path / "policies.yaml"))
+        assert reloaded["approval_ttl_seconds"] == 1800
+        assert reloaded["masking"]["detectors"] == ["medicare"]
+    finally:
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            for role in ("lokra_ui_alpha", "lokra_ui_beta"):
+                if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
+                    conn.execute(f"DROP OWNED BY {role}")
+                    conn.execute(f"DROP ROLE IF EXISTS {role}")
+                conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (role,))
+
+
+def test_build_doc_rejects_bad_input():
+    from lokra.dashboard import _build_doc
+    cfg = load_config_stub()
+    with pytest.raises(ValueError):
+        _build_doc(cfg, {"agents": []})
+    with pytest.raises(ValueError):
+        _build_doc(cfg, {"agents": [{"name": "a b/c", "read": []}]})
+    with pytest.raises(ValueError):
+        _build_doc(cfg, {"agents": [{"name": "ok", "max_rows": 5}],
+                         "masking": {"columns": [{"column": "x", "strategy": "bogus"}]}})
+    doc = _build_doc(cfg, {"agents": [{"name": "ok", "clinic_ids": [1],
+                                       "read": [{"table": "patients", "columns": "*"}],
+                                       "write": [{"table": "appointments", "ops": ["insert", "bad"]}],
+                                       "max_rows": 7}],
+                           "masking": {"columns": [{"column": "Phone", "strategy": "last3"}],
+                                       "detectors": ["medicare", "nope"]}})
+    assert doc["agents"]["ok"]["write"] == {"appointments": ["insert"]}
+    assert doc["masking"]["columns"] == {"phone": "last3"}
+    assert doc["masking"]["detectors"] == ["medicare"]
+
+
+def load_config_stub():
+    import tempfile
+    d = tempfile.mkdtemp()
+    p = Path(d) / "policies.yaml"
+    p.write_text("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\nagents: {}\n")
+    return load_config(p)
