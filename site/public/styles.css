@@ -350,3 +350,26 @@ footer a:hover { color: var(--fg); }
 .facts td { padding: 11px 0; color: var(--muted); }
 .facts th, .facts td { border-bottom: 1px solid var(--line); }
 @media (max-width: 640px) { .facts th { width: 110px; } }
+
+.joined > * { max-width: 760px; }
+.joined h1 { margin-top: 18px; }
+.mark.lg { width: 48px; height: 48px; font-size: 22px; }
+.joined .lead-in { font-size: 18px; color: var(--muted); margin: 0 0 56px; }
+.joined .eyebrow-sm { font-size: 12px; color: var(--faint); margin: 0 0 14px; }
+.next { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.next-card { display: flex; flex-direction: column; gap: 6px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; text-decoration: none; transition: border-color .2s, transform .2s; }
+.next-card:hover { border-color: var(--fg); transform: translateY(-2px); }
+.next-card b { font-size: 15px; font-weight: 500; color: var(--fg); margin-top: 8px; }
+.next-card span { font-size: 14px; color: var(--muted); }
+.next-card code { font: 12px/1.7 var(--mono); color: var(--muted); }
+.ni { width: 34px; height: 34px; border-radius: 9px; background: var(--soft); display: grid; place-items: center; color: var(--fg); }
+.ni svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ni svg[fill="currentColor"] { fill: currentColor; stroke: none; }
+.share { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 40px; padding: 16px 20px; border-radius: 14px; background: var(--soft); font-size: 15px; }
+.copy-link { display: none; border: 1px solid var(--line); background: #fff; border-radius: 999px; height: 36px; padding: 0 16px; font: 500 14px var(--sans); color: var(--fg); cursor: pointer; }
+.js .copy-link { display: inline-block; }
+.copy-link:hover { border-color: var(--fg); }
+.back { font-size: 15px; color: var(--muted) !important; text-decoration: none; }
+.back:hover { color: var(--fg) !important; }
+@media (max-width: 760px) { .next { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .next-card { transition: none; } .next-card:hover { transform: none; } }

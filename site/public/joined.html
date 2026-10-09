@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>You're on the list · Lokra</title>
 <meta name="robots" content="noindex">
+<script src="/site.js" defer></script>
 </head>
 <body>
 <header class="wrap nav">
@@ -21,10 +22,36 @@
     <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
   </nav>
 </header>
-<main class="wrap prose">
+<main class="wrap prose joined">
+  <span class="mark ok lg" aria-hidden="true">&#10003;</span>
   <h1>You're on the list.</h1>
-  <p>We'll email you once, when the hosted version is ready. Until then you can <a href="https://github.com/lokrahq/lokra">run Lokra yourself</a>.</p>
-  <p><a class="btn primary" href="/">Back to lokra.dev</a></p>
+  <p class="lead-in">We'll email you once, when Lokra Cloud opens. No newsletters, no spam.</p>
+
+  <p class="eyebrow-sm">While you wait</p>
+  <div class="next">
+    <a class="next-card" href="https://github.com/lokrahq/lokra">
+      <span class="ni"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>
+      <b>Star on GitHub</b>
+      <span>Get notified about new releases.</span>
+    </a>
+    <a class="next-card" href="https://github.com/lokrahq/lokra#quick-start">
+      <span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3M12.5 15H17"/></svg></span>
+      <b>Run it yourself</b>
+      <code>docker compose up -d<br>lokra provision</code>
+    </a>
+    <a class="next-card" href="mailto:hello@lokra.dev?subject=Design%20partner">
+      <span class="ni"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span>
+      <b>Building in healthcare?</b>
+      <span>Become one of our design partners.</span>
+    </a>
+  </div>
+
+  <div class="share">
+    <span>Know a team that needs this?</span>
+    <button type="button" class="copy-link" data-copy-link="https://lokra.dev">Copy link</button>
+  </div>
+
+  <p><a class="back" href="/">&larr; Back to lokra.dev</a></p>
 </main>
 <footer>
   <div class="wrap">

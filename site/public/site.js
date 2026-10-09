@@ -1,5 +1,17 @@
 document.documentElement.classList.add("js");
 
+document.querySelectorAll("[data-copy-link]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.copyLink);
+      button.textContent = "Copied ✓";
+    } catch {
+      button.textContent = "lokra.dev";
+    }
+    setTimeout(() => { button.textContent = "Copy link"; }, 2000);
+  });
+});
+
 const announce = document.querySelector("[data-announce]");
 if (announce) {
   try { if (localStorage.getItem("lokra-announce-hidden") === "1") announce.hidden = true; } catch {}
@@ -436,8 +448,7 @@ if (form) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
-      form.hidden = true;
-      status.textContent = "You're on the list. We'll email you when the hosted version is ready.";
+      window.location.href = "/joined";
     } catch (err) {
       status.textContent = err.message || "Something went wrong. Try again in a moment.";
       button.disabled = false;
