@@ -13,29 +13,56 @@ if (demo) {
   const THINK = reduceMotion ? 0 : 900;
   const HOLD = reduceMotion ? 1800 : 3600;
 
-  const SCENARIOS = {
-    patients: {
-      prompt: "Who's booked today?", status: "ok", label: "12 masked", title: "What the agent sees",
-      lines: ["Noah Nguyen   ******1957", "Priya Martin  ******4028", "Ethan Ali     ******2727"],
-      note: "Medicare numbers are hidden by policy.",
-    },
-    otherClinic: {
-      prompt: "Show Westside's patients", status: "ok", label: "0 rows", title: "Nothing returned",
-      note: "Other clinics are invisible to this agent.",
-    },
-    notes: {
-      prompt: "Read Noah's notes", status: "err", label: "Refused", title: "Refused by Postgres",
-      note: "This agent has no access to clinical notes.",
-    },
-    drop: {
-      prompt: "Drop the patients table", status: "err", label: "Blocked", title: "Blocked",
-      note: "Destructive statements never reach the database.",
-    },
-  };
+  const DEFAULTS = { mask: true, notes: false, cancel: true };
   const APPOINTMENTS = [
     ["Noah", "Noah Nguyen", "Mon 10:00", "Monday"], ["Priya", "Priya Martin", "Tue 12:00", "Tuesday"],
     ["Ethan", "Ethan Ali", "Wed 09:00", "Wednesday"], ["Aisha", "Aisha Lee", "Thu 15:00", "Thursday"],
   ];
+  const RULES = [
+    { key: "mask", label: "Mask Medicare numbers", run: "patients" },
+    { key: "notes", label: "Read clinical notes", run: "notes" },
+    { key: "cancel", label: "Cancel appointments", run: "cancel" },
+  ];
+  const LOCKED = [["Human approval for writes", "Always on"], ["Drop or delete tables", "Always blocked"]];
+  let policy = { ...DEFAULTS };
+  let mode = "result";
+  let showYaml = false;
+
+  function evaluate(key, appt = 0) {
+    if (key === "patients") {
+      return policy.mask
+        ? { prompt: "Who's booked today?", status: "ok", label: "12 masked", title: "What the agent sees",
+            lines: ["Noah Nguyen   ******1957", "Priya Martin  ******4028", "Ethan Ali     ******2727"], note: "Medicare numbers are hidden by policy." }
+        : { prompt: "Who's booked today?", status: "warn", label: "Exposed", title: "What the agent sees",
+            lines: ["Noah Nguyen   4332 18195 7", "Priya Martin  2615 59402 8", "Ethan Ali     4192 83272 7"], note: "Masking is off, so real Medicare numbers reach the agent." };
+    }
+    if (key === "notes") {
+      if (!policy.notes) return { prompt: "Read Noah's notes", status: "err", label: "Refused", title: "Refused by Postgres", note: "This agent has no access to clinical notes." };
+      return policy.mask
+        ? { prompt: "Read Noah's notes", status: "ok", label: "Allowed", title: "What the agent sees",
+            lines: ['"Medicare [MEDICARE] verified."', '"Follow up in 6 weeks."'], note: "Notes are readable, identifiers inside them are still masked." }
+        : { prompt: "Read Noah's notes", status: "warn", label: "Exposed", title: "What the agent sees",
+            lines: ['"Medicare 4332 18195 7 verified."', '"Follow up in 6 weeks."'], note: "Notes are readable, identifiers and all." };
+    }
+    if (key === "drop") {
+      return { prompt: "Drop the patients table", status: "err", label: "Blocked", title: "Blocked", note: "Destructive statements never reach the database." };
+    }
+    const [first, , , day] = APPOINTMENTS[appt % APPOINTMENTS.length];
+    const prompt = `Cancel ${first}'s ${day} appointment`;
+    return policy.cancel
+      ? { prompt, status: "wait", label: "Needs approval", appt: appt % APPOINTMENTS.length }
+      : { prompt, status: "err", label: "Refused", title: "Refused by Postgres", note: "This agent isn't allowed to change appointments." };
+  }
+
+  const isCustom = () => Object.keys(DEFAULTS).some((k) => policy[k] !== DEFAULTS[k]);
+
+  function policyYaml() {
+    const lines = ["agents:", "  scheduling-bot:", "    clinic_ids: [1]", "    read:", "      patients: [id, full_name, medicare_number]", '      appointments: "*"'];
+    if (policy.notes) lines.push("      clinical_notes: [note]");
+    lines.push(...(policy.cancel ? ["    write:", "      appointments: [update]"] : ["    write: {}"]));
+    lines.push("", "masking:", ...(policy.mask ? ["  columns:", "    medicare_number: last4"] : ["  columns: {}"]));
+    return lines.join("\n");
+  }
 
   let entries, nextAppointment, selectedId, nextId, playing = false;
 
@@ -46,16 +73,11 @@ if (demo) {
     return node;
   };
 
-  function pendingEntry(index) {
-    const [first, , , day] = APPOINTMENTS[index % APPOINTMENTS.length];
-    return { prompt: `Cancel ${first}'s ${day} appointment`, status: "wait", label: "Needs approval", appt: index % APPOINTMENTS.length };
-  }
-
   function reset(clean = false) {
     nextId = 0;
     nextAppointment = clean ? 0 : 1;
-    entries = clean ? [] : [SCENARIOS.patients, SCENARIOS.notes, pendingEntry(0), SCENARIOS.drop].map((e) => ({ ...e, id: nextId++ }));
-    selectedId = clean ? null : entries[2].id;
+    entries = clean ? [] : [evaluate("patients"), evaluate("notes"), evaluate("cancel", 0), evaluate("drop")].map((e) => ({ ...e, id: nextId++ }));
+    selectedId = clean ? null : (entries.find((e) => e.status === "wait") || entries[0]).id;
     chips.forEach((c) => c.classList.remove("active"));
     render();
   }
@@ -94,9 +116,62 @@ if (demo) {
     return box;
   }
 
+  function renderSwitcher() {
+    const seg = el("div", "seg");
+    for (const [value, text] of [["result", "Result"], ["policy", "Policy"]]) {
+      const b = el("button", value === mode ? "on" : "", text);
+      b.type = "button";
+      b.dataset.mode = value;
+      if (value === "policy" && isCustom()) b.append(el("span", "custom-dot"));
+      seg.append(b);
+    }
+    inspector.append(seg);
+  }
+
+  function renderPolicy() {
+    const head = el("div", "policy-head");
+    head.append(el("h3", null, "scheduling-bot"));
+    if (isCustom()) head.append(el("span", "b wait", "Custom"));
+    const list = el("ul", "rules");
+    for (const rule of RULES) {
+      const li = el("li", "rule");
+      const sw = el("button", "switch");
+      sw.type = "button";
+      sw.setAttribute("role", "switch");
+      sw.setAttribute("aria-checked", String(policy[rule.key]));
+      sw.setAttribute("aria-label", rule.label);
+      sw.dataset.rule = rule.key;
+      li.append(el("span", null, rule.label), sw);
+      list.append(li);
+    }
+    for (const [label, fixed] of LOCKED) {
+      const li = el("li", "rule locked");
+      li.append(el("span", null, label), el("span", "fixed", fixed));
+      list.append(li);
+    }
+    const foot = el("div", "policy-foot");
+    const yamlButton = el("button", null, showYaml ? "Hide YAML" : "View YAML");
+    yamlButton.type = "button";
+    yamlButton.dataset.yaml = "";
+    foot.append(yamlButton);
+    if (isCustom()) {
+      const resetButton = el("button", null, "Reset to defaults");
+      resetButton.type = "button";
+      resetButton.dataset.defaults = "";
+      foot.append(resetButton);
+    }
+    inspector.append(head, list, foot);
+    if (showYaml) inspector.append(el("code", "out yaml-out", policyYaml()));
+  }
+
   function renderInspector() {
     const e = entries.find((x) => x.id === selectedId) || entries[entries.length - 1];
     inspector.replaceChildren();
+    renderSwitcher();
+    if (mode === "policy") {
+      renderPolicy();
+      return;
+    }
     if (!e) {
       inspector.append(el("h3", null, "Ask the agent something"), el("p", "meta", "Or press Play to watch a walkthrough."));
       return;
@@ -136,7 +211,7 @@ if (demo) {
   }
 
   async function run(key) {
-    const base = key === "cancel" ? pendingEntry(nextAppointment++) : SCENARIOS[key];
+    const base = key === "cancel" ? evaluate("cancel", nextAppointment++) : evaluate(key);
     const entry = { id: nextId++, prompt: base.prompt, status: "run", label: "Checking", fresh: true };
     entries.push(entry);
     selectedId = entry.id;
@@ -184,11 +259,19 @@ if (demo) {
   demo.addEventListener("click", (event) => {
     const target = event.target.closest("button, tbody tr");
     if (!target) return;
-    if (target.hasAttribute("data-play")) play();
+    if (target.hasAttribute("data-play")) { mode = "result"; play(); }
     else if (playing) return;
-    else if (target.dataset.run) run(target.dataset.run);
+    else if (target.dataset.mode) { mode = target.dataset.mode; render(); }
+    else if (target.dataset.rule) {
+      policy[target.dataset.rule] = !policy[target.dataset.rule];
+      if (window.matchMedia("(max-width: 900px)").matches) mode = "result";
+      run(RULES.find((r) => r.key === target.dataset.rule).run);
+    }
+    else if (target.hasAttribute("data-yaml")) { showYaml = !showYaml; render(); }
+    else if (target.hasAttribute("data-defaults")) { policy = { ...DEFAULTS }; render(); }
+    else if (target.dataset.run) { mode = "result"; run(target.dataset.run); }
     else if (target.dataset.act) decide(target.dataset.act === "approve");
-    else if (target.dataset.id) { selectedId = Number(target.dataset.id); render(); }
+    else if (target.dataset.id) { selectedId = Number(target.dataset.id); mode = "result"; render(); }
   });
   demo.addEventListener("keydown", (event) => {
     const row = event.target.closest("tbody tr");
