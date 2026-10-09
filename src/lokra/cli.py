@@ -93,6 +93,23 @@ def cmd_log(args):
         print(f"{e['seq']:>5} {e['ts'][:19]} {e.get('agent', '-'):<18} {e['event']:<15} {str(detail)[:90]}")
 
 
+def cmd_report(args):
+    import json as _json
+    from .report import build_report, format_text, to_dict
+    cfg = _cfg(args)
+    led = Ledger(cfg.ledger_path, cfg.signing_key())
+    chain_ok = led.verify()[0]
+    entries = led.entries()
+    if args.agent:
+        entries = [e for e in entries if e.get("agent") == args.agent or e.get("event") == "denied"]
+    report = build_report(entries)
+    if args.json:
+        print(_json.dumps(to_dict(report, chain_ok), indent=2, default=str))
+    else:
+        print(format_text(report, chain_ok))
+    return 0 if chain_ok else 2
+
+
 def cmd_serve(args):
     if args.config:
         os.environ["LOKRA_CONFIG"] = args.config
@@ -149,6 +166,11 @@ def main(argv=None):
     s = sub.add_parser("log", help="show recent audit entries")
     s.add_argument("-n", type=int, default=20)
     s.set_defaults(fn=cmd_log)
+
+    s = sub.add_parser("report", help="activity and risk report from the audit ledger")
+    s.add_argument("--agent", help="limit to one agent")
+    s.add_argument("--json", action="store_true")
+    s.set_defaults(fn=cmd_report)
 
     s = sub.add_parser("serve", help="run the MCP server (used by Claude Code)")
     s.add_argument("--dev-agent", help="LOCAL DEV ONLY: issue an 8h token for this agent at startup "

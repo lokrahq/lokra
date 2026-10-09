@@ -11,7 +11,7 @@ Lokra sits between AI agents (Claude Code, Cursor, OpenClaw, custom agents) and 
 Postgres database, and lets the database itself decide what each agent may see and change.
 
 Agents today usually get a full database password. Lokra gives each agent its own
-locked-down identity instead, and puts four controls on every request:
+locked-down identity instead, and puts these controls on every request:
 
 1. **Scoped identity.** Each agent logs in as its own Postgres role with only the tables,
    columns and rows its policy allows. Agents receive a short-lived signed token, never a password.
@@ -19,8 +19,8 @@ locked-down identity instead, and puts four controls on every request:
    including inside free-text notes and renamed columns.
 3. **Human approval for writes.** INSERT, UPDATE and DELETE are dry-run, shown with the
    number of rows they would change, and only run after a person approves them.
-4. **Tamper-evident audit ledger.** Every request is written to a hash-chained, signed log
-   recording which agent did what, on behalf of which human.
+4. **Tamper-evident audit ledger, with reporting.** Every request is written to a hash-chained,
+   signed log, and `lokra report` turns it into a per-agent activity and risk summary.
 
 > v0.1, local prototype. The lab uses **synthetic data only**.
 
@@ -88,6 +88,21 @@ The lokra.dev site lives in `site/`. Preview it locally with clean URLs:
 python3 scripts/serve_site.py
 ```
 
+## Reports
+
+The audit ledger is not just a log. `lokra report` reads it back into an activity
+and risk summary: what each agent did, how many sensitive identifiers it touched,
+and plain, explained flags such as repeated blocked statements (a sign of probing
+or prompt injection) or an unusually large read.
+
+```bash
+lokra report            # per-agent activity and risk flags
+lokra report --json     # machine-readable, for a SIEM or an evidence pack
+```
+
+Flags are rules over the ledger, so each one traces back to its entries. This is
+the evidence an auditor asks for, generated from what already happened.
+
 ## Conformance
 
 `conformance/` is a benchmark of nine safety guarantees a database access layer
@@ -146,7 +161,8 @@ tests/
 
 - [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
 - [ ] Slack approve/deny buttons instead of the CLI
-- [x] Conformance suite: nine safety guarantees, scored in `conformance/`
+- [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
+- [x] Activity and risk reports from the ledger (`lokra report`)
 - [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters

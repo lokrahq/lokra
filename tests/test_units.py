@@ -161,3 +161,36 @@ def test_read_allows_safe_functions(sql):
 def test_write_rejects_dangerous_functions():
     with pytest.raises(sqlcheck.SqlRejected, match="not allowed"):
         sqlcheck.check_write("UPDATE appointments SET reason = pg_read_file('/etc/hostname') WHERE id = 1")
+
+
+# ---- report -----------------------------------------------------------
+def test_report_aggregates_and_flags():
+    from lokra.report import build_report, format_text, to_dict
+    entries = []
+    entries += [{"event": "read", "agent": "bot", "on_behalf_of": "sam", "rows": 600,
+                 "masked": {"medicare": 30, "column:last4": 25}, "tables": ["patients"]}]
+    entries += [{"event": "rejected", "agent": "bot", "reason": "x"} for _ in range(4)]
+    entries += [{"event": "write_proposed", "agent": "bot", "would_affect_rows": 1,
+                 "warnings": ["no WHERE clause"]}]
+    entries += [{"event": "write_executed", "agent": "bot", "affected_rows": 1}]
+    entries += [{"event": "denied", "tool": "query", "reason": "expired"}]
+    r = build_report(entries)
+    bot = r["agents"]["bot"]
+    assert bot.reads == 1 and bot.rows_read == 600 and bot.blocked == 4
+    assert bot.masked_total == 55 and bot.writes_executed == 1
+    assert r["identity_denials"] == 1
+    kinds = {k for k, _ in bot.flags}
+    assert {"probing", "broad_read", "phi_volume", "unscoped_write"} <= kinds
+    assert "probing" in str(bot.flags)
+    text = format_text(r, chain_ok=True)
+    assert "bot (for sam)" in text and "chain verified" in text
+    d = to_dict(r, chain_ok=True)
+    assert d["risk_flags"] >= 4 and d["agents"][0]["agent"] == "bot"
+
+
+def test_report_quiet_when_nothing_risky():
+    from lokra.report import build_report
+    entries = [{"event": "read", "agent": "bot", "on_behalf_of": "sam", "rows": 3,
+                "masked": {"medicare": 1}, "tables": ["patients"]}]
+    r = build_report(entries)
+    assert r["total_flags"] == 0 and r["identity_denials"] == 0
