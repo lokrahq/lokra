@@ -16,6 +16,22 @@ FORBIDDEN_NODES = (
 )
 READ_ROOTS = (exp.Select, exp.SetOperation)
 
+# Functions that read files, run programs, reach other systems, change the
+# session, write sequences or stall the connection. Refused at the policy layer
+# so an over-privileged agent role cannot reach them even by mistake; the
+# database role and read-only transaction remain the backstop.
+DANGEROUS_FUNCTIONS = {
+    "pg_read_file", "pg_read_binary_file", "pg_ls_dir", "pg_stat_file",
+    "pg_ls_logdir", "pg_ls_waldir", "lo_import", "lo_export",
+    "dblink", "dblink_exec", "dblink_open", "dblink_send_query", "dblink_connect",
+    "set_config", "set_role",
+    "pg_sleep", "pg_sleep_for", "pg_sleep_until",
+    "nextval", "setval",
+    "pg_terminate_backend", "pg_cancel_backend", "pg_reload_conf",
+    "pg_rotate_logfile", "pg_create_restore_point", "pg_switch_wal",
+    "pg_read_server_files", "pg_execute_server_program",
+}
+
 
 class SqlRejected(Exception):
     pass
@@ -52,6 +68,14 @@ def _forbidden(tree: exp.Expression) -> str | None:
     return None
 
 
+def _dangerous_function(tree: exp.Expression) -> str | None:
+    for node in tree.find_all(exp.Anonymous):
+        name = (node.this or "").lower()
+        if name in DANGEROUS_FUNCTIONS:
+            return name
+    return None
+
+
 def check_read(sql: str) -> Checked:
     tree = _single(sql)
     if isinstance(tree, WRITE_NODES):
@@ -65,6 +89,9 @@ def check_read(sql: str) -> Checked:
         raise SqlRejected("data-modifying statements inside a SELECT (for example in a WITH clause) are not allowed")
     if tree.args.get("locks"):
         raise SqlRejected("row locks (FOR UPDATE / FOR SHARE) are not allowed in read queries")
+    bad = _dangerous_function(tree)
+    if bad:
+        raise SqlRejected(f"the function {bad}() is not allowed")
     return Checked("read", "select", _tables(tree), [])
 
 
@@ -75,6 +102,9 @@ def check_write(sql: str) -> Checked:
     bad = _forbidden(tree)
     if bad:
         raise SqlRejected(f"{bad} is not allowed in a write")
+    bad = _dangerous_function(tree)
+    if bad:
+        raise SqlRejected(f"the function {bad}() is not allowed")
     warnings = []
     if isinstance(tree, (exp.Update, exp.Delete)) and not tree.args.get("where"):
         warnings.append("no WHERE clause: this changes every row the agent can see")

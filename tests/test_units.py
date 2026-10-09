@@ -132,3 +132,32 @@ def test_ledger_detects_forged_rehash(tmp_path):
     led.path.write_text("\n".join(lines) + "\n")
     ok, _, msg = led.verify()
     assert not ok and "signature" in msg
+
+
+@pytest.mark.parametrize("sql", [
+    "SELECT pg_read_file('/etc/hostname')",
+    "SELECT lo_import('/etc/passwd')",
+    "SELECT set_config('role', 'postgres', false)",
+    "SELECT nextval('patients_id_seq')",
+    "SELECT dblink_exec('x')",
+    "SELECT pg_sleep(30)",
+    "SELECT pg_terminate_backend(1)",
+    "SELECT full_name FROM patients WHERE EXISTS (SELECT pg_read_file('/x'))",
+])
+def test_read_rejects_dangerous_functions(sql):
+    with pytest.raises(sqlcheck.SqlRejected, match="not allowed"):
+        sqlcheck.check_read(sql)
+
+
+@pytest.mark.parametrize("sql", [
+    "SELECT count(*) FROM patients",
+    "SELECT upper(full_name), now() FROM patients",
+    "SELECT coalesce(reason, 'none') FROM appointments",
+])
+def test_read_allows_safe_functions(sql):
+    assert sqlcheck.check_read(sql).kind == "read"
+
+
+def test_write_rejects_dangerous_functions():
+    with pytest.raises(sqlcheck.SqlRejected, match="not allowed"):
+        sqlcheck.check_write("UPDATE appointments SET reason = pg_read_file('/etc/hostname') WHERE id = 1")
