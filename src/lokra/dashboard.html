@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lokra dashboard</title>
+<style>
+:root{--bg:#fff;--fg:#0a0a0a;--muted:#666662;--faint:#9b9b96;--line:#ebebe8;--soft:#f6f6f4;--hl:#f2f07c;--ok:#1f9d55;--err:#d0443a;--wait:#b7791f;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;--sans:"Geist",system-ui,-apple-system,sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#0a0a0a;--fg:#ededea;--muted:#8f8f8a;--faint:#6b6b66;--line:#222220;--soft:#141412}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;height:72px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;font-weight:500;font-size:18px;letter-spacing:-.02em}
+.brand svg{width:24px;height:20px}.brand small{color:var(--faint);font:12px var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}.dot.bad{background:var(--err)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:28px 0}
+.kpi{background:var(--bg);padding:18px 20px}.kpi b{display:block;font-size:30px;font-weight:500;letter-spacing:-.03em;line-height:1}.kpi span{font-size:13px;color:var(--muted)}
+.kpi.flag b{color:var(--wait)}
+h2{font-size:13px;font:12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:28px 0 12px}
+.flags{display:grid;gap:8px}
+.flag-row{display:flex;gap:10px;align-items:baseline;padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--wait);border-radius:8px;background:var(--soft);font-size:14px}
+.flag-row .who{font-weight:500}.none{color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{margin:0 0 2px;font-size:16px;font-weight:500}.card .for{font-size:13px;color:var(--faint);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}.row .k{color:var(--muted)}.row .v{font-variant-numeric:tabular-nums}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.tag{font:11.5px var(--mono);border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--muted)}
+.cardflags{margin-top:12px;display:grid;gap:6px}.cf{font-size:12.5px;color:var(--wait);display:flex;gap:7px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font:500 11px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--faint);padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}td.t{font:12px var(--mono);color:var(--faint);white-space:nowrap}
+td.d{color:var(--muted)}.b{display:inline-flex;height:21px;align-items:center;padding:0 8px;border-radius:6px;font:500 11.5px var(--sans);white-space:nowrap}
+.b.read{background:var(--soft);color:var(--muted)}.b.ok{background:#eaf7ef;color:#17733e}.b.err{background:#fdeeed;color:#b3352b}.b.wait{background:#fdf4e3;color:#95600f}
+footer{color:var(--faint);font-size:12px;padding:28px 0 40px}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}td.hideable{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="brand"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>lokra <small>dashboard</small></span>
+    <span class="status" data-status><span class="dot"></span><span data-status-text>loading…</span></span>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><b data-kpi="agents">–</b><span>agents</span></div>
+    <div class="kpi"><b data-kpi="entries">–</b><span>ledger entries</span></div>
+    <div class="kpi"><b data-kpi="masked">–</b><span>identifiers masked</span></div>
+    <div class="kpi flag"><b data-kpi="flags">–</b><span>risk flags</span></div>
+  </div>
+
+  <h2>Risk flags</h2>
+  <div class="flags" data-flags></div>
+
+  <h2>Agents</h2>
+  <div class="cards" data-cards></div>
+
+  <h2>Recent activity</h2>
+  <table><thead><tr><th>Time</th><th>Agent</th><th>Event</th><th class="hideable">Detail</th></tr></thead><tbody data-recent></tbody></table>
+
+  <footer>Read-only. Served locally from your audit ledger. Refreshes every 4 seconds.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const badge=ev=>{const m={read:"read",write_executed:"ok",write_approved:"ok",listed_tables:"read",write_proposed:"wait",rejected:"err",db_refused:"err",write_denied:"err",denied:"err"};return m[ev]||"read"};
+async function load(){
+  let d;try{d=await (await fetch("/api/report",{cache:"no-store"})).json();}catch(e){$("[data-status-text]").textContent="offline";return;}
+  const r=d.report;
+  const st=$("[data-status]");st.querySelector(".dot").className="dot"+(r.chain_verified?"":" bad");
+  $("[data-status-text]").textContent=(r.chain_verified?"chain verified":"CHAIN BROKEN")+" · "+r.entry_count+" entries";
+  const maskedTotal=r.agents.reduce((a,x)=>a+x.masked_total,0);
+  $('[data-kpi="agents"]').textContent=r.agents.length;
+  $('[data-kpi="entries"]').textContent=r.entry_count;
+  $('[data-kpi="masked"]').textContent=maskedTotal;
+  $('[data-kpi="flags"]').textContent=r.risk_flags;
+  const flags=[];if(r.identity_denials)flags.push(`<div class="flag-row"><span class="who">unknown agent</span><span>${r.identity_denials} access attempt(s) by an unknown or expired agent</span></div>`);
+  r.agents.forEach(a=>a.flags.forEach(f=>flags.push(`<div class="flag-row"><span class="who">${esc(a.agent)}</span><span>${esc(f.detail)}</span></div>`)));
+  $("[data-flags]").innerHTML=flags.length?flags.join(""):'<div class="none">No risk flags. Nothing unusual in the ledger.</div>';
+  $("[data-cards]").innerHTML=r.agents.map(a=>{
+    const md=Object.entries(a.masked).map(([k,v])=>`${k.split(":").pop()} ${v}`).join(", ");
+    return `<div class="card"><h3>${esc(a.agent)}</h3><div class="for">for ${esc(a.on_behalf_of.join(", ")||"—")}</div>
+      <div class="row"><span class="k">reads</span><span class="v">${a.reads} · ${a.rows_read} rows</span></div>
+      <div class="row"><span class="k">masked</span><span class="v">${a.masked_total}${md?" ("+esc(md)+")":""}</span></div>
+      <div class="row"><span class="k">writes</span><span class="v">${a.writes_proposed} proposed · ${a.writes_executed} executed</span></div>
+      <div class="row"><span class="k">blocked</span><span class="v">${a.blocked}</span></div>
+      <div class="tags">${a.tables.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
+      ${a.flags.length?`<div class="cardflags">${a.flags.map(f=>`<div class="cf">⚠ ${esc(f.detail)}</div>`).join("")}</div>`:""}</div>`;
+  }).join("")||'<div class="none">No agent activity yet.</div>';
+  $("[data-recent]").innerHTML=d.recent.map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="b ${badge(e.event)}">${esc(e.event)}</span></td><td class="d hideable">${esc(e.detail)}</td></tr>`).join("");
+}
+load();setInterval(load,4000);
+</script>
+</body>
+</html>

@@ -100,6 +100,9 @@ lokra report            # per-agent activity and risk flags
 lokra report --json     # machine-readable, for a SIEM or an evidence pack
 ```
 
+For a live view, `lokra dashboard` serves a local web page (127.0.0.1) with the
+same report, the risk flags up front and a colour-coded activity feed.
+
 Flags are rules over the ledger, so each one traces back to its entries. This is
 the evidence an auditor asks for, generated from what already happened.
 
@@ -162,7 +165,7 @@ tests/
 - [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
 - [ ] Slack approve/deny buttons instead of the CLI
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
-- [x] Activity and risk reports from the ledger (`lokra report`)
+- [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)
 - [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters

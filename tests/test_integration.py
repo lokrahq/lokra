@@ -213,3 +213,13 @@ def test_agent_can_see_what_an_approved_write_does(cfg):
     assert status["approved_by"] == "pytest-human" and status["tables"] == ["appointments"]
     done = g.execute_write(p["write_id"])
     assert done["status"] == "executed" and done["affected_rows"] == 1 and "sql" in done
+
+
+def test_dashboard_api_payload(cfg):
+    from lokra.dashboard import api_payload, make_handler
+    gw(cfg, "test-scheduler").query("SELECT full_name FROM patients LIMIT 1")
+    payload = api_payload(cfg)
+    assert payload["report"]["chain_verified"] is True
+    assert isinstance(payload["recent"], list)
+    assert any(a["agent"] == "test-scheduler" for a in payload["report"]["agents"])
+    make_handler(cfg)  # loads the packaged dashboard.html

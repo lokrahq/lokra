@@ -110,6 +110,12 @@ def cmd_report(args):
     return 0 if chain_ok else 2
 
 
+def cmd_dashboard(args):
+    from .dashboard import serve
+    serve(_cfg(args), args.port)
+    return 0
+
+
 def cmd_serve(args):
     if args.config:
         os.environ["LOKRA_CONFIG"] = args.config
@@ -171,6 +177,10 @@ def main(argv=None):
     s.add_argument("--agent", help="limit to one agent")
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger")
+    s.add_argument("--port", type=int, default=8900)
+    s.set_defaults(fn=cmd_dashboard)
 
     s = sub.add_parser("serve", help="run the MCP server (used by Claude Code)")
     s.add_argument("--dev-agent", help="LOCAL DEV ONLY: issue an 8h token for this agent at startup "
