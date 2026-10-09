@@ -8,7 +8,7 @@ import sys
 import time
 
 from . import tokens
-from .config import LAB_ADMIN_DSN, load_config
+from .config import ConfigError, LAB_ADMIN_DSN, load_config
 from .gateway import Gateway, GatewayError, decide, list_pending
 from .ledger import Ledger
 
@@ -191,6 +191,11 @@ def main(argv=None):
     args = p.parse_args(argv)
     try:
         return args.fn(args) or 0
+    except ConfigError as e:
+        print(f"error: {e}", file=sys.stderr)
+        print("hint: run this from your project folder (where policies.yaml lives), "
+              "or pass --config /path/to/policies.yaml", file=sys.stderr)
+        return 1
     except Exception as e:
         if os.environ.get("LOKRA_DEBUG"):
             raise
