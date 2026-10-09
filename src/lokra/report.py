@@ -7,7 +7,7 @@ rules over the ledger, not a model, so every flag can be traced to its entries.
 """
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 
 # Thresholds for the risk rules. Deliberately simple and visible.
@@ -46,12 +46,17 @@ class AgentActivity:
 def build_report(entries: list[dict]) -> dict:
     agents: dict[str, AgentActivity] = {}
     identity_denials = 0
+    events_by_type: Counter = Counter()
+    blocked_reasons: Counter = Counter()
 
     def act(name: str) -> AgentActivity:
         return agents.setdefault(name, AgentActivity(agent=name))
 
     for e in entries:
         event = e.get("event")
+        events_by_type[event] += 1
+        if event in BLOCKED_EVENTS:
+            blocked_reasons[(e.get("reason") or e.get("error") or "blocked")[:80]] += 1
         name = e.get("agent")
         if event == "denied":
             identity_denials += 1
@@ -101,7 +106,9 @@ def build_report(entries: list[dict]) -> dict:
 
     total_flags = sum(len(a.flags) for a in agents.values())
     return {"agents": agents, "identity_denials": identity_denials,
-            "entry_count": len(entries), "total_flags": total_flags}
+            "entry_count": len(entries), "total_flags": total_flags,
+            "events_by_type": dict(events_by_type),
+            "blocked_reasons": blocked_reasons.most_common(6)}
 
 
 def _mask_detail(masked: dict) -> str:
@@ -136,6 +143,8 @@ def to_dict(report: dict, chain_ok: bool) -> dict:
         "entry_count": report["entry_count"],
         "identity_denials": report["identity_denials"],
         "risk_flags": report["total_flags"],
+        "events_by_type": report["events_by_type"],
+        "blocked_reasons": [{"reason": r, "count": c} for r, c in report["blocked_reasons"]],
         "agents": [
             {"agent": a.agent, "on_behalf_of": sorted(a.on_behalf_of),
              "reads": a.reads, "rows_read": a.rows_read, "max_read_rows": a.max_read_rows,
