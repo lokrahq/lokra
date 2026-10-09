@@ -1,5 +1,14 @@
 document.documentElement.classList.add("js");
 
+const announce = document.querySelector("[data-announce]");
+if (announce) {
+  try { if (localStorage.getItem("lokra-announce-hidden") === "1") announce.hidden = true; } catch {}
+  announce.querySelector("[data-dismiss]").addEventListener("click", () => {
+    announce.hidden = true;
+    try { localStorage.setItem("lokra-announce-hidden", "1"); } catch {}
+  });
+}
+
 const demo = document.querySelector(".demo");
 
 if (demo) {
