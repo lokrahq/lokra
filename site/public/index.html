@@ -98,6 +98,39 @@
     <li class="label">Works with</li><li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>Any MCP client</li><li>PostgreSQL</li><li>Supabase <em>soon</em></li>
   </ul>
 
+  <section class="block" id="how">
+    <p class="eyebrow-sm">How it works</p>
+    <h2>One hop between your agents and your data.</h2>
+    <div class="flow" data-flow>
+      <div class="flow-bar">
+        <div class="seg" role="tablist" aria-label="Request type">
+          <button type="button" class="on" data-scn="read">Read</button>
+          <button type="button" data-scn="write">Write</button>
+          <button type="button" data-scn="attack">Attack</button>
+        </div>
+        <button type="button" class="flow-play" data-flow-play>&#8635; Replay</button>
+      </div>
+      <div class="flow-grid">
+        <div class="node" data-node="agent"><span class="node-k">Agent</span><b>Claude Code</b><small>or any MCP client</small></div>
+        <div class="wire" aria-hidden="true"><span class="w req" data-wire="a-l"></span><span class="w res" data-wire="l-a"></span></div>
+        <div class="lokra" data-node="lokra">
+          <span class="node-k">Lokra</span>
+          <ol class="stages">
+            <li data-stage="identity"><i>1</i>Verify identity</li>
+            <li data-stage="sql"><i>2</i>Check SQL</li>
+            <li data-stage="approval"><i>3</i>Human approval<em>writes</em></li>
+            <li data-stage="role"><i>4</i>Run as agent's role</li>
+            <li data-stage="mask"><i>5</i>Mask results</li>
+            <li data-stage="ledger"><i>6</i>Sign ledger</li>
+          </ol>
+        </div>
+        <div class="wire" aria-hidden="true"><span class="w req" data-wire="l-p"></span><span class="w res" data-wire="p-l"></span></div>
+        <div class="node" data-node="pg"><span class="node-k">Postgres</span><b>Own role per agent</b><small>Row-level security</small></div>
+      </div>
+      <p class="flow-cap" data-flow-cap aria-live="polite">Every request passes through six checks. The database itself has the final say.</p>
+    </div>
+  </section>
+
   <section class="block" id="deploy">
     <p class="eyebrow-sm">Deployment</p>
     <h2>Run it your way.</h2>

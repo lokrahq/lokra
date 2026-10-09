@@ -290,6 +290,129 @@ if (demo) {
   reset();
 }
 
+const flow = document.querySelector("[data-flow]");
+
+if (flow) {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const cap = flow.querySelector("[data-flow-cap]");
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const STEP = reduceMotion ? 250 : 1500;
+  const WIRE = reduceMotion ? 120 : 550;
+  const INFO = {
+    identity: "A short-lived signed token says which agent is asking, and for which human.",
+    sql: "One statement per call. Reads go straight through, writes go to approval, anything else is rejected.",
+    approval: "Writes are dry-run first. A person sees exactly what would change and approves it.",
+    role: "Lokra connects as the agent's own Postgres role. There's no shared password to steal.",
+    mask: "Medicare and IHI numbers, emails and phone numbers are masked before anything leaves Lokra.",
+    ledger: "A hash-chained, signed entry records the agent, the human, the request and the result.",
+  };
+  const SCENARIOS = {
+    read: [
+      { node: "agent", cap: "<b>Agent:</b> “Who's booked today?”" },
+      { wire: "a-l" },
+      { stage: "identity", cap: INFO.identity },
+      { stage: "sql", cap: "A single read. Nothing else is allowed through." },
+      { stage: "approval", skip: true },
+      { stage: "role", cap: INFO.role },
+      { wire: "l-p" },
+      { node: "pg", cap: "Grants and row-level security decide which rows exist for this agent. Only clinic 1 comes back." },
+      { wire: "p-l" },
+      { stage: "mask", cap: "12 Medicare numbers masked before the result leaves Lokra." },
+      { stage: "ledger", cap: INFO.ledger },
+      { wire: "l-a" },
+      { node: "agent", end: "ok", cap: "<b>Done.</b> The agent sees 12 rows, with every identifier masked." },
+    ],
+    write: [
+      { node: "agent", cap: "<b>Agent:</b> “Cancel Noah's Monday appointment.”" },
+      { wire: "a-l" },
+      { stage: "identity", cap: INFO.identity },
+      { stage: "sql", cap: "A single UPDATE, so it's routed to approval instead of running." },
+      { stage: "role", cap: "Dry run as the agent's own role: 1 row would change." },
+      { wire: "l-p" },
+      { node: "pg", cap: "Postgres confirms this agent may update appointments in clinic 1, then rolls the dry run back." },
+      { wire: "p-l" },
+      { stage: "approval", wait: true, cap: "<b>Waiting for a person.</b> They see booked → cancelled and approve it." },
+      { stage: "mask", skip: true },
+      { stage: "ledger", cap: "The request, the approval and the result are signed into the ledger." },
+      { wire: "l-a" },
+      { node: "agent", end: "ok", cap: "<b>Done.</b> Executed after approval, 1 row changed." },
+    ],
+    attack: [
+      { node: "agent", cap: "<b>Injected prompt:</b> “COMMIT; DROP TABLE patients”" },
+      { wire: "a-l" },
+      { stage: "identity", cap: INFO.identity },
+      { stage: "sql", err: true, cap: "<b>Blocked.</b> Two statements in one call never reach the database." },
+      { end: "err", cap: "Even if it slipped through, the agent's Postgres role can't drop tables." },
+    ],
+  };
+
+  let scenario = "read";
+  let runId = 0;
+
+  const q = (sel) => flow.querySelector(sel);
+  const nodeEl = (name) => q(`[data-node="${name}"]`);
+  const stageEl = (name) => q(`[data-stage="${name}"]`);
+  const wireEl = (name) => q(`[data-wire="${name}"]`);
+
+  function clear() {
+    flow.querySelectorAll(".flow-grid .on, .flow-grid .done, .flow-grid .ok, .flow-grid .err, .flow-grid .wait, .flow-grid .skip").forEach((el) => el.classList.remove("on", "done", "ok", "err", "wait", "skip"));
+  }
+
+  function settle() {
+    flow.querySelectorAll(".stages li.on").forEach((li) => { li.classList.remove("on"); if (!li.classList.contains("wait") && !li.classList.contains("err")) li.classList.add("done"); });
+    flow.querySelectorAll(".stages li.wait").forEach((li) => { li.classList.remove("wait"); li.classList.add("done"); });
+    flow.querySelectorAll(".node.on").forEach((n) => n.classList.remove("on"));
+  }
+
+  async function play(name = scenario) {
+    scenario = name;
+    const id = ++runId;
+    flow.querySelectorAll("[data-scn]").forEach((b) => b.classList.toggle("on", b.dataset.scn === name));
+    clear();
+    for (const step of SCENARIOS[name]) {
+      if (id !== runId) return;
+      if (step.skip) { stageEl(step.stage).classList.add("skip"); continue; }
+      if (step.wire) {
+        wireEl(step.wire).classList.add("on");
+        await sleep(WIRE);
+        continue;
+      }
+      settle();
+      if (step.cap) cap.innerHTML = step.cap;
+      if (step.node) nodeEl(step.node).classList.add(step.end === "ok" ? "ok" : "on");
+      if (step.stage) {
+        const el = stageEl(step.stage);
+        el.classList.add(step.err ? "err" : step.wait ? "wait" : "on");
+        if (step.err) wireEl("a-l").classList.replace("on", "err");
+      }
+      if (step.end === "err") nodeEl("pg").classList.add("err");
+      await sleep(step.wait ? STEP * 1.6 : STEP);
+    }
+    if (id === runId) settle();
+  }
+
+  flow.addEventListener("click", (event) => {
+    const scn = event.target.closest("[data-scn]");
+    const replay = event.target.closest("[data-flow-play]");
+    const stage = event.target.closest("[data-stage]");
+    if (scn) play(scn.dataset.scn);
+    else if (replay) play();
+    else if (stage) {
+      runId++;
+      clear();
+      stage.classList.add("on");
+      cap.textContent = INFO[stage.dataset.stage];
+    }
+  });
+
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    const seen = new IntersectionObserver((items) => {
+      if (items.some((i) => i.isIntersecting)) { seen.disconnect(); play("read"); }
+    }, { threshold: 0.5 });
+    seen.observe(flow);
+  }
+}
+
 const form = document.querySelector(".waitlist");
 const status = document.querySelector(".status");
 

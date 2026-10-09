@@ -283,3 +283,54 @@ footer a:hover { color: var(--fg); }
   .announce a { padding: 9px 30px 9px 0; text-align: left; }
   .announce-x { right: 12px; }
 }
+
+.flow { border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px 22px; background: #fff; }
+.flow-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.flow-bar .seg { display: none; }
+.js .flow-bar .seg { display: inline-flex; }
+.flow-play { display: none; border: 0; background: none; color: var(--muted); font: 500 13px var(--sans); cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.js .flow-play { display: inline-block; }
+.flow-play:hover { color: var(--fg); background: var(--soft); }
+.flow-grid { display: grid; grid-template-columns: minmax(150px, 190px) minmax(48px, 1fr) minmax(240px, 300px) minmax(48px, 1fr) minmax(170px, 210px); align-items: center; margin: 30px 0 6px; }
+.node { border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 15px; background: #fff; display: flex; flex-direction: column; gap: 3px; transition: border-color .25s, box-shadow .25s; }
+.node-k { font: 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin-bottom: 4px; }
+.node b { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+.node small { font-size: 12.5px; color: var(--muted); }
+.node.on { border-color: var(--fg); box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
+.node.ok { border-color: var(--ok); }
+.node.err { border-color: var(--err); }
+.lokra { border: 1.5px solid var(--fg); border-radius: 14px; padding: 14px 14px 12px; background: #fcfcfb; }
+.lokra .node-k { display: block; padding-left: 4px; color: var(--fg); }
+.stages { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.stages li { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; font-size: 13.5px; color: var(--muted); cursor: pointer; transition: background .2s, color .2s, opacity .2s; }
+.stages li:hover { color: var(--fg); }
+.stages i { font: normal 500 11px var(--mono); width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; background: var(--soft); color: var(--muted); flex: none; transition: background .2s, color .2s; }
+.stages em { font-style: normal; font: 11px var(--mono); color: var(--faint); margin-left: auto; }
+.stages li.on { background: #fff; color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 0 0 1px var(--line); }
+.stages li.on i { background: var(--fg); color: #fff; }
+.stages li.done i { background: #eaf7ef; color: #17733e; }
+.stages li.done { color: var(--fg); }
+.stages li.wait i { background: #fdf4e3; color: #95600f; }
+.stages li.wait { color: #95600f; background: #fffaf0; }
+.stages li.err i { background: #fdeeed; color: #b3352b; }
+.stages li.err { color: #b3352b; background: #fff6f5; }
+.stages li.skip { opacity: 0.35; }
+.wire { display: flex; flex-direction: column; gap: 16px; padding: 0 10px; }
+.w { position: relative; height: 2px; color: #d9d9d4; background: currentColor; border-radius: 2px; transition: color .25s; }
+.w.req::after, .w.res::before { content: ""; position: absolute; top: -4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.w.req::after { right: -2px; border-left: 7px solid currentColor; }
+.w.res::before { left: -2px; border-right: 7px solid currentColor; }
+.w.on { color: var(--fg); }
+.w.err { color: var(--err); }
+.flow-cap { min-height: 3.2em; margin: 18px 0 0; text-align: center; font-size: 15px; color: var(--muted); }
+.flow-cap b { color: var(--fg); font-weight: 500; }
+@media (max-width: 860px) {
+  .flow-grid { grid-template-columns: 1fr; justify-items: stretch; }
+  .wire { flex-direction: row; justify-content: center; gap: 28px; height: 44px; padding: 6px 0; }
+  .w { width: 2px; height: 100%; }
+  .w.req::after, .w.res::before { top: auto; left: -4px; right: auto; border: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+  .w.req::after { bottom: -2px; border-top: 7px solid currentColor; }
+  .w.res::before { top: -2px; border-bottom: 7px solid currentColor; }
+  .flow { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .node, .stages li, .stages i, .w { transition: none; } }
