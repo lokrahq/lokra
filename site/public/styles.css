@@ -275,7 +275,7 @@ footer a:hover { color: var(--fg); }
 .announce-x { display: none; position: absolute; right: 20px; border: 0; background: none; color: var(--faint); font-size: 18px; line-height: 1; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
 .js .announce-x { display: block; }
 .announce-x:hover { color: var(--fg); background: #e9e9e5; }
-.trust { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 26px 0 0; padding: 0; font-size: 13.5px; color: var(--muted); }
+.trust { list-style: none; display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 26px 0 0; padding: 0; font-size: 13.5px; color: var(--faint); }
 .trust li { display: inline-flex; align-items: center; gap: 7px; }
 .trust svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 640px) {
