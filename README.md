@@ -80,6 +80,14 @@ Then ask something like "which patients have appointments on Monday?".
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
 
+## Website
+
+The lokra.dev site lives in `site/`. Preview it locally with clean URLs:
+
+```bash
+python3 scripts/serve_site.py
+```
+
 ## Security model
 
 The SQL parser is **not** the security boundary. Several "read-only" database MCP servers
