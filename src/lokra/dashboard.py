@@ -61,7 +61,7 @@ def make_handler(cfg: Config):
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+            self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'")
             self.end_headers()
             self.wfile.write(body)
 
@@ -71,6 +71,12 @@ def make_handler(cfg: Config):
                 self._send(html.encode(), "text/html; charset=utf-8")
             elif path == "/api/report":
                 self._send(json.dumps(api_payload(cfg), default=str).encode(), "application/json")
+            elif path.startswith("/assets/") and path.endswith(".woff2") and "/" not in path[8:]:
+                try:
+                    data = resources.files("lokra.assets").joinpath(path[8:]).read_bytes()
+                    self._send(data, "font/woff2")
+                except (FileNotFoundError, ModuleNotFoundError):
+                    self._send(b"not found", "text/plain", 404)
             else:
                 self._send(b"not found", "text/plain", 404)
 

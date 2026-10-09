@@ -25,6 +25,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
 lokra = ["dashboard.html"]
+"lokra.assets" = ["*.woff2"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
