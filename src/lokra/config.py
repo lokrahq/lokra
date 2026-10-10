@@ -83,6 +83,18 @@ class Config:
             raise ConfigError(f"unknown agent '{name}'") from None
 
 
+def dump_policy(doc: dict) -> str:
+    class Dumper(yaml.SafeDumper):
+        pass
+
+    def seq(dumper, data):
+        flow = all(isinstance(x, (str, int, float, bool)) for x in data)
+        return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=flow)
+
+    Dumper.add_representer(list, seq)
+    return yaml.dump(doc, Dumper=Dumper, sort_keys=False, default_flow_style=False, allow_unicode=True)
+
+
 def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike | None = None) -> Config:
     path = Path(path or os.environ.get("LOKRA_CONFIG", "policies.yaml")).resolve()
     if not path.exists():

@@ -17,6 +17,34 @@ def _cfg(args):
     return load_config(args.config, args.home)
 
 
+def cmd_init(args):
+    from pathlib import Path
+
+    from .config import dump_policy
+    from .introspect import build_policy, introspect
+
+    out = Path(args.out or "policies.yaml")
+    if out.exists() and not args.force:
+        print(f"error: {out} already exists (use --out PATH or --force to overwrite)", file=sys.stderr)
+        return 1
+    tables = introspect(args.dsn)
+    if not tables:
+        print("no base tables found in schema 'public'", file=sys.stderr)
+        return 1
+    doc = build_policy(args.dsn, tables)
+    out.write_text(dump_policy(doc))
+    cols = doc["masking"]["columns"]
+    n_cols = sum(len(c) for c in tables.values())
+    print(f"introspected {len(tables)} table(s), {n_cols} column(s) (read-only)")
+    print(f"flagged {len(cols)} column(s) to mask: {', '.join(sorted(cols)) or '(none)'}")
+    print(f"wrote {out}")
+    print("\nnext steps:")
+    print("  1. review the policy and tighten the agent's read grants")
+    print('  2. lokra provision --admin-dsn "<admin connection string>"')
+    print("  3. lokra dashboard")
+    return 0
+
+
 def cmd_provision(args):
     from .provision import provision
     cfg = _cfg(args)
@@ -137,6 +165,12 @@ def main(argv=None):
     p.add_argument("--config", help="path to policies.yaml (default: ./policies.yaml or $LOKRA_CONFIG)")
     p.add_argument("--home", help="state directory (default: .lokra next to the config)")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("init", help="introspect a database (read-only) and scaffold a starter policies.yaml")
+    s.add_argument("dsn", help="connection string to the target database, e.g. a Supabase or local Postgres")
+    s.add_argument("--out", help="where to write the policy (default: policies.yaml)")
+    s.add_argument("--force", action="store_true", help="overwrite the file if it already exists")
+    s.set_defaults(fn=cmd_init)
 
     s = sub.add_parser("provision", help="create or update one DB role per agent")
     s.add_argument("--admin-dsn", help="admin connection string (default: lab database)")

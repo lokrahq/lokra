@@ -194,3 +194,29 @@ def test_report_quiet_when_nothing_risky():
                 "masked": {"medicare": 1}, "tables": ["patients"]}]
     r = build_report(entries)
     assert r["total_flags"] == 0 and r["identity_denials"] == 0
+
+
+def test_introspect_matcher_and_build_policy():
+    import yaml
+
+    from lokra.config import dump_policy
+    from lokra.introspect import _match, build_policy
+
+    assert _match("patient_email") == ("redact", "email")
+    assert _match("home_phone") == ("last3", None)
+    assert _match("date_of_birth") == ("year_only", None)
+    assert _match("medicare_number") == ("last4", "medicare")
+    assert _match("full_name") is None
+    assert _match("cardiology_notes") is None  # short keyword 'card' must not substring-match
+
+    tables = {
+        "customers": [("id", "integer"), ("email", "text"), ("mobile", "text"), ("full_name", "text")],
+        "orders": [("id", "integer"), ("total", "numeric")],
+    }
+    doc = build_policy("postgresql://u:p@db.example:5432/shop", tables)
+    assert doc["database"] == {"host": "db.example", "port": 5432, "dbname": "shop"}
+    assert set(doc["agents"]["app-reader"]["read"]) == {"customers", "orders"}
+    assert doc["agents"]["app-reader"].get("clinic_ids") in (None, [])
+    assert doc["masking"]["columns"] == {"email": "redact", "mobile": "last3"}
+    assert doc["masking"]["detectors"] == ["email"]
+    assert yaml.safe_load(dump_policy(doc))["agents"]["app-reader"]["max_rows"] == 500

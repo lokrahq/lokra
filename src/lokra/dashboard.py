@@ -14,7 +14,7 @@ from urllib.parse import parse_qs, urlsplit
 import psycopg
 from psycopg import sql
 
-from .config import Config, ConfigError, load_config
+from .config import Config, ConfigError, dump_policy, load_config
 from .ledger import Ledger
 from .masking import DETECTORS
 from .provision import WRITE_OPS, provision
@@ -213,22 +213,9 @@ def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:
     return out
 
 
-def _dump_yaml(doc: dict) -> str:
-    class Dumper(yaml.SafeDumper):
-        pass
-
-    def seq(dumper, data):
-        flow = all(isinstance(x, (str, int, float, bool)) for x in data)
-        return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=flow)
-
-    Dumper.add_representer(list, seq)
-    return yaml.dump(doc, Dumper=Dumper, sort_keys=False, default_flow_style=False, allow_unicode=True)
-
-
 def apply_policy(cfg: Config, admin_dsn: str, data: dict) -> dict:
     doc = _build_doc(cfg, data)
-    text = _dump_yaml(doc)
-    cfg.path.write_text(text)
+    cfg.path.write_text(dump_policy(doc))
     new_cfg = load_config(cfg.path, cfg.home)
     dropped = _drop_removed_roles(new_cfg, admin_dsn)
     log = provision(new_cfg, admin_dsn)

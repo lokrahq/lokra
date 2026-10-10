@@ -53,6 +53,27 @@ Try it from the terminal as an agent:
 .venv/bin/lokra verify-ledger
 ```
 
+## Use your own database
+
+Point Lokra at any Postgres, including a Supabase database. `lokra init` connects
+**read-only**, introspects the schema, flags likely PII columns (email, phone,
+health and government identifiers) and writes a starter policy for you to review:
+
+```bash
+lokra init "postgresql://user:pass@host:5432/dbname"   # read-only, writes policies.yaml
+# review and tighten policies.yaml, then provision the per-agent roles:
+lokra provision --admin-dsn "postgresql://admin:pass@host:5432/dbname"
+lokra dashboard
+```
+
+For **Supabase**, use the connection string from Project Settings → Database (the
+direct connection, not the pooler). `init` only reads; `provision` needs a role that
+can create roles, such as `postgres`. Try it on a development project first.
+
+`policies.example.yaml` is a non-healthcare starting point you can copy instead.
+Per-row tenant isolation (row-level security) is optional and set up separately; the
+clinic lab in this repo is a worked example of it.
+
 ## Connect Claude Code
 
 **Desktop app or CLI:** put this `.mcp.json` in the folder where the agent works, then open a
@@ -176,7 +197,7 @@ tests/
 
 ## Roadmap
 
-- [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
+- [x] Works against any Postgres, including Supabase (`lokra init` scaffolds the policy)
 - [ ] Slack approve/deny buttons instead of the CLI
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
 - [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)

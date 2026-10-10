@@ -293,3 +293,38 @@ def load_config_stub():
     p = Path(d) / "policies.yaml"
     p.write_text("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\nagents: {}\n")
     return load_config(p)
+
+
+def test_lokra_init_introspects_lab_db(tmp_path):
+    from lokra.config import dump_policy
+    from lokra.introspect import build_policy, introspect
+
+    tables = introspect(LAB_ADMIN_DSN)
+    assert {"patients", "appointments", "clinics"} <= set(tables)
+    doc = build_policy(LAB_ADMIN_DSN, tables)
+    cols = doc["masking"]["columns"]
+    assert cols.get("medicare_number") == "last4"
+    assert cols.get("dob") == "year_only"
+    assert cols.get("phone") == "last3"
+    (tmp_path / "policies.yaml").write_text(dump_policy(doc))
+    c = load_config(tmp_path / "policies.yaml")
+    assert "app-reader" in c.agents and c.agents["app-reader"].clinic_ids == []
+
+
+def test_provision_without_clinic_scopes(tmp_path):
+    (tmp_path / "policies.yaml").write_text(
+        "database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+        "agents:\n  ui-plain:\n    read: {clinics: \"*\"}\n    max_rows: 50\n"
+        "masking: {columns: {}, detectors: []}\n")
+    c = load_config(tmp_path / "policies.yaml")
+    role = c.agents["ui-plain"].role
+    try:
+        provision(c, LAB_ADMIN_DSN)
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            assert conn.execute("SELECT has_table_privilege(%s, 'clinics', 'SELECT')", (role,)).fetchone()[0]
+            assert conn.execute("SELECT count(*) FROM lokra.agent_scopes WHERE role_name = %s", (role,)).fetchone()[0] == 0
+    finally:
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
+                conn.execute(f"DROP OWNED BY {role}")
+                conn.execute(f"DROP ROLE IF EXISTS {role}")
