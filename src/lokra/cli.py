@@ -107,6 +107,24 @@ def _decide(args, approve: bool):
     print(("approved" if approve else "denied") + f" by {by}")
 
 
+def cmd_evidence(args):
+    from . import evidence as ev_mod
+    cfg = _cfg(args)
+    led = Ledger(cfg.ledger_path, cfg.signing_key())
+    ev = ev_mod.build(cfg, led.entries(), led.verify()[0])
+    if args.json:
+        print(json.dumps(ev, indent=2, default=str))
+        return 0
+    text = ev_mod.format_markdown(ev)
+    if args.out:
+        from pathlib import Path
+        Path(args.out).write_text(text)
+        print(f"wrote {args.out}")
+    else:
+        print(text)
+    return 0
+
+
 def cmd_verify(args):
     cfg = _cfg(args)
     ok, n, msg = Ledger(cfg.ledger_path, cfg.signing_key()).verify()
@@ -212,6 +230,11 @@ def main(argv=None):
     s.add_argument("--agent", help="limit to one agent")
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("evidence", help="generate a control evidence pack from the policy and ledger")
+    s.add_argument("--out", help="write the Markdown pack to this file instead of stdout")
+    s.add_argument("--json", action="store_true", help="emit structured JSON instead of Markdown")
+    s.set_defaults(fn=cmd_evidence)
 
     s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger and policy")
     s.add_argument("--port", type=int, default=8900)

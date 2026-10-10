@@ -220,3 +220,32 @@ def test_introspect_matcher_and_build_policy():
     assert doc["masking"]["columns"] == {"email": "redact", "mobile": "last3"}
     assert doc["masking"]["detectors"] == ["email"]
     assert yaml.safe_load(dump_policy(doc))["agents"]["app-reader"]["max_rows"] == 500
+
+
+def test_evidence_pack(tmp_path):
+    from lokra.config import load_config
+    from lokra.evidence import build, format_markdown
+
+    (tmp_path / "policies.yaml").write_text(
+        "database: {host: 127.0.0.1, port: 5432, dbname: shop}\n"
+        "agents:\n  bot:\n    read: {orders: \"*\"}\n    write: {orders: [update]}\n    max_rows: 100\n"
+        "masking: {columns: {email: redact}, detectors: [email]}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    entries = [
+        {"event": "read", "agent": "bot", "rows": 3, "masked": {"column:redact": 2}, "tables": ["orders"]},
+        {"event": "write_proposed", "agent": "bot", "would_affect_rows": 1},
+        {"event": "write_approved", "agent": "bot", "decided_by": "alice"},
+        {"event": "write_executed", "agent": "bot", "affected_rows": 1},
+        {"event": "rejected", "agent": "bot", "reason": "nope"},
+    ]
+    ev = build(cfg, entries, True)
+    assert ev["summary"] == {"agents": 1, "reads": 1, "blocked": 1, "writes_proposed": 1,
+                             "writes_approved": 1, "writes_denied": 0, "writes_executed": 1, "masked_total": 2}
+    assert ev["change_control"]["approvers"] == ["alice"]
+    assert ev["agents"][0]["role"] == "lokra_bot"
+    md = format_markdown(ev)
+    assert md.startswith("# Lokra evidence pack — shop")
+    assert "Framework mapping" in md and "lokra_bot" in md and "alice" in md
+
+    ev_broken = build(cfg, entries, False)
+    assert "BROKEN" in format_markdown(ev_broken)

@@ -141,6 +141,18 @@ and each write from proposal through approval:
 Flags are rules over the ledger, so each one traces back to its entries. This is
 the evidence an auditor asks for, generated from what already happened.
 
+For a review or a vendor questionnaire, `lokra evidence` turns the policy and the
+ledger into a control evidence pack: least-privilege grants per agent, masking
+rules and what they caught, the write-approval trail, the ledger's integrity
+check, and blocked access attempts, with a mapping to common review themes and
+the Australian Privacy Principles.
+
+```bash
+lokra evidence                       # Markdown control pack to stdout
+lokra evidence --out evidence.md     # or write it to a file
+lokra evidence --json                # structured, for your own templating
+```
+
 ## Conformance
 
 `conformance/` is a benchmark of nine safety guarantees a database access layer
@@ -201,7 +213,8 @@ tests/
 - [ ] Slack approve/deny buttons instead of the CLI
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
 - [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)
-- [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
+- [x] Control evidence pack from the policy and ledger (`lokra evidence`), mapped to review themes and the Australian Privacy Principles
+- [ ] Deeper mapping to the US HSCC AI vendor questionnaire, question by question
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters
 
