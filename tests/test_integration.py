@@ -217,12 +217,15 @@ def test_agent_can_see_what_an_approved_write_does(cfg):
 
 
 def test_dashboard_api_payload(cfg):
-    from lokra.dashboard import api_payload, make_handler
+    from lokra.dashboard import activity_payload, api_payload, make_handler
     gw(cfg, "test-scheduler").query("SELECT full_name FROM patients LIMIT 1")
     payload = api_payload(cfg)
     assert payload["report"]["chain_verified"] is True
     assert isinstance(payload["recent"], list)
     assert any(a["agent"] == "test-scheduler" for a in payload["report"]["agents"])
+    act = activity_payload(cfg, limit=5)
+    assert act["chain_verified"] is True and act["shown"] <= 5
+    assert act["shown"] <= act["total"] and (not act["entries"] or "detail" in act["entries"][0])
     make_handler(cfg, LAB_ADMIN_DSN)  # loads the packaged dashboard.html
 
 

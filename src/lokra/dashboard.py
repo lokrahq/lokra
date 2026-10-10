@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import http.server
 import json
+from urllib.parse import parse_qs, urlsplit
 
 import psycopg
 from psycopg import sql
@@ -57,6 +58,16 @@ def api_payload(cfg: Config) -> dict:
                "event": e.get("event"), "agent": e.get("agent") or "—",
                "detail": _detail(e)} for e in entries[-40:]][::-1]
     return {"report": to_dict(build_report(entries), chain_ok), "recent": recent}
+
+
+def activity_payload(cfg: Config, limit: int = 500) -> dict:
+    led = Ledger(cfg.ledger_path, cfg.signing_key())
+    chain_ok = led.verify()[0]
+    entries = led.entries()
+    sliced = entries[-limit:][::-1]
+    rows = [{"ts": e.get("ts") or "", "seq": e.get("seq"), "event": e.get("event"),
+             "agent": e.get("agent") or "—", "detail": _detail(e)} for e in sliced]
+    return {"entries": rows, "total": len(entries), "shown": len(rows), "chain_verified": chain_ok}
 
 
 def policy_payload(cfg: Config) -> dict:
@@ -253,11 +264,18 @@ def make_handler(cfg: Config, admin_dsn: str):
             return origin in (f"http://{host}", f"https://{host}")
 
         def do_GET(self):
-            path = self.path.split("?", 1)[0]
+            parsed = urlsplit(self.path)
+            path = parsed.path
             if path == "/":
                 self._send(html.encode(), "text/html; charset=utf-8")
             elif path == "/api/report":
                 self._json(api_payload(cfg))
+            elif path == "/api/activity":
+                try:
+                    limit = min(2000, max(1, int(parse_qs(parsed.query).get("limit", ["500"])[0])))
+                except ValueError:
+                    limit = 500
+                self._json(activity_payload(cfg, limit))
             elif path == "/api/policy":
                 try:
                     self._json(policy_payload(cfg))

@@ -10,7 +10,7 @@
 :root{
   --bg:#f7f8f5;--card:#fff;--ink:#14171a;--muted:#5f6560;--faint:#9aa09a;--line:#e7eae3;--soft:#f1f3ee;
   --grn:#16a34a;--grn-soft:#e4f7ea;--red:#e0463c;--red-soft:#fcece9;--amb:#bf7211;--amb-soft:#fbf1dd;--blu:#0ea5e9;--vio:#8b5cf6;--teal:#14b8a6;--slate:#64748b;--rose:#e11d48;
-  --sh:0 1px 2px rgba(16,24,40,.05);
+  --sh:0 1px 2px rgba(16,24,40,.03);
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;--sans:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 *{box-sizing:border-box}html,body{height:100%}
@@ -35,14 +35,15 @@ main{flex:1;min-width:0;overflow-y:auto;padding:34px 44px 80px}
 .pill{display:inline-flex;align-items:center;gap:8px;background:var(--grn-soft);border:1px solid #c3eccf;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:500;color:#15803d;white-space:nowrap}
 .pill.bad{background:var(--red-soft);border-color:#f3cdc8;color:#b42318}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--grn)}.pill.bad .dot{background:var(--red)}
-/* tiles */
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px 19px;box-shadow:var(--sh)}
-.tile .lbl{font-size:12.5px;color:var(--muted);font-weight:500}
-.tile .n{font-size:29px;font-weight:600;letter-spacing:-.03em;line-height:1.1;margin:7px 0 3px}.tile .n.amb{color:var(--amb)}
-.tile .c{font-size:12px;color:var(--faint)}.tile .c b{color:var(--muted);font-weight:500}
+/* stat row */
+.statbar{display:flex;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;margin-bottom:22px}
+.stat{flex:1;padding:16px 22px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat .lbl{font-size:12px;color:var(--muted)}
+.stat .n{font-size:27px;font-weight:600;letter-spacing:-.035em;line-height:1.1;margin:5px 0 2px}.stat .n.amb{color:var(--amb)}
+.stat .c{font-size:11.5px;color:var(--faint)}.stat .c b{color:var(--muted);font-weight:500}
 /* panels */
-.panel{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:20px 22px;box-shadow:var(--sh);margin-bottom:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:18px}
 .panel h2{font-size:14.5px;font-weight:600;letter-spacing:-.01em;margin:0 0 16px}
 .ph{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}.ph h2{margin:0}.ph small{font:11.5px var(--mono);color:var(--faint)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -50,7 +51,7 @@ main{flex:1;min-width:0;overflow-y:auto;padding:34px 44px 80px}
 .bars{display:grid;gap:13px}
 .bars .row{display:grid;grid-template-columns:96px 1fr 42px;align-items:center;gap:13px}
 .bars .k{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bars .track{height:8px;background:var(--soft);border-radius:999px;overflow:hidden}
+.bars .track{height:6px;background:var(--soft);border-radius:999px;overflow:hidden}
 .bars .fill{height:100%;border-radius:999px;min-width:3px;transition:width .4s cubic-bezier(.2,.7,.2,1)}
 .bars .v{text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
 .c-read{background:#c6ccc4}.c-blocked{background:var(--red)}.c-writes{background:var(--grn)}.c-proposed{background:var(--amb)}
@@ -60,11 +61,17 @@ main{flex:1;min-width:0;overflow-y:auto;padding:34px 44px 80px}
 .rlist .track{height:7px;border-radius:999px;background:var(--soft);overflow:hidden}
 .rlist .fill{height:100%;border-radius:999px;background:var(--red);min-width:3px}
 /* risk flags */
-.flags{display:grid;gap:9px}
-.flag{display:flex;gap:11px;align-items:center;padding:12px 14px;border:1px solid #f0e6c8;border-left:3px solid var(--amb);border-radius:10px;background:#fffdf7}
-.flag .who{font-weight:600;white-space:nowrap}.flag .ms{color:#8a560d;font-size:13px}
-.ok{display:flex;align-items:center;gap:10px;color:var(--muted);padding:6px 2px}.ok .c{width:24px;height:24px;border-radius:50%;background:var(--grn-soft);color:var(--grn);display:grid;place-items:center;font-size:13px}
+.flags{display:grid}
+.flag{display:flex;gap:12px;align-items:flex-start;padding:13px 2px 13px 15px;border-bottom:1px solid var(--line);position:relative}
+.flag:last-child{border-bottom:0}.flag:first-child{padding-top:2px}.flag:first-child::before{top:2px}
+.flag::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:2px;background:var(--amb)}
+.flag .who{font-weight:600;white-space:nowrap;font-size:13.5px;flex:none}.flag .ms{color:var(--muted);font-size:13px;line-height:1.45}
+.ok{display:flex;align-items:center;gap:10px;color:var(--muted);padding:4px 2px;font-size:13.5px}.ok svg{width:17px;height:17px;color:var(--grn);fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .empty{color:var(--faint);font-size:13px;padding:4px 2px}
+.viewall{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font:500 13px var(--sans);color:var(--ink);background:none;border:0;cursor:pointer;padding:0}
+.viewall:hover{color:var(--grn)}.viewall svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back{display:inline-flex;align-items:center;gap:7px;font:500 13px var(--sans);color:var(--muted);background:none;border:0;cursor:pointer;padding:0;margin-bottom:14px}
+.back:hover{color:var(--ink)}.back svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* table */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font:600 10.5px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:10px 12px;border-bottom:1px solid var(--line)}
@@ -138,11 +145,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
   <!-- DASHBOARD -->
   <section data-view="dashboard">
-    <div class="tiles">
-      <div class="tile"><div class="lbl">Agents</div><div class="n" data-kpi="agents">–</div><div class="c" data-ctx="agents">&nbsp;</div></div>
-      <div class="tile"><div class="lbl">Statements</div><div class="n" data-kpi="entries">–</div><div class="c" data-ctx="entries">&nbsp;</div></div>
-      <div class="tile"><div class="lbl">Identifiers masked</div><div class="n" data-kpi="masked">–</div><div class="c" data-ctx="masked">&nbsp;</div></div>
-      <div class="tile"><div class="lbl">Risk flags</div><div class="n amb" data-kpi="flags">–</div><div class="c" data-ctx="flags">&nbsp;</div></div>
+    <div class="statbar">
+      <div class="stat"><div class="lbl">Agents</div><div class="n" data-kpi="agents">–</div><div class="c" data-ctx="agents">&nbsp;</div></div>
+      <div class="stat"><div class="lbl">Statements</div><div class="n" data-kpi="entries">–</div><div class="c" data-ctx="entries">&nbsp;</div></div>
+      <div class="stat"><div class="lbl">Identifiers masked</div><div class="n" data-kpi="masked">–</div><div class="c" data-ctx="masked">&nbsp;</div></div>
+      <div class="stat"><div class="lbl">Risk flags</div><div class="n amb" data-kpi="flags">–</div><div class="c" data-ctx="flags">&nbsp;</div></div>
     </div>
     <div class="two">
       <div class="panel"><div class="ph"><h2>Statement outcomes</h2><small data-window></small></div><div class="bars" data-outcomes></div></div>
@@ -199,6 +206,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="panel">
       <div class="ph"><h2>Recent activity</h2><small>live · every 4s</small></div>
       <table><thead><tr><th>Time</th><th>Agent</th><th>Event</th><th class="hide">Detail</th></tr></thead><tbody data-recent></tbody></table>
+      <button class="viewall" data-viewall>View full log<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ACTIVITY LOG (full) -->
+  <section data-view="activity" hidden>
+    <button class="back" data-back><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Back to audit</button>
+    <div class="panel">
+      <div class="ph"><h2>Statements</h2><small data-act-count></small></div>
+      <table><thead><tr><th>Time</th><th>Agent</th><th>Event</th><th class="hide">Detail</th></tr></thead><tbody data-actrows></tbody></table>
     </div>
   </section>
 </main>
@@ -212,16 +229,31 @@ const COLORS=["#16a34a","#0ea5e9","#f59e0b","#8b5cf6","#ef4444","#14b8a6","#6474
 const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok2",write_approved:"ok2",write_proposed:"wait",rejected:"err",db_refused:"err",write_denied:"err",denied:"err"}[ev]||"read");
 const TRASH='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>';
 
-const TITLES={dashboard:["Dashboard","A quick read on what your agents are doing."],policy:["Policy","Edit agents, their grants and masking rules."],audit:["Audit log","Every statement, signed and hash-chained."]};
+const main=$("main");
+const TITLES={dashboard:["Dashboard",""],policy:["Policy","Edit agents, their grants and masking rules."],audit:["Audit log","Every statement, signed and hash-chained."],activity:["Activity log","The complete ledger, newest first."]};
 function show(view){
+  if(!TITLES[view])view="dashboard";
   $$("section[data-view]").forEach(n=>n.hidden=n.dataset.view!==view);
-  $$(".side nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===view));
+  const navView=view==="activity"?"audit":view;
+  $$(".side nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===navView));
   $("[data-title]").textContent=TITLES[view][0];
-  $("[data-sub]").dataset.lock=view==="policy"||view==="audit"?"1":"";
+  $("[data-sub]").dataset.lock=view==="dashboard"?"":"1";
   if(view!=="dashboard")$("[data-sub]").textContent=TITLES[view][1];
   if(view==="policy"&&!policyLoaded)loadPolicy();
+  if(view==="activity")loadActivity();
+  if(main)main.scrollTop=0;
 }
-$$(".side nav button").forEach(b=>b.addEventListener("click",()=>show(b.dataset.view)));
+function route(){show(location.hash.replace("#","")||"dashboard");}
+window.addEventListener("hashchange",route);
+$$(".side nav button").forEach(b=>b.addEventListener("click",()=>{location.hash=b.dataset.view;}));
+$("[data-viewall]").addEventListener("click",()=>{location.hash="activity";});
+$("[data-back]").addEventListener("click",()=>{location.hash="audit";});
+async function loadActivity(){
+  let d;try{d=await (await fetch("/api/activity?limit=1000",{cache:"no-store"})).json();}
+  catch(e){$("[data-actrows]").innerHTML='<tr><td class="d">Could not load the log.</td></tr>';return;}
+  $("[data-act-count]").textContent=`${d.total} entries · newest first`;
+  $("[data-actrows]").innerHTML=d.entries.map(e=>{const p=(e.ts||"").split("T");return `<tr><td class="t">${esc((p[0]||"")+" "+(p[1]||"").slice(0,8))}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d">${esc(e.detail)}</td></tr>`;}).join("")||'<tr><td class="d">No activity yet.</td></tr>';
+}
 
 function bars(node,items,colorFn){
   const max=Math.max(1,...items.map(x=>x[1]));
@@ -250,7 +282,7 @@ async function load(){
   // risk flags
   const flags=[];if(r.identity_denials)flags.push(`<div class="flag"><span class="who">unknown agent</span><span class="ms">${r.identity_denials} access attempt(s) by an unknown or expired agent</span></div>`);
   r.agents.forEach(a=>a.flags.forEach(f=>flags.push(`<div class="flag"><span class="who">${esc(a.agent)}</span><span class="ms">${esc(f.detail)}</span></div>`)));
-  $("[data-flags]").innerHTML=flags.length?flags.join(""):'<div class="ok"><span class="c">✓</span>No risk flags. Nothing unusual in the ledger.</div>';
+  $("[data-flags]").innerHTML=flags.length?flags.join(""):'<div class="ok"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>No risk flags.</div>';
   // audit: chain banner
   const b=$("[data-banner]");b.className="banner"+(r.chain_verified?"":" bad");
   $("[data-banner-ic]").innerHTML=r.chain_verified?'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>':'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>';
@@ -262,7 +294,7 @@ async function load(){
   const rmax=Math.max(1,...rs.map(x=>x.count));
   $("[data-reasons]").innerHTML=rs.length?rs.map(x=>`<div><div class="top"><span class="rt">${esc(x.reason)}</span><b>${x.count}</b></div><div class="track"><div class="fill" style="width:${Math.round(x.count/rmax*100)}%"></div></div></div>`).join(""):'<div class="empty">nothing blocked</div>';
   // audit: recent activity
-  $("[data-recent]").innerHTML=d.recent.map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d hide">${esc(e.detail)}</td></tr>`).join("");
+  $("[data-recent]").innerHTML=d.recent.slice(0,8).map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d hide">${esc(e.detail)}</td></tr>`).join("");
 }
 
 /* ---------- policy editor ---------- */
@@ -368,7 +400,7 @@ async function savePolicy(){
 $("[data-save]").addEventListener("click",savePolicy);
 $("[data-reload]").addEventListener("click",()=>{policyLoaded=false;loadPolicy();msg("Reloaded from policies.yaml.","");});
 
-load();setInterval(load,4000);
+route();load();setInterval(()=>{load();if(location.hash.replace("#","")==="activity")loadActivity();},4000);
 </script>
 </body>
 </html>
