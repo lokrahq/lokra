@@ -123,8 +123,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .btn.ghost:hover{border-color:#b9c3b7;color:var(--ink);background:var(--soft)}
 .ix{border:0;background:transparent;color:var(--faint);cursor:pointer;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none;transition:.15s}
 .ix:hover{background:var(--red-soft);color:var(--red)}.ix svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
-.savebar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;padding:12px 16px;margin-bottom:18px;background:rgba(247,248,245,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px}
-.savemsg{font-size:13px;color:var(--muted);flex:1;min-width:0}.savemsg.err{color:var(--red)}.savemsg.ok{color:var(--grn)}
+.hd-right{display:flex;align-items:center;gap:12px}
+.hd-actions{display:flex;align-items:center;gap:10px}
+.savemsg{font-size:13px;color:var(--muted);margin-bottom:16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 15px}.savemsg.err{color:var(--red);border-color:#f3cdc8}.savemsg.ok{color:var(--grn);border-color:#c3eccf}
 .savemsg pre{font:12px/1.5 var(--mono);color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:8px 0 0;max-height:150px;overflow:auto;white-space:pre-wrap}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv .k{color:var(--muted)}.kv .v{font:12.5px var(--mono);color:var(--ink)}
 @media(max-width:860px){.statbar{flex-wrap:wrap}.stat{flex:1 1 50%;border-bottom:1px solid var(--line)}.two{grid-template-columns:1fr}.side{display:none}main{padding:22px}td.hide{display:none}}
@@ -144,7 +145,13 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <main>
   <div class="hd">
     <h1 data-title>Dashboard</h1>
-    <span class="pill" data-status><span class="dot"></span><span data-status-text>…</span></span>
+    <div class="hd-right">
+      <span class="pill" data-status><span class="dot"></span><span data-status-text>…</span></span>
+      <div class="hd-actions" data-policy-actions hidden>
+        <button class="btn" data-reload>Reset</button>
+        <button class="btn primary" data-save>Save &amp; apply</button>
+      </div>
+    </div>
   </div>
 
   <!-- DASHBOARD -->
@@ -163,13 +170,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
   <!-- POLICY -->
   <section data-view="policy" hidden>
-    <div class="savebar">
-      <div class="savemsg" data-save-msg>Edit the policy, then save to apply it to the database.</div>
-      <button class="btn" data-reload>Reset</button>
-      <button class="btn primary" data-save>Save &amp; apply</button>
-    </div>
     <div class="note"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
       <div>Saving rewrites <b>policies.yaml</b> and reprovisions the database roles. Removing an agent drops its role.</div></div>
+    <div class="savemsg" data-save-msg hidden></div>
     <div class="pcols">
       <div class="ph2"><h2>Agents</h2><button class="btn" data-add-agent>+ Add agent</button></div>
       <div data-agents></div>
@@ -237,6 +240,7 @@ function show(view){
   const navView=view==="activity"?"audit":view;
   $$(".side nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===navView));
   $("[data-title]").textContent=TITLES[view];
+  $("[data-policy-actions]").hidden=view!=="policy";
   if(view==="policy"&&!policyLoaded)loadPolicy();
   if(view==="activity")loadActivity();
   if(main)main.scrollTop=0;
@@ -379,7 +383,7 @@ async function loadPolicy(){
   catch(e){msg("Could not load the policy.","err");}
 }
 function msg(text,cls,log){
-  const m=$("[data-save-msg]");m.className="savemsg"+(cls?" "+cls:"");
+  const m=$("[data-save-msg]");m.className="savemsg"+(cls?" "+cls:"");m.hidden=!text;
   m.innerHTML=esc(text)+(log&&log.length?`<pre>${esc(log.join("\n"))}</pre>`:"");
 }
 async function savePolicy(){
