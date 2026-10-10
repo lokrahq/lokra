@@ -30,8 +30,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 var(--sans
 .side .foot{font-size:11.5px;color:var(--faint);padding:8px;border-top:1px solid var(--line)}
 /* main */
 main{flex:1;min-width:0;overflow-y:auto;padding:34px 44px 80px}
-.hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px}
-.hd h1{font-size:24px;font-weight:600;letter-spacing:-.03em;margin:0 0 4px}.hd .sub{color:var(--muted);font-size:14px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}
+.hd h1{font-size:23px;font-weight:600;letter-spacing:-.03em;margin:0}
 .pill{display:inline-flex;align-items:center;gap:8px;background:var(--grn-soft);border:1px solid #c3eccf;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:500;color:#15803d;white-space:nowrap}
 .pill.bad{background:var(--red-soft);border-color:#f3cdc8;color:#b42318}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--grn)}.pill.bad .dot{background:var(--red)}
@@ -86,7 +86,7 @@ td.t{font:12px var(--mono);color:var(--faint);white-space:nowrap}td.d{color:var(
 /* policy editor */
 .note{display:flex;gap:11px;align-items:flex-start;background:#fffdf7;border:1px solid #f0e6c8;border-left:3px solid var(--amb);border-radius:11px;padding:13px 16px;margin-bottom:20px;color:#8a560d;font-size:13px}
 .note svg{width:17px;height:17px;flex:none;margin-top:1px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.pcols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+.pcols{max-width:760px}
 .cfg{margin-bottom:18px}
 .ph2{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .ph2 h2{font-size:16px;font-weight:600;letter-spacing:-.02em;margin:0}
@@ -97,12 +97,16 @@ input::placeholder{color:var(--faint)}
 textarea{resize:vertical;min-height:38px;line-height:1.4}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235f6560' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px}
 .acard{background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);padding:19px 21px;margin-bottom:15px}
-.acard .ah{display:flex;gap:12px;align-items:center;margin-bottom:4px}
-.acard .ah input{font-size:15px;font-weight:600;letter-spacing:-.01em;border-color:transparent;background:var(--soft)}
-.acard .role{font:12px var(--mono);color:var(--faint);margin:0 0 14px 2px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.acard .ah{display:flex;gap:12px;align-items:flex-end;margin-bottom:4px}
+.acard .ah .nm{flex:1}
+.acard .role{font:12px var(--mono);color:var(--faint);margin:2px 0 16px 2px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:4px}
 .fgrid .full{grid-column:1/-1}
-.sub2{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);margin:16px 0 9px}
+.sub2{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
+.rowhd{display:grid;gap:9px;margin-bottom:6px;padding:0 2px}
+.rowhd span{font-size:11px;color:var(--faint)}
+.rowhd.r{grid-template-columns:1fr 1.3fr 30px}
+.rowhd.w{grid-template-columns:1fr 1fr}
 .grow{display:grid;grid-template-columns:1fr 1.3fr auto;gap:9px;align-items:center;margin-bottom:8px}
 .gwrite{grid-template-columns:1fr auto auto}
 .ops{display:flex;gap:6px}
@@ -139,7 +143,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 </aside>
 <main>
   <div class="hd">
-    <div><h1 data-title>Dashboard</h1><div class="sub" data-sub>Loading your ledger…</div></div>
+    <h1 data-title>Dashboard</h1>
     <span class="pill" data-status><span class="dot"></span><span data-status-text>…</span></span>
   </div>
 
@@ -160,32 +164,29 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <!-- POLICY -->
   <section data-view="policy" hidden>
     <div class="note"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-      <div>Saving rewrites <b>policies.yaml</b> and reprovisions the database roles on this machine. Removing an agent drops its database role. Changes take effect immediately.</div></div>
+      <div>Saving rewrites <b>policies.yaml</b> and reprovisions the database roles. Removing an agent drops its role.</div></div>
     <div class="pcols">
-      <div>
-        <div class="ph2"><h2>Agents</h2><button class="btn" data-add-agent>+ Add agent</button></div>
-        <div data-agents></div>
+      <div class="ph2"><h2>Agents</h2><button class="btn" data-add-agent>+ Add agent</button></div>
+      <div data-agents></div>
+
+      <div class="panel cfg" style="margin-top:8px">
+        <div class="ph2"><h2>Masking</h2></div>
+        <label class="fl">Mask these columns wherever they are read</label>
+        <div class="rowhd r" style="margin-top:9px"><span>Column</span><span>How to mask</span><span></span></div>
+        <div data-cols></div>
+        <button class="btn ghost" data-add-col>+ Add column</button>
+        <label class="fl" style="margin-top:20px">Also mask these values anywhere, including free text</label>
+        <div class="dets" data-dets style="margin-top:9px"></div>
       </div>
-      <div>
-        <div class="panel cfg">
-          <div class="ph2"><h2>Masking by column</h2></div>
-          <div data-cols></div>
-          <button class="btn ghost" data-add-col>+ Add column rule</button>
-        </div>
-        <div class="panel cfg">
-          <div class="ph2"><h2>Value detectors</h2></div>
-          <p class="role" style="margin:-6px 0 12px 0">Mask these wherever they appear, including free text.</p>
-          <div class="dets" data-dets></div>
-        </div>
-        <div class="panel cfg">
-          <div class="ph2"><h2>Settings</h2></div>
-          <label class="fl">Write approval window (seconds)</label>
-          <input type="number" min="1" data-ttl>
-          <div style="margin-top:16px">
-            <div class="kv"><span class="k">Database host</span><span class="v" data-db="host"></span></div>
-            <div class="kv"><span class="k">Port</span><span class="v" data-db="port"></span></div>
-            <div class="kv"><span class="k">Database</span><span class="v" data-db="dbname"></span></div>
-          </div>
+
+      <div class="panel cfg">
+        <div class="ph2"><h2>Settings</h2></div>
+        <label class="fl">Write approval window (seconds)</label>
+        <input type="number" min="1" data-ttl>
+        <div style="margin-top:16px">
+          <div class="kv"><span class="k">Database host</span><span class="v" data-db="host"></span></div>
+          <div class="kv"><span class="k">Port</span><span class="v" data-db="port"></span></div>
+          <div class="kv"><span class="k">Database</span><span class="v" data-db="dbname"></span></div>
         </div>
       </div>
     </div>
@@ -198,7 +199,6 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
   <!-- AUDIT -->
   <section data-view="audit" hidden>
-    <div class="banner" data-banner><svg data-banner-ic viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><span data-banner-text>…</span><small data-banner-sub></small></div>
     <div class="two">
       <div class="panel"><h2>What was masked</h2><div class="bars" data-masked></div></div>
       <div class="panel"><h2>Top blocked reasons</h2><div class="rlist" data-reasons></div></div>
@@ -230,15 +230,13 @@ const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok2",write_appr
 const TRASH='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>';
 
 const main=$("main");
-const TITLES={dashboard:["Dashboard",""],policy:["Policy","Edit agents, their grants and masking rules."],audit:["Audit log","Every statement, signed and hash-chained."],activity:["Activity log","The complete ledger, newest first."]};
+const TITLES={dashboard:"Dashboard",policy:"Policy",audit:"Audit log",activity:"Activity log"};
 function show(view){
   if(!TITLES[view])view="dashboard";
   $$("section[data-view]").forEach(n=>n.hidden=n.dataset.view!==view);
   const navView=view==="activity"?"audit":view;
   $$(".side nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===navView));
-  $("[data-title]").textContent=TITLES[view][0];
-  $("[data-sub]").dataset.lock=view==="dashboard"?"":"1";
-  if(view!=="dashboard")$("[data-sub]").textContent=TITLES[view][1];
+  $("[data-title]").textContent=TITLES[view];
   if(view==="policy"&&!policyLoaded)loadPolicy();
   if(view==="activity")loadActivity();
   if(main)main.scrollTop=0;
@@ -264,7 +262,6 @@ async function load(){
   const r=d.report, ev=r.events_by_type||{};
   const st=$("[data-status]");st.className="pill"+(r.chain_verified?"":" bad");
   $("[data-status-text]").textContent=r.chain_verified?"Chain verified":"Chain broken";
-  if(!$("[data-sub]").dataset.lock)$("[data-sub]").textContent=r.risk_flags?`${r.risk_flags} flag${r.risk_flags>1?"s":""} need your review.`:"No risk flags. Everything looks normal.";
   $("[data-foot]").textContent=`${r.entry_count} ledger entr${r.entry_count===1?"y":"ies"}.`;
   const masked=r.agents.reduce((a,x)=>a+x.masked_total,0);
   const reads=ev.read||0, blocked=(ev.rejected||0)+(ev.db_refused||0)+(ev.denied||0);
@@ -283,11 +280,6 @@ async function load(){
   const flags=[];if(r.identity_denials)flags.push(`<div class="flag"><span class="who">unknown agent</span><span class="ms">${r.identity_denials} access attempt(s) by an unknown or expired agent</span></div>`);
   r.agents.forEach(a=>a.flags.forEach(f=>flags.push(`<div class="flag"><span class="who">${esc(a.agent)}</span><span class="ms">${esc(f.detail)}</span></div>`)));
   $("[data-flags]").innerHTML=flags.length?flags.join(""):'<div class="ok"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>No risk flags.</div>';
-  // audit: chain banner
-  const b=$("[data-banner]");b.className="banner"+(r.chain_verified?"":" bad");
-  $("[data-banner-ic]").innerHTML=r.chain_verified?'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>':'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>';
-  $("[data-banner-text]").textContent=r.chain_verified?"Ledger intact — the signed hash chain verifies.":"Ledger tampered — the hash chain does not verify.";
-  $("[data-banner-sub]").textContent=r.entry_count+" entries";
   // audit: masked + blocked reasons
   bars($("[data-masked]"),Object.entries(byType).sort((a,b)=>b[1]-a[1]),(k,i)=>COLORS[i%COLORS.length]);
   const rs=r.blocked_reasons||[];
@@ -304,7 +296,7 @@ function roleName(n){return "lokra_"+n.toLowerCase().replace(/[^a-z0-9]+/g,"_").
 function colsToText(c){return c==="*"||(Array.isArray(c)&&(c.length===0||c[0]==="*"))?"*":(Array.isArray(c)?c.join(", "):String(c));}
 function readRow(table,cols){
   const row=el("div","grow");
-  row.innerHTML=`<input data-k="table" placeholder="table" value="${esc(table)}"><input data-k="cols" placeholder="columns (comma-separated, or *)" value="${esc(cols)}">`;
+  row.innerHTML=`<input data-k="table" placeholder="table name" value="${esc(table)}"><input data-k="cols" placeholder="column1, column2  or  *" value="${esc(cols)}">`;
   const rm=el("button","ix",TRASH);rm.type="button";rm.onclick=()=>row.remove();row.appendChild(rm);
   return row;
 }
@@ -325,22 +317,25 @@ function writeRow(table,ops){
 function agentCard(a){
   a=a||{name:"",description:"",clinic_ids:[],read:[],write:[],max_rows:200};
   const card=el("div","acard");
-  const head=el("div","ah");head.innerHTML=`<input data-k="name" placeholder="agent-name" value="${esc(a.name)}">`;
+  const head=el("div","ah");
+  head.innerHTML=`<div class="nm"><label class="fl">Agent name</label><input data-k="name" placeholder="scheduling-bot" value="${esc(a.name)}"></div>`;
   const rm=el("button","ix",TRASH);rm.type="button";rm.title="Remove agent";rm.onclick=()=>card.remove();head.appendChild(rm);
   card.appendChild(head);
-  const role=el("p","role","role: "+(a.name?roleName(a.name):"lokra_…"));card.appendChild(role);
-  head.querySelector("input").addEventListener("input",e=>role.textContent="role: "+(e.target.value?roleName(e.target.value):"lokra_…"));
+  const role=el("p","role","Database role: "+(a.name?roleName(a.name):"lokra_…"));card.appendChild(role);
+  head.querySelector("input").addEventListener("input",e=>role.textContent="Database role: "+(e.target.value?roleName(e.target.value):"lokra_…"));
   const fg=el("div","fgrid");
-  fg.innerHTML=`<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`+
-    `<div><label class="fl">Clinic IDs</label><input data-k="clinics" placeholder="e.g. 1, 2" value="${esc((a.clinic_ids||[]).join(", "))}"></div>`+
-    `<div><label class="fl">Max rows per read</label><input type="number" min="1" data-k="maxrows" value="${esc(a.max_rows||200)}"></div>`;
+  fg.innerHTML=`<div><label class="fl">Clinic IDs it may see</label><input data-k="clinics" placeholder="e.g. 1, 2" value="${esc((a.clinic_ids||[]).join(", "))}"></div>`+
+    `<div><label class="fl">Max rows per read</label><input type="number" min="1" data-k="maxrows" value="${esc(a.max_rows||200)}"></div>`+
+    `<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`;
   card.appendChild(fg);
   card.appendChild(el("div","sub2",null)).textContent="Can read";
+  card.appendChild(el("div","rowhd r",'<span>Table</span><span>Columns</span><span></span>'));
   const reads=el("div","reads");(a.read||[]).forEach(r=>reads.appendChild(readRow(r.table,colsToText(r.columns))));card.appendChild(reads);
-  const addR=el("button","btn ghost","+ Add readable table");addR.type="button";addR.onclick=()=>reads.appendChild(readRow("",""));card.appendChild(addR);
+  const addR=el("button","btn ghost","+ Add table");addR.type="button";addR.onclick=()=>reads.appendChild(readRow("",""));card.appendChild(addR);
   card.appendChild(el("div","sub2",null)).textContent="Can write";
+  card.appendChild(el("div","rowhd w",'<span>Table</span><span>Operations</span>'));
   const writes=el("div","writes");(a.write||[]).forEach(w=>writes.appendChild(writeRow(w.table,w.ops||[])));card.appendChild(writes);
-  const addW=el("button","btn ghost","+ Add writable table");addW.type="button";addW.onclick=()=>writes.appendChild(writeRow("",[]));card.appendChild(addW);
+  const addW=el("button","btn ghost","+ Add table");addW.type="button";addW.onclick=()=>writes.appendChild(writeRow("",[]));card.appendChild(addW);
   card._reads=reads;card._writes=writes;
   return card;
 }
