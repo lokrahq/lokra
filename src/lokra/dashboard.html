@@ -189,6 +189,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
       <div class="panel cfg">
         <div class="ph2"><h2>Settings</h2></div>
+        <label class="chk" style="margin-bottom:14px"><input type="checkbox" data-require-purpose>Require a declared purpose on every request</label>
         <label class="fl">Write approval window (seconds)</label>
         <input type="number" min="1" data-ttl>
         <div style="margin-top:16px">
@@ -330,7 +331,8 @@ function agentCard(a){
   const fg=el("div","fgrid");
   fg.innerHTML=`<div><label class="fl">Clinic IDs it may see</label><input data-k="clinics" placeholder="e.g. 1, 2" value="${esc((a.clinic_ids||[]).join(", "))}"></div>`+
     `<div><label class="fl">Max rows per read</label><input type="number" min="1" data-k="maxrows" value="${esc(a.max_rows||200)}"></div>`+
-    `<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`;
+    `<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`+
+    `<div class="full"><label class="fl">Allowed purposes (optional, comma-separated)</label><input data-k="purposes" placeholder="e.g. customer-support, billing" value="${esc((a.purposes||[]).join(", "))}"></div>`;
   card.appendChild(fg);
   card.appendChild(el("div","sub2",null)).textContent="Can read";
   card.appendChild(el("div","rowhd r",'<span>Table</span><span>Columns</span><span></span>'));
@@ -362,6 +364,8 @@ function renderPolicy(p){
     dd.appendChild(lab);
   });
   $("[data-ttl]").value=p.approval_ttl_seconds;
+  const rp=$("[data-require-purpose]");rp.checked=!!p.require_purpose;rp.closest(".chk").classList.toggle("on",rp.checked);
+  rp.onchange=e=>rp.closest(".chk").classList.toggle("on",e.target.checked);
   $('[data-db="host"]').textContent=p.database.host;$('[data-db="port"]').textContent=p.database.port;$('[data-db="dbname"]').textContent=p.database.dbname;
   $("[data-add-agent]").onclick=()=>ac.appendChild(agentCard(null));
   $("[data-add-col]").onclick=()=>cc.appendChild(colRule("",OPTS.strategies[0]));
@@ -372,11 +376,12 @@ function gather(){
     const clinics=v("clinics").split(",").map(s=>s.trim()).filter(Boolean).map(Number);
     const read=[...card._reads.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),columns:r.querySelector('[data-k="cols"]').value.trim()})).filter(r=>r.table);
     const write=[...card._writes.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),ops:[...r.querySelectorAll("[data-op]")].filter(x=>x.checked).map(x=>x.dataset.op)})).filter(r=>r.table);
-    return {name:v("name").trim(),description:v("description").trim(),clinic_ids:clinics,read,write,max_rows:Number(v("maxrows")||200)};
+    const purposes=v("purposes").split(",").map(s=>s.trim()).filter(Boolean);
+    return {name:v("name").trim(),description:v("description").trim(),clinic_ids:clinics,read,write,purposes,max_rows:Number(v("maxrows")||200)};
   });
   const columns=$$("[data-cols] .grow").map(r=>({column:r.querySelector('[data-k="column"]').value.trim(),strategy:r.querySelector('[data-k="strategy"]').value})).filter(r=>r.column);
   const detectors=$$("[data-dets] [data-det]").filter(x=>x.checked).map(x=>x.dataset.det);
-  return {agents,masking:{columns,detectors},approval_ttl_seconds:Number($("[data-ttl]").value||3600)};
+  return {agents,masking:{columns,detectors},approval_ttl_seconds:Number($("[data-ttl]").value||3600),require_purpose:$("[data-require-purpose]").checked};
 }
 async function loadPolicy(){
   try{const p=await (await fetch("/api/policy",{cache:"no-store"})).json();renderPolicy(p);policyLoaded=true;}

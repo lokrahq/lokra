@@ -24,6 +24,7 @@ class AgentPolicy:
     read: dict[str, list[str] | str] = field(default_factory=dict)
     write: dict[str, list[str]] = field(default_factory=dict)
     max_rows: int = 200
+    purposes: list[str] = field(default_factory=list)
 
     @property
     def role(self) -> str:
@@ -41,6 +42,7 @@ class Config:
     masking_columns: dict[str, str]
     masking_detectors: list[str]
     approval_ttl_seconds: int = 3600
+    require_purpose: bool = False
 
     @property
     def ledger_path(self) -> Path:
@@ -111,6 +113,7 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
             read=a.get("read", {}) or {},
             write=a.get("write", {}) or {},
             max_rows=int(a.get("max_rows", 200)),
+            purposes=[str(p) for p in (a.get("purposes") or [])],
         )
     masking = raw.get("masking", {}) or {}
     home = Path(home or os.environ.get("LOKRA_HOME") or path.parent / ".lokra").resolve()
@@ -124,4 +127,5 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
         masking_columns={k.lower(): v for k, v in (masking.get("columns") or {}).items()},
         masking_detectors=list(masking.get("detectors") or []),
         approval_ttl_seconds=int(raw.get("approval_ttl_seconds", 3600)),
+        require_purpose=bool(raw.get("require_purpose", False)),
     )

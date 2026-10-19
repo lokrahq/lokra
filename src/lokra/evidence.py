@@ -10,14 +10,32 @@ from datetime import datetime, timezone
 from .config import Config
 from .report import build_report
 
-# Lokra control -> (review theme, Australian Privacy Principles).
-# Referenced by name only; see each framework for the authoritative text.
-MAPPING = [
-    ("Least-privilege access per agent", "Access control / identity", "APP 11"),
-    ("Masking of sensitive values", "Data minimisation", "APP 3, APP 11"),
-    ("Human approval for changes", "Change management", "APP 11"),
-    ("Tamper-evident audit log", "Logging and monitoring", "APP 1, APP 11"),
-    ("Blocked access attempts", "Threat detection", "APP 11"),
+# Each Lokra control, mapped to the frameworks an Australian health org answers
+# to. Referenced by name/number only; see each framework for the authoritative
+# text. Essential Eight is listed only where a mitigation genuinely applies.
+CONTROLS = [
+    {"control": "Least-privilege access per agent",
+     "app": "APP 11", "iso": "A.8.2, A.8.3", "e8": "Restrict administrative privileges"},
+    {"control": "Masking of sensitive values",
+     "app": "APP 3, APP 11", "iso": "A.8.11 Data masking", "e8": "—"},
+    {"control": "Human approval for changes",
+     "app": "APP 11", "iso": "A.5.15", "e8": "—"},
+    {"control": "Tamper-evident audit log",
+     "app": "APP 1, APP 11", "iso": "A.8.15, A.8.16", "e8": "—"},
+    {"control": "Blocked access attempts",
+     "app": "APP 11", "iso": "A.5.24–A.5.26, A.8.16", "e8": "—"},
+]
+
+# Shown only when the policy handles Australian health identifiers (IHI / Medicare).
+HEALTH_NOTES = [
+    "**Healthcare Identifiers Act 2010 / My Health Records Act 2012** — the "
+    "Individual Healthcare Identifier (IHI) and Medicare number are masked by "
+    "validated value, in results and in free-text notes.",
+    "**My Health Records Act 2012** — every access is written to a signed, "
+    "verifiable audit log, so who-saw-what is reconstructable.",
+    "**Notifiable Data Breaches scheme (Privacy Act 1988, Part IIIC)** — blocked "
+    "attempts and risk flags give you the evidence to assess a suspected breach "
+    "within the required timeframe.",
 ]
 
 
@@ -33,8 +51,13 @@ def build(cfg: Config, entries: list[dict], chain_ok: bool) -> dict:
 
     approvers = sorted({e.get("decided_by") for e in entries
                         if e.get("event") == "write_approved" and e.get("decided_by")})
+    purposes = sorted({e.get("purpose") for e in entries if e.get("purpose")})
     ev = rep["events_by_type"]
     blocked = sum(ev.get(k, 0) for k in ("rejected", "db_refused"))
+
+    health_terms = {"ihi", "medicare"}
+    health = bool(health_terms & set(cfg.masking_detectors)) or any(
+        any(t in col for t in health_terms) for col in cfg.masking_columns)
 
     agents = []
     for name, a in sorted(cfg.agents.items()):
@@ -52,6 +75,8 @@ def build(cfg: Config, entries: list[dict], chain_ok: bool) -> dict:
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "database": cfg.db_name,
         "chain_verified": chain_ok,
+        "health": health,
+        "purposes": purposes,
         "entry_count": rep["entry_count"],
         "summary": {
             "agents": len(cfg.agents),
@@ -92,6 +117,9 @@ def format_markdown(ev: dict) -> str:
         f"Generated {ev['generated']} from the signed audit ledger. "
         f"Covers {ev['entry_count']} entries. Audit chain: **{chain}**.",
         "",
+        "Deployment: Lokra is self-hosted. The database, the audit ledger and the signing "
+        "key stay within your infrastructure; Lokra sends data to no external service.",
+        "",
         "## Summary",
         "",
         f"- Agents under policy: **{s['agents']}**",
@@ -99,6 +127,10 @@ def format_markdown(ev: dict) -> str:
         f"- Changes: {s['writes_proposed']} proposed, {s['writes_approved']} approved, "
         f"{s['writes_denied']} denied, {s['writes_executed']} executed",
         f"- Sensitive identifiers masked: **{s['masked_total']}**",
+    ]
+    if ev["purposes"]:
+        L.append(f"- Purposes declared on requests: {', '.join(ev['purposes'])}")
+    L += [
         "",
         "## Controls",
         "",
@@ -159,12 +191,26 @@ def format_markdown(ev: dict) -> str:
         "",
         "## Framework mapping",
         "",
-        "Each control above maps to the themes vendor security and AI questionnaires ask "
-        "about (for example the US HSCC health-sector materials) and to the Australian "
-        "Privacy Principles. Frameworks are referenced by name; see each for its own text.",
+        "Each control maps to the Australian Privacy Principles (Privacy Act 1988), "
+        "ISO/IEC 27001:2022 Annex A, and, where it applies, the ACSC Essential Eight. "
+        "Frameworks are referenced by name or control number; see each for its own text.",
         "",
-        _table([[c, theme, app] for c, theme, app in MAPPING],
-               ["Lokra control", "Review theme", "Australian Privacy Principles"]),
+        _table([[c["control"], c["app"], c["iso"], c["e8"]] for c in CONTROLS] +
+               ([["Purpose-of-use enforcement", "APP 6", "A.5.15", "—"]] if ev["purposes"] else []),
+               ["Lokra control", "Privacy Act (APP)", "ISO/IEC 27001:2022", "Essential Eight"]),
+        "",
+    ]
+    if ev.get("health"):
+        L.append("### Health-specific")
+        L.append("")
+        for note in HEALTH_NOTES:
+            L.append(f"- {note}")
+        L.append("")
+    L += [
+        "> This pack is evidence to support a privacy and security assessment, not a "
+        "certification. Lokra addresses the controls listed above; the remaining parts of "
+        "each framework (the other Essential Eight mitigations, the ISO clauses about your "
+        "organisation, your hosting and backups) are your environment's responsibility.",
         "",
         "---",
         "",

@@ -86,12 +86,14 @@ def policy_payload(cfg: Config) -> dict:
             "read": read,
             "write": write,
             "max_rows": int(a.get("max_rows", 200)),
+            "purposes": [str(p) for p in (a.get("purposes") or [])],
         })
     masking = raw.get("masking") or {}
     columns = [{"column": c, "strategy": s} for c, s in (masking.get("columns") or {}).items()]
     return {
         "database": {"host": cfg.db_host, "port": cfg.db_port, "dbname": cfg.db_name},
         "approval_ttl_seconds": int(raw.get("approval_ttl_seconds", cfg.approval_ttl_seconds)),
+        "require_purpose": bool(raw.get("require_purpose", cfg.require_purpose)),
         "agents": agents,
         "masking": {"columns": columns, "detectors": list(masking.get("detectors") or [])},
         "options": {"write_ops": list(WRITE_OPS), "detectors": list(DETECTORS), "strategies": STRATEGIES},
@@ -154,11 +156,14 @@ def _build_doc(cfg: Config, data: dict) -> dict:
         except (TypeError, ValueError):
             errs.append(f"{name}: max rows must be a positive whole number")
             mr = 200
+        purposes = [str(p).strip() for p in (a.get("purposes") or []) if str(p).strip()]
         entry = {"description": (a.get("description") or "").strip(), "clinic_ids": clinic_ids}
         if read:
             entry["read"] = read
         if write:
             entry["write"] = write
+        if purposes:
+            entry["purposes"] = purposes
         entry["max_rows"] = mr
         agents[name] = entry
     if not agents:
@@ -184,12 +189,13 @@ def _build_doc(cfg: Config, data: dict) -> dict:
         ttl = cfg.approval_ttl_seconds
     if errs:
         raise ValueError("; ".join(errs))
-    return {
-        "database": {"host": cfg.db_host, "port": cfg.db_port, "dbname": cfg.db_name},
-        "agents": agents,
-        "masking": {"columns": columns, "detectors": detectors},
-        "approval_ttl_seconds": ttl,
-    }
+    doc = {"database": {"host": cfg.db_host, "port": cfg.db_port, "dbname": cfg.db_name}}
+    if data.get("require_purpose"):
+        doc["require_purpose"] = True
+    doc["agents"] = agents
+    doc["masking"] = {"columns": columns, "detectors": detectors}
+    doc["approval_ttl_seconds"] = ttl
+    return doc
 
 
 def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:

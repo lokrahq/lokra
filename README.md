@@ -7,6 +7,8 @@
 
 <p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a></p>
 
+<p align="center"><img src="docs/demo.gif" alt="An agent's read is masked, then its attacks are blocked because each agent is its own Postgres role" width="820"></p>
+
 <p align="center">
   <a href="https://github.com/lokrahq/lokra/actions/workflows/ci.yml"><img src="https://github.com/lokrahq/lokra/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0">
@@ -27,6 +29,8 @@ locked-down identity instead, and puts these controls on every request:
    number of rows they would change, and only run after a person approves them.
 4. **Tamper-evident audit ledger, with reporting.** Every request is written to a hash-chained,
    signed log, and `lokra report` turns it into a per-agent activity and risk summary.
+5. **Purpose of use.** An agent's token can carry a declared purpose. The policy can require one
+   (`require_purpose: true`) and limit which purposes an agent may use, and every request records it.
 
 > v0.1, local prototype. The lab uses **synthetic data only**.
 
@@ -150,8 +154,10 @@ the evidence an auditor asks for, generated from what already happened.
 For a review or a vendor questionnaire, `lokra evidence` turns the policy and the
 ledger into a control evidence pack: least-privilege grants per agent, masking
 rules and what they caught, the write-approval trail, the ledger's integrity
-check, and blocked access attempts, with a mapping to common review themes and
-the Australian Privacy Principles.
+check, and blocked access attempts, mapped to the Australian Privacy Principles,
+ISO/IEC 27001:2022 and the ACSC Essential Eight. When the policy handles health
+identifiers it adds a section for the Healthcare Identifiers Act, the My Health
+Records Act and the Notifiable Data Breaches scheme.
 
 ```bash
 lokra evidence                       # Markdown control pack to stdout
@@ -219,7 +225,8 @@ tests/
 - [ ] Slack approve/deny buttons instead of the CLI
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
 - [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)
-- [x] Control evidence pack from the policy and ledger (`lokra evidence`), mapped to review themes and the Australian Privacy Principles
+- [x] Control evidence pack (`lokra evidence`) mapped to the APPs, ISO/IEC 27001:2022, the Essential Eight, and — for health data — the Healthcare Identifiers Act, My Health Records Act and NDB scheme
+- [x] Purpose-of-use on every request: a declared, policy-enforced purpose recorded in the ledger (`require_purpose`, `--purpose`)
 - [ ] Deeper mapping to the US HSCC AI vendor questionnaire, question by question
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters

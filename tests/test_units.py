@@ -246,9 +246,20 @@ def test_evidence_pack(tmp_path):
     md = format_markdown(ev)
     assert md.startswith("# Lokra evidence pack — shop")
     assert "Framework mapping" in md and "lokra_bot" in md and "alice" in md
+    assert "ISO/IEC 27001:2022" in md and "Essential Eight" in md and "self-hosted" in md
+    assert ev["health"] is False and "Healthcare Identifiers Act" not in md  # no IHI/Medicare here
 
     ev_broken = build(cfg, entries, False)
     assert "BROKEN" in format_markdown(ev_broken)
+
+    # a policy that handles health identifiers gets the health-specific section
+    (tmp_path / "health.yaml").write_text(
+        "database: {host: 127.0.0.1, port: 5432, dbname: clinic}\n"
+        "agents:\n  bot:\n    read: {patients: \"*\"}\n    max_rows: 50\n"
+        "masking: {columns: {medicare_number: last4}, detectors: [medicare]}\n")
+    hcfg = load_config(tmp_path / "health.yaml")
+    hmd = format_markdown(build(hcfg, entries, True))
+    assert "Healthcare Identifiers Act" in hmd and "Notifiable Data Breaches" in hmd
 
 
 def test_policy_check_analyze(tmp_path):
@@ -282,3 +293,32 @@ def test_policy_check_clean(tmp_path):
         "masking: {columns: {}, detectors: []}\n")
     cfg = load_config(tmp_path / "policies.yaml")
     assert analyze(cfg, {"orders": {"id", "total", "note"}}) == []
+
+
+def test_token_carries_purpose():
+    key = b"k" * 32
+    t = tokens.mint(key, "bot", "sam", 300, purpose="billing")
+    assert tokens.verify(key, t)["purpose"] == "billing"
+    assert "purpose" not in tokens.verify(key, tokens.mint(key, "bot", "sam", 300))
+
+
+def test_purpose_of_use_enforced(tmp_path):
+    from lokra.config import load_config
+    from lokra.gateway import Gateway, GatewayError
+
+    (tmp_path / "policies.yaml").write_text(
+        "require_purpose: true\n"
+        "database: {host: 127.0.0.1, port: 5432, dbname: clinic}\n"
+        "agents:\n  bot:\n    read: {orders: \"*\"}\n    purposes: [scheduling, billing]\n    max_rows: 10\n"
+        "masking: {columns: {}, detectors: []}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    key = cfg.signing_key()
+
+    def who(purpose):
+        return Gateway(cfg, tokens.mint(key, "bot", "sam", 300, purpose=purpose)).whoami()
+
+    with pytest.raises(GatewayError):
+        who(None)              # required but missing
+    with pytest.raises(GatewayError):
+        who("research")        # not in the agent's allowlist
+    assert who("billing")["purpose"] == "billing"

@@ -73,12 +73,13 @@ def cmd_provision(args):
 def cmd_mint(args):
     cfg = _cfg(args)
     cfg.agent(args.agent)
-    print(tokens.mint(cfg.signing_key(), args.agent, args.on_behalf_of or getpass.getuser(), args.ttl))
+    print(tokens.mint(cfg.signing_key(), args.agent, args.on_behalf_of or getpass.getuser(),
+                      args.ttl, purpose=args.purpose))
 
 
 def cmd_try(args):
     cfg = _cfg(args)
-    token = tokens.mint(cfg.signing_key(), args.agent, getpass.getuser(), 300)
+    token = tokens.mint(cfg.signing_key(), args.agent, getpass.getuser(), 300, purpose=args.purpose)
     gw = Gateway(cfg, token)
     try:
         if args.write:
@@ -218,6 +219,7 @@ def main(argv=None):
     s.add_argument("agent")
     s.add_argument("--on-behalf-of", help="the human launching the agent (default: your username)")
     s.add_argument("--ttl", type=int, default=3600, help="seconds, max 8 hours")
+    s.add_argument("--purpose", help="declared purpose-of-use, recorded on every request")
     s.set_defaults(fn=cmd_mint)
 
     s = sub.add_parser("try", help="run SQL as an agent from the terminal")
@@ -225,6 +227,7 @@ def main(argv=None):
     s.add_argument("sql")
     s.add_argument("--write", action="store_true", help="propose a write instead of a read")
     s.add_argument("--reason")
+    s.add_argument("--purpose", help="declared purpose-of-use for this request")
     s.set_defaults(fn=cmd_try)
 
     s = sub.add_parser("pending", help="list writes waiting for approval")

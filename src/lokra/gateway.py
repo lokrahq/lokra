@@ -49,6 +49,15 @@ class Gateway:
         except (tokens.TokenError, ConfigError) as e:
             self.ledger.append({"event": "denied", "tool": tool, "reason": str(e)})
             raise GatewayError(f"access denied: {e}") from None
+        purpose = claims.get("purpose")
+        if self.cfg.require_purpose and not purpose:
+            reason = "a declared purpose-of-use is required for this request"
+            self.ledger.append({"event": "denied", "tool": tool, "agent": agent.name, "reason": reason})
+            raise GatewayError(f"access denied: {reason}")
+        if purpose and agent.purposes and purpose not in agent.purposes:
+            reason = f"purpose '{purpose}' is not permitted for {agent.name}"
+            self.ledger.append({"event": "denied", "tool": tool, "agent": agent.name, "reason": reason})
+            raise GatewayError(f"access denied: {reason}")
         return claims, agent
 
     def _connect(self, agent: AgentPolicy, read_only: bool) -> psycopg.Connection:
@@ -62,8 +71,11 @@ class Gateway:
         return conn
 
     def _base(self, claims: dict, agent: AgentPolicy, tool: str) -> dict:
-        return {"agent": agent.name, "role": agent.role, "on_behalf_of": claims.get("sub"),
+        base = {"agent": agent.name, "role": agent.role, "on_behalf_of": claims.get("sub"),
                 "token_id": claims.get("jti"), "tool": tool}
+        if claims.get("purpose"):
+            base["purpose"] = claims["purpose"]
+        return base
 
     def _db_error(self, base: dict, sql_text: str, e: psycopg.Error) -> GatewayError:
         msg = getattr(getattr(e, "diag", None), "message_primary", None) or str(e).splitlines()[0]
@@ -74,7 +86,8 @@ class Gateway:
     def whoami(self) -> dict:
         claims, agent = self._identity("whoami")
         return {"agent": agent.name, "description": agent.description, "on_behalf_of": claims.get("sub"),
-                "expires_in_seconds": int(claims["exp"] - time.time()), "max_rows": agent.max_rows}
+                "purpose": claims.get("purpose"), "expires_in_seconds": int(claims["exp"] - time.time()),
+                "max_rows": agent.max_rows}
 
     def list_tables(self) -> dict:
         claims, agent = self._identity("list_tables")

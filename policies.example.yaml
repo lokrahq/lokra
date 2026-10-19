@@ -6,6 +6,10 @@ database:
   port: 5432
   dbname: app
 
+# Require every agent token to declare a purpose-of-use; it is recorded on
+# every request and must be one of the agent's listed purposes.
+require_purpose: true
+
 agents:
   support-bot:
     description: Answers customer questions. Reads orders and customers, no writes.
@@ -13,6 +17,7 @@ agents:
       customers: [id, name, email, created_at]
       orders: "*"
       products: "*"
+    purposes: [customer-support]
     max_rows: 200
 
   ops-bot:
@@ -21,6 +26,7 @@ agents:
       orders: "*"
     write:
       orders: [update]
+    purposes: [order-fulfilment]
     max_rows: 200
 
 masking:

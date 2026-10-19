@@ -26,12 +26,15 @@ def _sign(key: bytes, body: str) -> str:
     return _b64(hmac.new(key, body.encode(), hashlib.sha256).digest())
 
 
-def mint(key: bytes, agent: str, on_behalf_of: str, ttl_seconds: int = 3600) -> str:
+def mint(key: bytes, agent: str, on_behalf_of: str, ttl_seconds: int = 3600,
+         purpose: str | None = None) -> str:
     if not 0 < ttl_seconds <= MAX_TTL_SECONDS:
         raise TokenError(f"ttl must be between 1 and {MAX_TTL_SECONDS} seconds")
     now = int(time.time())
     payload = {"agent": agent, "sub": on_behalf_of, "iat": now,
                "exp": now + ttl_seconds, "jti": secrets.token_hex(8)}
+    if purpose:
+        payload["purpose"] = purpose
     body = _b64(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode())
     return f"lokra1.{body}.{_sign(key, body)}"
 
