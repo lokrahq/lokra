@@ -7,6 +7,12 @@
 
 <p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a></p>
 
+<p align="center">
+  <a href="https://github.com/lokrahq/lokra/actions/workflows/ci.yml"><img src="https://github.com/lokrahq/lokra/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0">
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue" alt="Python 3.11+">
+</p>
+
 Lokra sits between AI agents (Claude Code, Cursor, OpenClaw, custom agents) and your
 Postgres database, and lets the database itself decide what each agent may see and change.
 
@@ -100,8 +106,16 @@ lokra report            # per-agent activity and risk flags
 lokra report --json     # machine-readable, for a SIEM or an evidence pack
 ```
 
-For a live view, `lokra dashboard` serves a local web page (127.0.0.1) with the
-same report, the risk flags up front and a colour-coded activity feed.
+For a live view, `lokra dashboard` serves a local web page (127.0.0.1) with a
+dashboard, a full audit log, and a policy editor that rewrites `policies.yaml`
+and reprovisions the database roles for you.
+
+<p align="center"><img src="docs/dashboard.png" alt="Lokra dashboard: agents, statement outcomes and risk flags" width="820"></p>
+
+The audit log shows every statement, what was masked, why requests were blocked,
+and each write from proposal through approval:
+
+<p align="center"><img src="docs/audit.png" alt="Lokra audit log: masking breakdown, blocked reasons and activity feed" width="820"></p>
 
 Flags are rules over the ledger, so each one traces back to its entries. This is
 the evidence an auditor asks for, generated from what already happened.

@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: clinic
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d clinic"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load lab schema and seed
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 55432 -U postgres -d clinic -v ON_ERROR_STOP=1 -f lab/db/init/01_schema.sql
+          psql -h 127.0.0.1 -p 55432 -U postgres -d clinic -v ON_ERROR_STOP=1 -f lab/db/init/02_seed.sql
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Provision agent roles
+        run: python -m lokra provision
+
+      - name: Run tests
+        run: python -m pytest -q
