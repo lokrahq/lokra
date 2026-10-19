@@ -112,7 +112,8 @@ def cmd_report(args):
 
 def cmd_dashboard(args):
     from .dashboard import serve
-    serve(_cfg(args), args.port)
+    dsn = args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
+    serve(_cfg(args), args.port, dsn)
     return 0
 
 
@@ -178,8 +179,9 @@ def main(argv=None):
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_report)
 
-    s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger")
+    s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger and policy")
     s.add_argument("--port", type=int, default=8900)
+    s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
 
     s = sub.add_parser("serve", help="run the MCP server (used by Claude Code)")

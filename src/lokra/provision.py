@@ -45,7 +45,7 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
             r = sql.Identifier(agent.role)
             password = saved.get(agent.role) or secrets.token_urlsafe(24)
             exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (agent.role,)).fetchone()
-            verb = "ALTER" if exists else "CREATE"
+            verb, past = ("ALTER", "altered") if exists else ("CREATE", "created")
             conn.execute(sql.SQL(
                 verb + " ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT "
                 "NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 10 PASSWORD {}"
@@ -63,7 +63,7 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
                     conn.execute("INSERT INTO lokra.agent_scopes (role_name, clinic_id) VALUES (%s, %s)",
                                  (agent.role, cid))
             saved[agent.role] = password
-            log.append(f"{verb.lower()}d role {agent.role}: clinics {agent.clinic_ids}, "
+            log.append(f"{past} role {agent.role}: clinics {agent.clinic_ids}, "
                        f"reads {sorted(agent.read)}, writes {sorted(agent.write) or 'none'}")
     cfg.save_db_secrets(saved)
     return log
