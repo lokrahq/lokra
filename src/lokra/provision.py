@@ -10,15 +10,18 @@ from .config import AgentPolicy, Config
 WRITE_OPS = {"insert": "INSERT", "update": "UPDATE", "delete": "DELETE"}
 
 
-def _grant_statements(agent: AgentPolicy, db_name: str) -> list[sql.Composed]:
+def _grant_statements(agent: AgentPolicy, db_name: str, scoped: bool) -> list[sql.Composed]:
     r = sql.Identifier(agent.role)
     stmts = [
         sql.SQL("REVOKE ALL ON ALL TABLES IN SCHEMA public FROM {}").format(r),
         sql.SQL("REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM {}").format(r),
         sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(sql.Identifier(db_name), r),
-        sql.SQL("GRANT USAGE ON SCHEMA public, lokra TO {}").format(r),
-        sql.SQL("GRANT EXECUTE ON FUNCTION lokra.agent_clinic_ids() TO {}").format(r),
     ]
+    if scoped:
+        stmts.append(sql.SQL("GRANT USAGE ON SCHEMA public, lokra TO {}").format(r))
+        stmts.append(sql.SQL("GRANT EXECUTE ON FUNCTION lokra.agent_clinic_ids() TO {}").format(r))
+    else:
+        stmts.append(sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(r))
     for table, cols in agent.read.items():
         t = sql.Identifier(table)
         if cols == "*" or cols == ["*"]:
@@ -55,15 +58,18 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
                                    ("search_path", "public")):
                 conn.execute(sql.SQL("ALTER ROLE {} SET {} = {}").format(
                     r, sql.Identifier(setting), sql.Literal(value)))
+            scoped = bool(agent.clinic_ids)
             with conn.transaction():
-                for stmt in _grant_statements(agent, cfg.db_name):
+                for stmt in _grant_statements(agent, cfg.db_name, scoped):
                     conn.execute(stmt)
-                conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (agent.role,))
-                for cid in agent.clinic_ids:
-                    conn.execute("INSERT INTO lokra.agent_scopes (role_name, clinic_id) VALUES (%s, %s)",
-                                 (agent.role, cid))
+                if scoped:
+                    conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (agent.role,))
+                    for cid in agent.clinic_ids:
+                        conn.execute("INSERT INTO lokra.agent_scopes (role_name, clinic_id) VALUES (%s, %s)",
+                                     (agent.role, cid))
             saved[agent.role] = password
-            log.append(f"{past} role {agent.role}: clinics {agent.clinic_ids}, "
+            scope = f"clinics {agent.clinic_ids}" if scoped else "all rows (no row scoping)"
+            log.append(f"{past} role {agent.role}: {scope}, "
                        f"reads {sorted(agent.read)}, writes {sorted(agent.write) or 'none'}")
     cfg.save_db_secrets(saved)
     return log

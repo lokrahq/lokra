@@ -17,6 +17,50 @@ def _cfg(args):
     return load_config(args.config, args.home)
 
 
+def cmd_init(args):
+    from pathlib import Path
+
+    from .config import dump_policy
+    from .introspect import build_policy, introspect
+
+    out = Path(args.out or "policies.yaml")
+    if out.exists() and not args.force:
+        print(f"error: {out} already exists (use --out PATH or --force to overwrite)", file=sys.stderr)
+        return 1
+    tables = introspect(args.dsn)
+    if not tables:
+        print("no base tables found in schema 'public'", file=sys.stderr)
+        return 1
+    doc = build_policy(args.dsn, tables)
+    out.write_text(dump_policy(doc))
+    cols = doc["masking"]["columns"]
+    n_cols = sum(len(c) for c in tables.values())
+    print(f"introspected {len(tables)} table(s), {n_cols} column(s) (read-only)")
+    print(f"flagged {len(cols)} column(s) to mask: {', '.join(sorted(cols)) or '(none)'}")
+    print(f"wrote {out}")
+    print("\nnext steps:")
+    print("  1. review the policy and tighten the agent's read grants")
+    print('  2. lokra provision --admin-dsn "<admin connection string>"')
+    print("  3. lokra dashboard")
+    return 0
+
+
+def cmd_check(args):
+    from .check import check
+    cfg = _cfg(args)
+    dsn = args.dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
+    findings = check(cfg, dsn)
+    errors = sum(1 for lvl, _ in findings if lvl == "error")
+    warns = sum(1 for lvl, _ in findings if lvl == "warn")
+    label = {"error": "ERROR", "warn": "WARN ", "info": "INFO "}
+    for lvl, msg in findings:
+        print(f"  {label[lvl]}  {msg}")
+    if not findings:
+        print("  OK     policy matches the database, nothing sensitive left unmasked")
+    print(f"\n{errors} error(s), {warns} warning(s)")
+    return 1 if errors else 0
+
+
 def cmd_provision(args):
     from .provision import provision
     cfg = _cfg(args)
@@ -79,6 +123,24 @@ def _decide(args, approve: bool):
     print(("approved" if approve else "denied") + f" by {by}")
 
 
+def cmd_evidence(args):
+    from . import evidence as ev_mod
+    cfg = _cfg(args)
+    led = Ledger(cfg.ledger_path, cfg.signing_key())
+    ev = ev_mod.build(cfg, led.entries(), led.verify()[0])
+    if args.json:
+        print(json.dumps(ev, indent=2, default=str))
+        return 0
+    text = ev_mod.format_markdown(ev)
+    if args.out:
+        from pathlib import Path
+        Path(args.out).write_text(text)
+        print(f"wrote {args.out}")
+    else:
+        print(text)
+    return 0
+
+
 def cmd_verify(args):
     cfg = _cfg(args)
     ok, n, msg = Ledger(cfg.ledger_path, cfg.signing_key()).verify()
@@ -138,6 +200,16 @@ def main(argv=None):
     p.add_argument("--home", help="state directory (default: .lokra next to the config)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
+    s = sub.add_parser("init", help="introspect a database (read-only) and scaffold a starter policies.yaml")
+    s.add_argument("dsn", help="connection string to the target database, e.g. a Supabase or local Postgres")
+    s.add_argument("--out", help="where to write the policy (default: policies.yaml)")
+    s.add_argument("--force", action="store_true", help="overwrite the file if it already exists")
+    s.set_defaults(fn=cmd_init)
+
+    s = sub.add_parser("check", help="validate the policy against the database (read-only)")
+    s.add_argument("--dsn", help="connection string to check against (default: lab database)")
+    s.set_defaults(fn=cmd_check)
+
     s = sub.add_parser("provision", help="create or update one DB role per agent")
     s.add_argument("--admin-dsn", help="admin connection string (default: lab database)")
     s.set_defaults(fn=cmd_provision)
@@ -178,6 +250,11 @@ def main(argv=None):
     s.add_argument("--agent", help="limit to one agent")
     s.add_argument("--json", action="store_true")
     s.set_defaults(fn=cmd_report)
+
+    s = sub.add_parser("evidence", help="generate a control evidence pack from the policy and ledger")
+    s.add_argument("--out", help="write the Markdown pack to this file instead of stdout")
+    s.add_argument("--json", action="store_true", help="emit structured JSON instead of Markdown")
+    s.set_defaults(fn=cmd_evidence)
 
     s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger and policy")
     s.add_argument("--port", type=int, default=8900)

@@ -53,6 +53,33 @@ Try it from the terminal as an agent:
 .venv/bin/lokra verify-ledger
 ```
 
+## Use your own database
+
+Point Lokra at any Postgres, including a Supabase database. `lokra init` connects
+**read-only**, introspects the schema, flags likely PII columns (email, phone,
+health and government identifiers) and writes a starter policy for you to review:
+
+```bash
+lokra init "postgresql://user:pass@host:5432/dbname"    # read-only, writes policies.yaml
+lokra check --dsn "postgresql://user:pass@host:5432/dbname"   # validate it against the schema
+# review and tighten policies.yaml, then provision the per-agent roles:
+lokra provision --admin-dsn "postgresql://admin:pass@host:5432/dbname"
+lokra dashboard
+```
+
+`lokra check` reads the database and flags grants on tables or columns that do
+not exist, any sensitive-looking column an agent can read with nothing masking
+it, and writes without a matching read, so you catch policy mistakes before an
+agent ever connects.
+
+For **Supabase**, use the connection string from Project Settings → Database (the
+direct connection, not the pooler). `init` only reads; `provision` needs a role that
+can create roles, such as `postgres`. Try it on a development project first.
+
+`policies.example.yaml` is a non-healthcare starting point you can copy instead.
+Per-row tenant isolation (row-level security) is optional and set up separately; the
+clinic lab in this repo is a worked example of it.
+
 ## Connect Claude Code
 
 **Desktop app or CLI:** put this `.mcp.json` in the folder where the agent works, then open a
@@ -120,6 +147,18 @@ and each write from proposal through approval:
 Flags are rules over the ledger, so each one traces back to its entries. This is
 the evidence an auditor asks for, generated from what already happened.
 
+For a review or a vendor questionnaire, `lokra evidence` turns the policy and the
+ledger into a control evidence pack: least-privilege grants per agent, masking
+rules and what they caught, the write-approval trail, the ledger's integrity
+check, and blocked access attempts, with a mapping to common review themes and
+the Australian Privacy Principles.
+
+```bash
+lokra evidence                       # Markdown control pack to stdout
+lokra evidence --out evidence.md     # or write it to a file
+lokra evidence --json                # structured, for your own templating
+```
+
 ## Conformance
 
 `conformance/` is a benchmark of nine safety guarantees a database access layer
@@ -176,11 +215,12 @@ tests/
 
 ## Roadmap
 
-- [ ] Supabase adapter and guide (most agent-connected databases are Supabase)
+- [x] Works against any Postgres, including Supabase (`lokra init` scaffolds the policy)
 - [ ] Slack approve/deny buttons instead of the CLI
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
 - [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)
-- [ ] Evidence export mapped to the US HSCC AI vendor questionnaire and AU privacy obligations
+- [x] Control evidence pack from the policy and ledger (`lokra evidence`), mapped to review themes and the Australian Privacy Principles
+- [ ] Deeper mapping to the US HSCC AI vendor questionnaire, question by question
 - [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
 - [ ] DuckDB and Snowflake adapters
 

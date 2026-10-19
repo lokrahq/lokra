@@ -1,0 +1,32 @@
+# Example policy for a generic app database.
+# Copy to policies.yaml and edit, or generate one from your own schema with:
+#   lokra init "postgresql://user:pass@host:5432/dbname"
+database:
+  host: 127.0.0.1
+  port: 5432
+  dbname: app
+
+agents:
+  support-bot:
+    description: Answers customer questions. Reads orders and customers, no writes.
+    read:
+      customers: [id, name, email, created_at]
+      orders: "*"
+      products: "*"
+    max_rows: 200
+
+  ops-bot:
+    description: Updates order status. Writes go through human approval.
+    read:
+      orders: "*"
+    write:
+      orders: [update]
+    max_rows: 200
+
+masking:
+  columns:
+    email: redact
+    phone: last3
+  detectors: [email]
+
+approval_ttl_seconds: 3600
