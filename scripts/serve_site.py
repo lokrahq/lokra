@@ -9,6 +9,10 @@ ROOT = Path(__file__).resolve().parent.parent / "site" / "public"
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def send_head(self):
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         target = ROOT / path.lstrip("/")

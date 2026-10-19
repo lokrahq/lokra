@@ -25,7 +25,7 @@
 <body>
 <div class="announce" data-announce>
   <div class="wrap announce-in">
-    <a href="#health"><b>For healthcare teams:</b> we're taking on a few design partners. <span>Learn more &rarr;</span></a>
+    <a href="#health" class="announce-msg"><span class="announce-dot" aria-hidden="true"></span>For healthcare teams &mdash; we're taking on a few design partners. <b>Learn more &rarr;</b></a>
     <button type="button" class="announce-x" data-dismiss aria-label="Dismiss announcement">&times;</button>
   </div>
 </div>
@@ -53,37 +53,47 @@
     </ul>
   </section>
 
-  <section class="demo" aria-label="Interactive Lokra demo">
-    <div class="app">
-      <div class="app-head">
-        <div class="asks">
-          <button type="button" class="chip" data-run="patients">Who's booked today?</button>
-          <button type="button" class="chip" data-run="notes">Read Noah's notes</button>
-          <button type="button" class="chip" data-run="cancel">Cancel an appointment</button>
+  <section class="herofig" aria-label="How Lokra protects your database">
+    <div class="shield" data-shield aria-label="AI agents pass through Lokra to reach your database">
+      <div class="col col-a">
+        <span class="col-h">AI agents</span>
+        <div class="chips">
+          <span class="lg" title="Claude"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg></span>
+          <span class="lg" title="ChatGPT"><svg viewBox="0 0 611 611" fill="currentColor" aria-hidden="true"><path d="M252.794 108.802C289.191 99.0484 326.265 110.305 351.148 135.135C385.113 126.072 422.85 134.862 449.492 161.505C476.136 188.149 484.925 225.888 475.862 259.85V259.854C500.696 284.735 511.95 321.81 502.198 358.207C492.447 394.602 464.161 421.084 430.215 430.217C421.083 464.162 394.603 492.448 358.206 502.199C321.812 511.951 284.734 500.693 259.852 475.864C225.887 484.927 188.15 476.137 161.507 449.495C134.864 422.851 126.073 385.111 135.136 351.149C110.304 326.266 99.0496 289.192 108.801 252.795C118.552 216.4 146.84 189.918 180.784 180.785C189.917 146.841 216.396 118.553 252.794 108.802ZM374.292 407.145C374.292 411.271 372.092 415.086 368.517 417.148L283.723 466.102C302.487 480.585 327.555 486.459 352.217 479.852C386.997 470.532 410.068 439.312 410.555 405.006V317.717C410.555 315.08 409.125 312.621 406.843 311.303L374.292 292.509V407.145ZM251.868 415.897C248.296 417.959 243.893 417.959 240.317 415.897L155.526 366.942C152.366 390.436 159.811 415.08 177.866 433.136H177.863C203.325 458.594 241.896 462.962 271.85 446.232L347.449 402.586C349.735 401.268 351.148 398.8 351.148 396.163V358.579L251.868 415.897ZM368.602 220.628C366.319 219.309 363.474 219.318 361.191 220.637L328.641 239.431L427.921 296.749C431.496 298.811 433.697 302.627 433.697 306.752V404.661C455.622 395.654 473.244 376.881 479.851 352.218C489.169 317.442 473.668 281.85 444.201 264.274L368.602 220.628ZM177.303 206.34C155.377 215.348 137.756 234.122 131.148 258.783C121.832 293.561 137.331 329.153 166.799 346.727L242.398 390.373C244.68 391.692 247.525 391.684 249.807 390.366L282.357 371.572L183.078 314.253C179.504 312.189 177.303 308.375 177.303 304.251V206.34ZM259.849 279.145V331.858L305.5 358.213L351.15 331.858V279.145L305.5 252.789L259.849 279.145ZM327.276 144.9C308.512 130.418 283.445 124.543 258.782 131.15C224.002 140.471 200.931 171.691 200.445 205.995V293.286C200.445 295.923 201.875 298.381 204.158 299.7L236.707 318.493V203.856C236.707 199.731 238.909 195.916 242.483 193.853L327.276 144.9ZM433.137 177.867C407.675 152.407 369.103 148.038 339.149 164.769L263.55 208.415C261.265 209.734 259.852 212.202 259.852 214.838V252.423L359.132 195.105C362.703 193.041 367.108 193.041 370.682 195.105L455.473 244.06C458.635 220.567 451.189 195.922 433.135 177.867H433.137Z"/></svg></span>
+          <span class="lg" title="Cursor"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></svg></span>
+          <span class="lg" title="GitHub Copilot"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.922 16.997C23.061 18.492 18.063 22.02 12 22.02 5.937 22.02.939 18.492.078 16.997A.641.641 0 0 1 0 16.741v-2.869a.883.883 0 0 1 .053-.22c.372-.935 1.347-2.292 2.605-2.656.167-.429.414-1.055.644-1.517a10.098 10.098 0 0 1-.052-1.086c0-1.331.282-2.499 1.132-3.368.397-.406.89-.717 1.474-.952C7.255 2.937 9.248 1.98 11.978 1.98c2.731 0 4.767.957 6.166 2.093.584.235 1.077.546 1.474.952.85.869 1.132 2.037 1.132 3.368 0 .368-.014.733-.052 1.086.23.462.477 1.088.644 1.517 1.258.364 2.233 1.721 2.605 2.656a.841.841 0 0 1 .053.22v2.869a.641.641 0 0 1-.078.256Zm-11.75-5.992h-.344a4.359 4.359 0 0 1-.355.508c-.77.947-1.918 1.492-3.508 1.492-1.725 0-2.989-.359-3.782-1.259a2.137 2.137 0 0 1-.085-.104L4 11.746v6.585c1.435.779 4.514 2.179 8 2.179 3.486 0 6.565-1.4 8-2.179v-6.585l-.098-.104s-.033.045-.085.104c-.793.9-2.057 1.259-3.782 1.259-1.59 0-2.738-.545-3.508-1.492a4.359 4.359 0 0 1-.355-.508Zm2.328 3.25c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm-5 0c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm3.313-6.185c.136 1.057.403 1.913.878 2.497.442.544 1.134.938 2.344.938 1.573 0 2.292-.337 2.657-.751.384-.435.558-1.15.558-2.361 0-1.14-.243-1.847-.705-2.319-.477-.488-1.319-.862-2.824-1.025-1.487-.161-2.192.138-2.533.529-.269.307-.437.808-.438 1.578v.021c0 .265.021.562.063.893Zm-1.626 0c.042-.331.063-.628.063-.894v-.02c-.001-.77-.169-1.271-.438-1.578-.341-.391-1.046-.69-2.533-.529-1.505.163-2.347.537-2.824 1.025-.462.472-.705 1.179-.705 2.319 0 1.211.175 1.926.558 2.361.365.414 1.084.751 2.657.751 1.21 0 1.902-.394 2.344-.938.475-.584.742-1.44.878-2.497Z"/></svg></span>
         </div>
-        <button type="button" class="play" data-play><span data-play-label>&#9654;&#xFE0E; Play</span><span class="long"> walkthrough</span></button>
+        <span class="col-s">or any MCP client</span>
       </div>
-      <div class="app-body">
-        <div class="list">
-          <table>
-            <thead><tr><th>Agent asked</th><th>Lokra</th></tr></thead>
-            <tbody data-ledger>
-              <tr><td class="ask-cell">Who's booked today?</td><td><span class="b ok">12 masked</span></td></tr>
-              <tr><td class="ask-cell">Read Noah's notes</td><td><span class="b err">Refused</span></td></tr>
-              <tr class="sel"><td class="ask-cell">Cancel Noah's Monday appointment</td><td><span class="b wait">Needs approval</span></td></tr>
-              <tr><td class="ask-cell">Drop the patients table</td><td><span class="b err">Blocked</span></td></tr>
-            </tbody>
-          </table>
+      <div class="lane lane-in" aria-hidden="true"><i class="tok" data-token="in"></i></div>
+      <div class="core">
+        <div class="core-top"><div class="core-badge"><svg viewBox="21.5 26 57 48" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5"/><path d="M25 70.5H75"/></svg></div><b>Lokra</b></div>
+        <ol class="core-steps">
+          <li><i>1</i>Verify identity</li>
+          <li><i>2</i>Check the SQL</li>
+          <li><i>3</i>Approve writes</li>
+          <li><i>4</i>Run as the role</li>
+          <li><i>5</i>Mask results</li>
+          <li><i>6</i>Sign the ledger</li>
+        </ol>
+        <span class="verdict" data-verdict>Masked &middot; 12 identifiers</span>
+      </div>
+      <div class="lane lane-out" aria-hidden="true"><i class="tok" data-token="out"></i></div>
+      <div class="col col-d">
+        <span class="col-h">Your servers</span>
+        <div class="srv">
+          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8v-13"/><path d="M5 12c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8"/></svg><em>Patient database</em></span>
+          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></svg><em>Clinical warehouse</em></span>
         </div>
-        <aside class="inspector" data-inspector aria-live="polite">
-          <span class="b wait">Needs approval</span>
-          <h3>Approve this change?</h3>
-          <p class="meta">scheduling-bot &middot; for sam</p>
-          <div class="diff"><div class="diff-head"><b>Noah Nguyen</b><span>Mon 10:00</span></div><div class="diff-row"><span class="k">status</span><span><span class="old">booked</span><span class="arrow">&rarr;</span><span class="new">cancelled</span></span></div></div>
-          <div class="decide"><button type="button" class="btn-sm" data-act="deny">Deny</button><button type="button" class="btn-sm yes" data-act="approve">Approve</button></div>
-        </aside>
+        <span class="col-s">on-prem &middot; in your region</span>
       </div>
     </div>
+      <div class="scn" data-scn-bar role="group" aria-label="Send a request">
+        <span class="scn-l">Send a request</span>
+        <button type="button" class="on" data-scn="read">Read patient</button>
+        <button type="button" data-scn="write">Update record</button>
+        <button type="button" data-scn="attack">Injected attack</button>
+      </div>
   </section>
 
   <section class="whynow">
@@ -96,42 +106,18 @@
     </div>
   </section>
 
-  <ul class="works">
-    <li class="label">Works with</li><li>Claude Code</li><li>Cursor</li><li>OpenClaw</li><li>Any MCP client</li><li>PostgreSQL</li><li>Supabase <em>soon</em></li>
-  </ul>
-
-  <section class="block" id="how">
-    <p class="eyebrow-sm">How it works</p>
-    <h2>One hop between your agents and your data.</h2>
-    <div class="flow" data-flow>
-      <div class="flow-bar">
-        <div class="seg" role="tablist" aria-label="Request type">
-          <button type="button" class="on" data-scn="read">Read</button>
-          <button type="button" data-scn="write">Write</button>
-          <button type="button" data-scn="attack">Attack</button>
-        </div>
-        <button type="button" class="flow-play" data-flow-play>&#8635; Replay</button>
-      </div>
-      <div class="flow-grid">
-        <div class="node" data-node="agent"><span class="node-k">Agent</span><b>Claude Code</b><small>or any MCP client</small></div>
-        <div class="wire" aria-hidden="true"><span class="w req" data-wire="a-l"></span><span class="w res" data-wire="l-a"></span></div>
-        <div class="lokra" data-node="lokra">
-          <span class="node-k">Lokra</span>
-          <ol class="stages">
-            <li data-stage="identity"><i>1</i>Verify identity</li>
-            <li data-stage="sql"><i>2</i>Check SQL</li>
-            <li data-stage="approval"><i>3</i>Human approval<em>writes</em></li>
-            <li data-stage="role"><i>4</i>Run as agent's role</li>
-            <li data-stage="mask"><i>5</i>Mask results</li>
-            <li data-stage="ledger"><i>6</i>Sign ledger</li>
-          </ol>
-        </div>
-        <div class="wire" aria-hidden="true"><span class="w req" data-wire="l-p"></span><span class="w res" data-wire="p-l"></span></div>
-        <div class="node" data-node="pg"><span class="node-k">Postgres</span><b>Own role per agent</b><small>Row-level security</small></div>
-      </div>
-      <p class="flow-cap" data-flow-cap aria-live="polite">Every request passes through six checks. The database itself has the final say.</p>
+  <div class="compat">
+    <div class="compat-g">
+      <span class="compat-k">Agents</span>
+      <span class="compat-list">Claude Code<span class="sep">/</span>Cursor<span class="sep">/</span>OpenClaw<span class="sep">/</span>any MCP client</span>
     </div>
-  </section>
+    <span class="compat-div" aria-hidden="true"></span>
+    <div class="compat-g">
+      <span class="compat-k">Data</span>
+      <span class="compat-list">PostgreSQL<span class="sep">/</span>Supabase <em>soon</em></span>
+    </div>
+  </div>
+
 
   <section class="block" id="deploy">
     <p class="eyebrow-sm">Deployment</p>
@@ -169,18 +155,26 @@
   </section>
 
   <section class="block" id="health">
-    <p class="eyebrow-sm">For healthcare teams</p>
-    <h2>Built for patient data.</h2>
-    <p class="lede">Health has been Australia's most-breached sector in every OAIC report since 2018. <a class="src" href="https://www.cliniccomply.com.au/blog/healthcare-data-breach-australia-obligations-guide">Source &#8599;</a></p>
-    <div class="features4">
-      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6.5 16c.6-1.4 1.5-2 2.5-2s1.9.6 2.5 2M14 10h4M14 13.5h3"/></svg><h4>Australian identifiers</h4><p>Medicare and IHI numbers masked by default, even in free text.</p></div>
-      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><h4>Stays in your region</h4><p>Self-host in Australia. Nothing is sent to us.</p></div>
-      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12.5l1.8 1.8 3.2-3.6"/></svg><h4>Audit-ready ledger</h4><p>Every agent action signed and verifiable with one command.</p></div>
-      <div class="f"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.6 3.6-5.5 7-5.5s6.1 1.9 7 5.5"/></svg><h4>A human signs off</h4><p>Writes to clinical systems always wait for approval.</p></div>
+    <p class="eyebrow-sm">For hospitals &amp; health services</p>
+    <h2>Give clinical AI agents a safe path to patient data.</h2>
+    <p class="lede">Health has been Australia's most-breached sector in every OAIC report since 2018. Point Lokra at the database behind a hospital system and every agent request is scoped, masked, approved and logged. <a class="src" href="https://www.cliniccomply.com.au/blog/healthcare-data-breach-australia-obligations-guide">Source &#8599;</a></p>
+
+    <div class="teams">
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><div><h4>Clinical app teams</h4><p>Ship agents that book, triage and summarise. Each gets its own database role; writes to the record wait for a clinician.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M19 8l-5 5-3-3-4 4"/></svg><div><h4>Data &amp; analytics</h4><p>Let agents query the warehouse with Medicare and IHI masked and research cohorts de-identified.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5.5L4.6 18A2 2 0 0 0 6.4 21h11.2a2 2 0 0 0 1.8-3L14 8.5V3"/><path d="M7.7 14h8.6"/></svg><div><h4>Digital health &amp; innovation</h4><p>Pilot new agents without handing over the whole database. Scope or revoke access in one line.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><h4>Security &amp; privacy</h4><p>A declared purpose on every request, a signed audit, and an evidence pack mapped to the APPs and My Health Records Act.</p></div></div>
     </div>
+
     <div class="partner">
       <p>Working with patient data? We're taking on a few design partners.</p>
-      <a class="btn primary" href="mailto:hello@lokra.dev?subject=Design%20partner">Talk to us <span aria-hidden="true">&rarr;</span></a>
+      <form class="waitlist" action="/api/waitlist" method="post" novalidate>
+        <label class="sr-only" for="partner-email">Email address</label>
+        <input id="partner-email" name="email" type="email" autocomplete="email" placeholder="you@hospital.org.au" required maxlength="254">
+        <span class="hp" aria-hidden="true"><label for="partner-website">Website</label><input id="partner-website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
+        <button class="btn primary" type="submit">Talk to us</button>
+        <p class="status" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </section>
 </main>
