@@ -119,6 +119,8 @@ tbody tr.fresh td { animation: flash 1.4s ease-out; }
 .waitlist { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 1 470px; }
 .waitlist input[type="email"] { height: 44px; flex: 1 1 220px; min-width: 0; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--fg); font: 15px var(--sans); }
 .waitlist input[type="email"]:focus { outline: 2px solid var(--fg); outline-offset: -1px; }
+.partner .waitlist { position: relative; }
+.partner .status { position: absolute; top: calc(100% + 6px); left: 2px; margin: 0; font-size: 13px; color: #b3352b; }
 .status { flex-basis: 100%; min-height: 1.4em; margin: 0; font-size: 14px; color: var(--muted); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
