@@ -34,7 +34,18 @@ locked-down identity instead, and puts these controls on every request:
 5. **Purpose of use.** An agent's token can carry a declared purpose. The policy can require one
    (`require_purpose: true`) and limit which purposes an agent may use, and every request records it.
 
-> v0.1, local prototype. The lab uses **synthetic data only**.
+## See it in a minute
+
+```bash
+pipx install lokra
+lokra demo
+```
+
+The demo starts a throwaway Postgres in Docker, loads a small fake SaaS database, and walks two
+AI agents through row locks, masking, refused injections, an approved write, a rate limit, a
+pause and the signed ledger, then removes everything. No Docker? Point it at any Postgres where
+you can create roles: `lokra demo --dsn "postgresql://…"`; it works in its own schema and
+cleans up after itself.
 
 ## Quick start
 

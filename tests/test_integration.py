@@ -541,3 +541,28 @@ def test_pause_blocks_the_database_login_and_survives_provision(cfg):
         set_login(cfg, LAB_ADMIN_DSN, agent, allowed=True)
     with raw(cfg, "test-researcher") as r:
         assert r.execute("SELECT 1").fetchone() == (1,)
+
+
+def test_demo_runs_end_to_end_and_cleans_up():
+    from lokra.demo import DemoError, run_demo
+
+    lines: list[str] = []
+    run_demo(LAB_ADMIN_DSN, out=lines.append)
+    text = "\n".join(lines)
+    assert "3 of 6 customers come back" in text
+    assert "[CARD]" in text and "ben@acme.example" not in text and "4012 8888" not in text
+    assert "REFUSED: send exactly one SQL statement" in text and "pg_read_file() is not allowed" in text
+    assert "2 row(s) updated" in text and "rate limit of 5 requests a minute" in text
+    assert "paused by you (demo)" in text and "hash chain verified" in text
+    assert "retry loop" in text and "probing" in text
+    with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+        assert not conn.execute("SELECT 1 FROM pg_namespace WHERE nspname = 'lokra_demo'").fetchone()
+        assert not conn.execute("SELECT 1 FROM pg_roles WHERE rolname LIKE 'lokra\\_demo%'").fetchone()
+        assert conn.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_agents'").fetchone()
+        conn.execute("CREATE SCHEMA lokra_demo")
+    try:
+        with pytest.raises(DemoError, match="already exists"):
+            run_demo(LAB_ADMIN_DSN, out=lines.append)
+    finally:
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            conn.execute("DROP SCHEMA lokra_demo")

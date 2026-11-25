@@ -242,6 +242,11 @@ def cmd_revoke(args):
     print(f"token {token_id} revoked")
 
 
+def cmd_demo(args):
+    from .demo import main as demo
+    return demo(args.dsn, args.keep)
+
+
 def cmd_slack(args):
     from .slack import run
     run(_cfg(args), args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN"))
@@ -316,6 +321,12 @@ def main(argv=None):
     s.add_argument("--port", type=int, default=8900)
     s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
+
+    s = sub.add_parser("demo", help="watch Lokra handle two AI agents on a throwaway Postgres (needs Docker or --dsn)")
+    s.add_argument("--dsn", help="use this Postgres instead of Docker; the demo needs to create roles, and removes "
+                                 "everything it creates")
+    s.add_argument("--keep", action="store_true", help="leave the demo database in place afterwards")
+    s.set_defaults(fn=cmd_demo)
 
     s = sub.add_parser("pause", help="stop an agent now: refuse its requests and block its database login")
     s.add_argument("agent")
