@@ -12,7 +12,9 @@ require_purpose: true
 
 agents:
   support-bot:
-    description: Answers customer questions. Reads orders and customers, no writes.
+    description: Answers customer questions for one account. Reads orders and customers, no writes.
+    # Only rows whose account_id is 42, on every table that has an account_id column.
+    rows: {column: account_id, values: [42]}
     read:
       customers: [id, name, email, created_at]
       orders: "*"

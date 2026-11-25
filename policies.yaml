@@ -6,7 +6,7 @@ database:
 agents:
   scheduling-bot:
     description: Books and moves appointments for Harbour GP Clinic only.
-    clinic_ids: [1]
+    rows: {column: clinic_id, values: [1], tables: {clinics: id}}
     read:
       clinics: "*"
       patients: [id, clinic_id, full_name, dob, phone, medicare_number]
@@ -17,7 +17,7 @@ agents:
 
   research-agent:
     description: De-identified analysis across all clinics. Read only.
-    clinic_ids: [1, 2, 3]
+    rows: {column: clinic_id, values: [1, 2, 3], tables: {clinics: id}}
     read:
       clinics: "*"
       patients: [id, clinic_id, dob]

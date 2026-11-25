@@ -43,6 +43,12 @@ def analyze(cfg: Config, colmap: dict[str, set[str]]) -> list[tuple[str, str]]:
                     continue
                 findings.append(("warn", f"{agent.name}: can read '{table}.{c}', which looks sensitive, "
                                          f"with no masking rule or detector"))
+        if agent.rows:
+            for table in sorted((set(agent.read) | set(agent.write)) & set(colmap)):
+                column = agent.rows.column_for(table)
+                if column not in colmap[table]:
+                    findings.append(("warn", f"{agent.name}: sees every row of '{table}', which has no "
+                                             f"'{column}' column to lock rows by"))
         for table in agent.write:
             if table not in colmap:
                 findings.append(("error", f"{agent.name}: writes table '{table}' which does not exist"))

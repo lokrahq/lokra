@@ -103,7 +103,10 @@ class Gateway:
             if column not in t[bucket]:
                 t[bucket].append(column)
         self.ledger.append({**base, "event": "listed_tables", "tables": sorted(tables)})
-        return {"tables": tables, "note": "Rows are limited to your clinic scope. Some values are masked."}
+        note = "Some values are masked."
+        if agent.rows:
+            note = f"You only see {agent.rows.describe()}. " + note
+        return {"tables": tables, "note": note}
 
     def query(self, sql_text: str) -> dict:
         claims, agent = self._identity("query")

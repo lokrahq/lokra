@@ -64,7 +64,7 @@ def build(cfg: Config, entries: list[dict], chain_ok: bool) -> dict:
         agents.append({
             "name": name,
             "role": a.role,
-            "row_scope": f"clinics {a.clinic_ids}" if a.clinic_ids else "all rows (no row scoping)",
+            "row_scope": a.rows.describe() if a.rows else "all rows (no row lock)",
             "reads": {t: ("all columns" if c in ("*", ["*"]) else ", ".join(c))
                       for t, c in a.read.items()},
             "writes": {t: ", ".join(ops) for t, ops in a.write.items()},

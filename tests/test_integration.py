@@ -14,7 +14,7 @@ POLICY = """
 database: {host: 127.0.0.1, port: 55432, dbname: clinic}
 agents:
   test-scheduler:
-    clinic_ids: [1]
+    rows: {column: clinic_id, values: [1], tables: {clinics: id}}
     read:
       clinics: "*"
       patients: [id, clinic_id, full_name, dob, phone, medicare_number]
@@ -23,7 +23,7 @@ agents:
       appointments: [insert, update]
     max_rows: 25
   test-researcher:
-    clinic_ids: [1, 2, 3]
+    rows: {column: clinic_id, values: [1, 2, 3]}
     read:
       patients: [id, clinic_id, dob]
       clinical_notes: [id, clinic_id, patient_id, note]
@@ -133,7 +133,7 @@ def test_cte_write_blocked_by_read_only_txn_even_without_parser(cfg, monkeypatch
     ("DROP TABLE patients", "must be owner"),
     ("SET ROLE postgres", "permission denied"),
     ("SET SESSION AUTHORIZATION postgres", "permission denied"),
-    ("SELECT * FROM lokra.agent_scopes", "permission denied"),
+    ("SELECT * FROM pg_authid", "permission denied"),
     ("DELETE FROM patients", "permission denied"),
     ("CREATE TABLE stolen (x int)", "permission denied"),
     ("SELECT pg_read_file('/etc/passwd')", "permission denied"),
@@ -233,8 +233,8 @@ def test_dashboard_applies_policy_and_drops_removed_roles(tmp_path):
     from lokra.dashboard import apply_policy, policy_payload
     (tmp_path / "policies.yaml").write_text(
         "database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
-        "agents:\n  ui-alpha:\n    clinic_ids: [1]\n    read: {patients: [id, clinic_id]}\n    max_rows: 10\n"
-        "  ui-beta:\n    clinic_ids: [2]\n    read: {clinics: \"*\"}\n"
+        "agents:\n  ui-alpha:\n    rows: {column: clinic_id, values: [1]}\n    read: {patients: [id, clinic_id]}\n    max_rows: 10\n"
+        "  ui-beta:\n    rows: {column: id, values: [2]}\n    read: {clinics: \"*\"}\n"
         "masking: {columns: {}, detectors: []}\n")
     c = load_config(tmp_path / "policies.yaml")
     try:
@@ -243,7 +243,7 @@ def test_dashboard_applies_policy_and_drops_removed_roles(tmp_path):
         assert {a["name"] for a in payload["agents"]} == {"ui-alpha", "ui-beta"}
         # drop ui-beta, add a write grant to ui-alpha, through the same path the UI uses
         new = {
-            "agents": [{"name": "ui-alpha", "clinic_ids": [1],
+            "agents": [{"name": "ui-alpha", "rows": {"column": "clinic_id", "values": "1"},
                         "read": [{"table": "patients", "columns": "id, clinic_id"}],
                         "write": [{"table": "appointments", "ops": ["insert"]}], "max_rows": 10}],
             "masking": {"columns": [{"column": "phone", "strategy": "last3"}], "detectors": ["medicare"]},
@@ -257,13 +257,13 @@ def test_dashboard_applies_policy_and_drops_removed_roles(tmp_path):
         reloaded = policy_payload(load_config(tmp_path / "policies.yaml"))
         assert reloaded["approval_ttl_seconds"] == 1800
         assert reloaded["masking"]["detectors"] == ["medicare"]
+        assert reloaded["agents"][0]["rows"] == {"column": "clinic_id", "values": [1]}
     finally:
         with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
             for role in ("lokra_ui_alpha", "lokra_ui_beta"):
                 if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
                     conn.execute(f"DROP OWNED BY {role}")
                     conn.execute(f"DROP ROLE IF EXISTS {role}")
-                conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (role,))
 
 
 def test_build_doc_rejects_bad_input():
@@ -276,7 +276,7 @@ def test_build_doc_rejects_bad_input():
     with pytest.raises(ValueError):
         _build_doc(cfg, {"agents": [{"name": "ok", "max_rows": 5}],
                          "masking": {"columns": [{"column": "x", "strategy": "bogus"}]}})
-    doc = _build_doc(cfg, {"agents": [{"name": "ok", "clinic_ids": [1],
+    doc = _build_doc(cfg, {"agents": [{"name": "ok", "rows": {"column": "clinic_id", "values": [1]},
                                        "read": [{"table": "patients", "columns": "*"}],
                                        "write": [{"table": "appointments", "ops": ["insert", "bad"]}],
                                        "max_rows": 7}],
@@ -308,10 +308,10 @@ def test_lokra_init_introspects_lab_db(tmp_path):
     assert cols.get("phone") == "last3"
     (tmp_path / "policies.yaml").write_text(dump_policy(doc))
     c = load_config(tmp_path / "policies.yaml")
-    assert "app-reader" in c.agents and c.agents["app-reader"].clinic_ids == []
+    assert "app-reader" in c.agents and c.agents["app-reader"].rows is None
 
 
-def test_provision_without_clinic_scopes(tmp_path):
+def test_provision_without_row_lock(tmp_path):
     (tmp_path / "policies.yaml").write_text(
         "database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
         "agents:\n  ui-plain:\n    read: {clinics: \"*\"}\n    max_rows: 50\n"
@@ -322,7 +322,8 @@ def test_provision_without_clinic_scopes(tmp_path):
         provision(c, LAB_ADMIN_DSN)
         with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
             assert conn.execute("SELECT has_table_privilege(%s, 'clinics', 'SELECT')", (role,)).fetchone()[0]
-            assert conn.execute("SELECT count(*) FROM lokra.agent_scopes WHERE role_name = %s", (role,)).fetchone()[0] == 0
+        with raw(c, "ui-plain") as r:
+            assert r.execute("SELECT count(*) FROM clinics").fetchone()[0] == 3
     finally:
         with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
             if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
@@ -334,3 +335,49 @@ def test_policy_check_against_lab(cfg):
     from lokra.check import check
     findings = check(cfg, LAB_ADMIN_DSN)
     assert [m for lvl, m in findings if lvl == "error"] == []
+
+
+def test_rows_lock_any_table_without_touching_other_roles(tmp_path):
+    policy = tmp_path / "policies.yaml"
+    locked = ("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+              "agents:\n"
+              "  acct-bot:\n    rows: {column: account_id, values: [7]}\n"
+              "    read: {lk_orders: \"*\"}\n    write: {lk_orders: [insert]}\n"
+              "  acct-all:\n    read: {lk_orders: \"*\"}\n")
+    roles = ("lokra_acct_bot", "lokra_acct_all")
+    with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+        conn.execute("DROP TABLE IF EXISTS lk_orders")
+        conn.execute("CREATE TABLE lk_orders (id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY, "
+                     "account_id int NOT NULL, total numeric NOT NULL)")
+        conn.execute("INSERT INTO lk_orders (account_id, total) VALUES (7, 10), (7, 20), (8, 30)")
+        conn.execute("DROP ROLE IF EXISTS lk_app")
+        conn.execute("CREATE ROLE lk_app LOGIN PASSWORD 'lk_app'")
+        conn.execute("GRANT SELECT ON lk_orders TO lk_app")
+    try:
+        policy.write_text(locked)
+        c = load_config(policy)
+        log = provision(c, LAB_ADMIN_DSN)
+        assert any("rows where account_id in [7]" in line for line in log)
+        with raw(c, "acct-bot") as r:
+            assert r.execute("SELECT DISTINCT account_id FROM lk_orders").fetchall() == [(7,)]
+            with pytest.raises(psycopg.Error, match="row-level security"):
+                r.execute("INSERT INTO lk_orders (account_id, total) VALUES (8, 1)")
+        with raw(c, "acct-all") as r:
+            assert r.execute("SELECT count(*) FROM lk_orders").fetchone()[0] == 3
+        with psycopg.connect(host="127.0.0.1", port=55432, dbname="clinic", user="lk_app", password="lk_app") as app:
+            assert app.execute("SELECT count(*) FROM lk_orders").fetchone()[0] == 3
+
+        policy.write_text(locked.replace("    rows: {column: account_id, values: [7]}\n", ""))
+        provision(load_config(policy), LAB_ADMIN_DSN)
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            assert conn.execute("SELECT relrowsecurity FROM pg_class WHERE relname = 'lk_orders'").fetchone()[0] is False
+            assert conn.execute("SELECT count(*) FROM pg_policies WHERE tablename = 'lk_orders'").fetchone()[0] == 0
+        with raw(c, "acct-bot") as r:
+            assert r.execute("SELECT count(*) FROM lk_orders").fetchone()[0] == 3
+    finally:
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            conn.execute("DROP TABLE IF EXISTS lk_orders")
+            for role in (*roles, "lk_app"):
+                if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
+                    conn.execute(f"DROP OWNED BY {role}")
+                    conn.execute(f"DROP ROLE IF EXISTS {role}")

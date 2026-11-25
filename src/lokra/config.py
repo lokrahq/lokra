@@ -17,10 +17,26 @@ class ConfigError(Exception):
 
 
 @dataclass
+class RowLock:
+    column: str
+    values: list[int | str]
+    tables: dict[str, str] = field(default_factory=dict)
+
+    def column_for(self, table: str) -> str:
+        return self.tables.get(table, self.column)
+
+    def describe(self) -> str:
+        text = f"rows where {self.column} in {self.values}"
+        for table, column in sorted(self.tables.items()):
+            text += f" ({table}: {column})"
+        return text
+
+
+@dataclass
 class AgentPolicy:
     name: str
     description: str = ""
-    clinic_ids: list[int] = field(default_factory=list)
+    rows: RowLock | None = None
     read: dict[str, list[str] | str] = field(default_factory=dict)
     write: dict[str, list[str]] = field(default_factory=dict)
     max_rows: int = 200
@@ -97,6 +113,21 @@ def dump_policy(doc: dict) -> str:
     return yaml.dump(doc, Dumper=Dumper, sort_keys=False, default_flow_style=False, allow_unicode=True)
 
 
+def _row_lock(agent: str, raw) -> RowLock | None:
+    if not raw:
+        return None
+    if not isinstance(raw, dict) or not raw.get("column") or raw.get("values") in (None, [], ""):
+        raise ConfigError(f"{agent}: rows needs a column and at least one value, "
+                          f"e.g. rows: {{column: org_id, values: [42]}}")
+    values = raw["values"] if isinstance(raw["values"], list) else [raw["values"]]
+    if not all(isinstance(v, (int, str)) and not isinstance(v, bool) for v in values):
+        raise ConfigError(f"{agent}: row values must be numbers or strings")
+    tables = raw.get("tables") or {}
+    if not isinstance(tables, dict):
+        raise ConfigError(f"{agent}: rows.tables maps a table to the column that holds its scope")
+    return RowLock(str(raw["column"]), values, {str(t): str(c) for t, c in tables.items()})
+
+
 def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike | None = None) -> Config:
     path = Path(path or os.environ.get("LOKRA_CONFIG", "policies.yaml")).resolve()
     if not path.exists():
@@ -106,10 +137,13 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
     agents = {}
     for name, a in (raw.get("agents") or {}).items():
         a = a or {}
+        if "clinic_ids" in a:
+            raise ConfigError(f"{name}: clinic_ids was replaced by rows, e.g. "
+                              f"rows: {{column: clinic_id, values: {a['clinic_ids']}, tables: {{clinics: id}}}}")
         agents[name] = AgentPolicy(
             name=name,
             description=a.get("description", ""),
-            clinic_ids=[int(c) for c in a.get("clinic_ids", [])],
+            rows=_row_lock(name, a.get("rows")),
             read=a.get("read", {}) or {},
             write=a.get("write", {}) or {},
             max_rows=int(a.get("max_rows", 200)),

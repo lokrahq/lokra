@@ -320,7 +320,7 @@ function writeRow(table,ops){
   return row;
 }
 function agentCard(a){
-  a=a||{name:"",description:"",clinic_ids:[],read:[],write:[],max_rows:200};
+  a=a||{name:"",description:"",rows:null,read:[],write:[],max_rows:200};
   const card=el("div","acard");
   const head=el("div","ah");
   head.innerHTML=`<div class="nm"><label class="fl">Agent name</label><input data-k="name" placeholder="scheduling-bot" value="${esc(a.name)}"></div>`;
@@ -329,7 +329,9 @@ function agentCard(a){
   const role=el("p","role","Database role: "+(a.name?roleName(a.name):"lokra_…"));card.appendChild(role);
   head.querySelector("input").addEventListener("input",e=>role.textContent="Database role: "+(e.target.value?roleName(e.target.value):"lokra_…"));
   const fg=el("div","fgrid");
-  fg.innerHTML=`<div><label class="fl">Clinic IDs it may see</label><input data-k="clinics" placeholder="e.g. 1, 2" value="${esc((a.clinic_ids||[]).join(", "))}"></div>`+
+  const rw=a.rows||{};
+  fg.innerHTML=`<div><label class="fl">Lock rows by column</label><input data-k="rowcol" placeholder="e.g. org_id" value="${esc(rw.column||"")}"></div>`+
+    `<div><label class="fl">Values it may see</label><input data-k="rowvals" placeholder="e.g. 42, 57" value="${esc((rw.values||[]).join(", "))}"></div>`+
     `<div><label class="fl">Max rows per read</label><input type="number" min="1" data-k="maxrows" value="${esc(a.max_rows||200)}"></div>`+
     `<div class="full"><label class="fl">Description</label><textarea data-k="description" placeholder="What this agent does">${esc(a.description)}</textarea></div>`+
     `<div class="full"><label class="fl">Allowed purposes (optional, comma-separated)</label><input data-k="purposes" placeholder="e.g. customer-support, billing" value="${esc((a.purposes||[]).join(", "))}"></div>`;
@@ -342,7 +344,7 @@ function agentCard(a){
   card.appendChild(el("div","rowhd w",'<span>Table</span><span>Operations</span>'));
   const writes=el("div","writes");(a.write||[]).forEach(w=>writes.appendChild(writeRow(w.table,w.ops||[])));card.appendChild(writes);
   const addW=el("button","btn ghost","+ Add table");addW.type="button";addW.onclick=()=>writes.appendChild(writeRow("",[]));card.appendChild(addW);
-  card._reads=reads;card._writes=writes;
+  card._reads=reads;card._writes=writes;card._rowTables=rw.tables||{};
   return card;
 }
 function colRule(column,strategy){
@@ -373,11 +375,11 @@ function renderPolicy(p){
 function gather(){
   const agents=$$("[data-agents] .acard").map(card=>{
     const v=k=>{const n=card.querySelector(`.ah [data-k="${k}"],.fgrid [data-k="${k}"]`);return n?n.value:"";};
-    const clinics=v("clinics").split(",").map(s=>s.trim()).filter(Boolean).map(Number);
+    const rows={column:v("rowcol").trim(),values:v("rowvals"),tables:card._rowTables};
     const read=[...card._reads.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),columns:r.querySelector('[data-k="cols"]').value.trim()})).filter(r=>r.table);
     const write=[...card._writes.querySelectorAll(".grow")].map(r=>({table:r.querySelector('[data-k="table"]').value.trim(),ops:[...r.querySelectorAll("[data-op]")].filter(x=>x.checked).map(x=>x.dataset.op)})).filter(r=>r.table);
     const purposes=v("purposes").split(",").map(s=>s.trim()).filter(Boolean);
-    return {name:v("name").trim(),description:v("description").trim(),clinic_ids:clinics,read,write,purposes,max_rows:Number(v("maxrows")||200)};
+    return {name:v("name").trim(),description:v("description").trim(),rows,read,write,purposes,max_rows:Number(v("maxrows")||200)};
   });
   const columns=$$("[data-cols] .grow").map(r=>({column:r.querySelector('[data-k="column"]').value.trim(),strategy:r.querySelector('[data-k="strategy"]').value})).filter(r=>r.column);
   const detectors=$$("[data-dets] [data-det]").filter(x=>x.checked).map(x=>x.dataset.det);

@@ -82,7 +82,7 @@ def policy_payload(cfg: Config) -> dict:
         agents.append({
             "name": name,
             "description": a.get("description", ""),
-            "clinic_ids": [int(c) for c in a.get("clinic_ids", [])],
+            "rows": a.get("rows") or None,
             "read": read,
             "write": write,
             "max_rows": int(a.get("max_rows", 200)),
@@ -103,6 +103,27 @@ def policy_payload(cfg: Config) -> dict:
 def _valid_strategy(s: str) -> bool:
     return s in ("none", "redact", "year_only", "hash") or (
         s.startswith("last") and s[4:].isdigit() and int(s[4:]) > 0)
+
+
+def _rows_entry(agent: str, rows, errs: list[str]) -> dict | None:
+    rows = rows or {}
+    column = str(rows.get("column") or "").strip()
+    values = rows.get("values") or []
+    if isinstance(values, str):
+        values = values.split(",")
+    values = [v.strip() if isinstance(v, str) else v for v in values]
+    values = [int(v) if isinstance(v, str) and v.lstrip("-").isdigit() else v for v in values if v not in ("", None)]
+    if not column and not values:
+        return None
+    if not column or not values:
+        errs.append(f"{agent}: locking rows needs both a column and at least one value")
+        return None
+    entry = {"column": column, "values": values}
+    tables = {str(t).strip(): str(c).strip() for t, c in (rows.get("tables") or {}).items()
+              if str(t).strip() and str(c).strip()}
+    if tables:
+        entry["tables"] = tables
+    return entry
 
 
 def _build_doc(cfg: Config, data: dict) -> dict:
@@ -143,12 +164,7 @@ def _build_doc(cfg: Config, data: dict) -> dict:
             ops = [o for o in (row.get("ops") or []) if o in WRITE_OPS]
             if ops:
                 write[t] = ops
-        clinic_ids = []
-        for c in a.get("clinic_ids", []):
-            try:
-                clinic_ids.append(int(c))
-            except (TypeError, ValueError):
-                errs.append(f"{name}: clinic id {c!r} is not a whole number")
+        rows = _rows_entry(name, a.get("rows"), errs)
         try:
             mr = int(a.get("max_rows", 200))
             if mr <= 0:
@@ -157,7 +173,9 @@ def _build_doc(cfg: Config, data: dict) -> dict:
             errs.append(f"{name}: max rows must be a positive whole number")
             mr = 200
         purposes = [str(p).strip() for p in (a.get("purposes") or []) if str(p).strip()]
-        entry = {"description": (a.get("description") or "").strip(), "clinic_ids": clinic_ids}
+        entry = {"description": (a.get("description") or "").strip()}
+        if rows:
+            entry["rows"] = rows
         if read:
             entry["read"] = read
         if write:
@@ -208,7 +226,6 @@ def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
         for role in stale:
             exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone()
-            conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (role,))
             if exists:
                 conn.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
                 conn.execute(sql.SQL("DROP ROLE IF EXISTS {}").format(sql.Identifier(role)))

@@ -216,7 +216,7 @@ def test_introspect_matcher_and_build_policy():
     doc = build_policy("postgresql://u:p@db.example:5432/shop", tables)
     assert doc["database"] == {"host": "db.example", "port": 5432, "dbname": "shop"}
     assert set(doc["agents"]["app-reader"]["read"]) == {"customers", "orders"}
-    assert doc["agents"]["app-reader"].get("clinic_ids") in (None, [])
+    assert "rows" not in doc["agents"]["app-reader"]
     assert doc["masking"]["columns"] == {"email": "redact", "mobile": "last3"}
     assert doc["masking"]["detectors"] == ["email"]
     assert yaml.safe_load(dump_policy(doc))["agents"]["app-reader"]["max_rows"] == 500
@@ -322,3 +322,21 @@ def test_purpose_of_use_enforced(tmp_path):
     with pytest.raises(GatewayError):
         who("research")        # not in the agent's allowlist
     assert who("billing")["purpose"] == "billing"
+
+
+def test_rows_config_and_check(tmp_path):
+    from lokra.check import analyze
+    from lokra.config import ConfigError, load_config
+    p = tmp_path / "policies.yaml"
+    p.write_text("agents:\n  bot:\n    rows: {column: org_id, values: [1, 'a'], tables: {orgs: id}}\n"
+                 "    read: {orgs: '*', orders: '*', products: '*'}\n")
+    a = load_config(p).agents["bot"]
+    assert a.rows.column_for("orgs") == "id" and a.rows.column_for("orders") == "org_id"
+    assert a.rows.describe() == "rows where org_id in [1, 'a'] (orgs: id)"
+    findings = analyze(load_config(p), {"orgs": {"id"}, "orders": {"id", "org_id"}, "products": {"id"}})
+    assert ("warn", "bot: sees every row of 'products', which has no 'org_id' column to lock rows by") in findings
+    assert not any("'orders'" in m or "'orgs'" in m for _, m in findings)
+    for bad in ("rows: {column: org_id}", "rows: {values: [1]}", "rows: {column: x, values: [true]}", "clinic_ids: [1]"):
+        p.write_text(f"agents:\n  bot:\n    {bad}\n")
+        with pytest.raises(ConfigError):
+            load_config(p)

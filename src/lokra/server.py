@@ -9,9 +9,9 @@ from .config import load_config
 from .gateway import Gateway, GatewayError
 
 INSTRUCTIONS = (
-    "You are connected to a clinic database through a policy proxy. "
+    "You are connected to a database through Lokra, a policy proxy. "
     "Call list_tables first to see what you may read. Use query for one SELECT at a time. "
-    "Rows outside your clinic scope are invisible, and identifiers such as Medicare numbers are masked. "
+    "Rows outside your scope are invisible, and sensitive values are masked. "
     "To change data, call propose_write; a human must approve it before execute_write will run."
 )
 
@@ -37,7 +37,7 @@ def build_server(gw: Gateway) -> MCPServer:
 
     @server.tool()
     def query(sql: str) -> dict:
-        """Run ONE read-only SQL SELECT. Results are scoped to your clinics and sensitive values are masked."""
+        """Run ONE read-only SQL SELECT. Rows outside your scope are invisible and sensitive values are masked."""
         return call(gw.query, sql)
 
     @server.tool()

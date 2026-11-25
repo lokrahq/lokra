@@ -8,20 +8,18 @@ from psycopg import sql
 from .config import AgentPolicy, Config
 
 WRITE_OPS = {"insert": "INSERT", "update": "UPDATE", "delete": "DELETE"}
+AGENT_GROUP = "lokra_agents"
+PASSTHROUGH = "lokra_passthrough"
 
 
-def _grant_statements(agent: AgentPolicy, db_name: str, scoped: bool) -> list[sql.Composed]:
+def _grant_statements(agent: AgentPolicy, db_name: str) -> list[sql.Composed]:
     r = sql.Identifier(agent.role)
     stmts = [
         sql.SQL("REVOKE ALL ON ALL TABLES IN SCHEMA public FROM {}").format(r),
         sql.SQL("REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM {}").format(r),
         sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(sql.Identifier(db_name), r),
+        sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(r),
     ]
-    if scoped:
-        stmts.append(sql.SQL("GRANT USAGE ON SCHEMA public, lokra TO {}").format(r))
-        stmts.append(sql.SQL("GRANT EXECUTE ON FUNCTION lokra.agent_clinic_ids() TO {}").format(r))
-    else:
-        stmts.append(sql.SQL("GRANT USAGE ON SCHEMA public TO {}").format(r))
     for table, cols in agent.read.items():
         t = sql.Identifier(table)
         if cols == "*" or cols == ["*"]:
@@ -40,10 +38,92 @@ def _grant_statements(agent: AgentPolicy, db_name: str, scoped: bool) -> list[sq
     return stmts
 
 
+def _public_columns(conn: psycopg.Connection) -> dict[str, set[str]]:
+    rows = conn.execute("SELECT table_name, column_name FROM information_schema.columns "
+                        "WHERE table_schema = 'public'").fetchall()
+    out: dict[str, set[str]] = {}
+    for table, column in rows:
+        out.setdefault(table, set()).add(column)
+    return out
+
+
+def _rls_enabled(conn: psycopg.Connection, table: str) -> bool:
+    row = conn.execute("SELECT c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace "
+                       "WHERE n.nspname = 'public' AND c.relname = %s", (table,)).fetchone()
+    return bool(row and row[0])
+
+
+def _locked_tables(agent: AgentPolicy, columns: dict[str, set[str]]) -> dict[str, str]:
+    if not agent.rows:
+        return {}
+    out = {}
+    for table in sorted(set(agent.read) | set(agent.write)):
+        column = agent.rows.column_for(table)
+        if column in columns.get(table, set()):
+            out[table] = column
+    return out
+
+
+def _enable_rls(conn: psycopg.Connection, table: str) -> None:
+    """Turn on row-level security without changing what non-agent roles can see."""
+    t = sql.Identifier(table)
+    not_agent = sql.SQL("NOT pg_has_role(session_user, {}, 'MEMBER')").format(sql.Literal(AGENT_GROUP))
+    conn.execute(sql.SQL("ALTER TABLE {} ENABLE ROW LEVEL SECURITY").format(t))
+    conn.execute(sql.SQL("CREATE POLICY {} ON {} AS PERMISSIVE FOR ALL TO PUBLIC USING ({}) WITH CHECK ({})")
+                 .format(sql.Identifier(PASSTHROUGH), t, not_agent, not_agent))
+
+
+def _drop_agent_policies(conn: psycopg.Connection, agent: AgentPolicy) -> None:
+    names = [f"{agent.role}_{suffix}" for suffix in ("rows", "lock", "all")]
+    for table, name in conn.execute("SELECT tablename, policyname FROM pg_policies "
+                                    "WHERE schemaname = 'public' AND policyname = ANY(%s)", (names,)).fetchall():
+        conn.execute(sql.SQL("DROP POLICY {} ON {}").format(sql.Identifier(name), sql.Identifier(table)))
+
+
+def _apply_row_policies(conn: psycopg.Connection, agent: AgentPolicy, locked: dict[str, str]) -> None:
+    r = sql.Identifier(agent.role)
+    for table in sorted(set(agent.read) | set(agent.write)):
+        t = sql.Identifier(table)
+        if table in locked:
+            cond = sql.SQL("{} IN ({})").format(
+                sql.Identifier(locked[table]), sql.SQL(", ").join(map(sql.Literal, agent.rows.values)))
+            for name, kind in ((f"{agent.role}_rows", "PERMISSIVE"), (f"{agent.role}_lock", "RESTRICTIVE")):
+                conn.execute(sql.SQL("CREATE POLICY {} ON {} AS " + kind + " FOR ALL TO {} USING ({}) WITH CHECK ({})")
+                             .format(sql.Identifier(name), t, r, cond, cond))
+        elif _rls_enabled(conn, table):
+            conn.execute(sql.SQL("CREATE POLICY {} ON {} AS PERMISSIVE FOR ALL TO {} USING (true) WITH CHECK (true)")
+                         .format(sql.Identifier(f"{agent.role}_all"), t, r))
+
+
+def _release_unlocked_tables(conn: psycopg.Connection) -> None:
+    """Undo row-level security that Lokra turned on, once no agent's rows are locked on that table."""
+    tables = [t for (t,) in conn.execute("SELECT tablename FROM pg_policies WHERE schemaname = 'public' "
+                                         "AND policyname = %s", (PASSTHROUGH,)).fetchall()]
+    for table in tables:
+        restrictive = conn.execute("SELECT count(*) FROM pg_policies WHERE schemaname = 'public' AND tablename = %s "
+                                   "AND permissive = 'RESTRICTIVE' AND policyname LIKE 'lokra\\_%%'",
+                                   (table,)).fetchone()[0]
+        if restrictive:
+            continue
+        t = sql.Identifier(table)
+        for (name,) in conn.execute("SELECT policyname FROM pg_policies WHERE schemaname = 'public' "
+                                    "AND tablename = %s AND policyname LIKE 'lokra\\_%%'", (table,)).fetchall():
+            conn.execute(sql.SQL("DROP POLICY {} ON {}").format(sql.Identifier(name), t))
+        conn.execute(sql.SQL("ALTER TABLE {} DISABLE ROW LEVEL SECURITY").format(t))
+
+
 def provision(cfg: Config, admin_dsn: str) -> list[str]:
     log: list[str] = []
     saved = cfg.db_secrets()
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone():
+            conn.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(AGENT_GROUP)))
+        columns = _public_columns(conn)
+        locks = {name: _locked_tables(agent, columns) for name, agent in cfg.agents.items()}
+        with conn.transaction():
+            for table in sorted({t for tables in locks.values() for t in tables}):
+                if not _rls_enabled(conn, table):
+                    _enable_rls(conn, table)
         for agent in cfg.agents.values():
             r = sql.Identifier(agent.role)
             password = saved.get(agent.role) or secrets.token_urlsafe(24)
@@ -58,18 +138,24 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
                                    ("search_path", "public")):
                 conn.execute(sql.SQL("ALTER ROLE {} SET {} = {}").format(
                     r, sql.Identifier(setting), sql.Literal(value)))
-            scoped = bool(agent.clinic_ids)
+            conn.execute(sql.SQL("GRANT {} TO {}").format(sql.Identifier(AGENT_GROUP), r))
             with conn.transaction():
-                for stmt in _grant_statements(agent, cfg.db_name, scoped):
+                for stmt in _grant_statements(agent, cfg.db_name):
                     conn.execute(stmt)
-                if scoped:
-                    conn.execute("DELETE FROM lokra.agent_scopes WHERE role_name = %s", (agent.role,))
-                    for cid in agent.clinic_ids:
-                        conn.execute("INSERT INTO lokra.agent_scopes (role_name, clinic_id) VALUES (%s, %s)",
-                                     (agent.role, cid))
+                _drop_agent_policies(conn, agent)
+                _apply_row_policies(conn, agent, locks[agent.name])
             saved[agent.role] = password
-            scope = f"clinics {agent.clinic_ids}" if scoped else "all rows (no row scoping)"
+            locked = locks[agent.name]
+            if locked:
+                scope = f"{agent.rows.describe()} on {sorted(locked)}"
+                unlocked = sorted((set(agent.read) | set(agent.write)) - set(locked))
+                if unlocked:
+                    scope += f"; all rows on {unlocked}"
+            else:
+                scope = "all rows (no row lock)"
             log.append(f"{past} role {agent.role}: {scope}, "
                        f"reads {sorted(agent.read)}, writes {sorted(agent.write) or 'none'}")
+        with conn.transaction():
+            _release_unlocked_tables(conn)
     cfg.save_db_secrets(saved)
     return log

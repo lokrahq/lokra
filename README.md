@@ -59,7 +59,8 @@ Try it from the terminal as an agent:
 
 ## Use your own database
 
-Point Lokra at any Postgres, including a Supabase database. `lokra init` connects
+Install it with `pipx install lokra` (or `uv tool install lokra`), then point it at any
+Postgres, including a Supabase database. `lokra init` connects
 **read-only**, introspects the schema, flags likely PII columns (email, phone,
 health and government identifiers) and writes a starter policy for you to review:
 
@@ -81,8 +82,26 @@ direct connection, not the pooler). `init` only reads; `provision` needs a role 
 can create roles, such as `postgres`. Try it on a development project first.
 
 `policies.example.yaml` is a non-healthcare starting point you can copy instead.
-Per-row tenant isolation (row-level security) is optional and set up separately; the
-clinic lab in this repo is a worked example of it.
+
+### Lock rows
+
+Give an agent a `rows` rule and it only sees, inserts and updates rows whose column holds
+one of the listed values, on every table it can reach that has that column:
+
+```yaml
+agents:
+  support-bot:
+    rows: {column: account_id, values: [42]}
+    read: {customers: "*", orders: "*", products: "*"}
+```
+
+`lokra provision` turns this into Postgres row-level security policies for that agent's
+role, so the database enforces it. Other roles and your app keep the access they had:
+if a table had row-level security off, Lokra turns it on with a pass-through policy for
+everyone except Lokra's agents, and turns it off again when no agent's rows are locked
+there. Where a table names the scope differently, map it with
+`tables: {accounts: id}`. `lokra check` warns about tables the agent can read that have
+no column to lock by.
 
 ## Connect Claude Code
 
@@ -191,7 +210,7 @@ enforces access, and each layer still holds if the one before it fails:
 | SQL check | Writes in the read tool, stacked statements, DDL, `SET ROLE` | Proxy (sqlglot), fails closed |
 | Prepared statements only | `COMMIT; DROP ...` style stacking | Postgres protocol |
 | Per-agent login role | Tables and columns outside the policy | Postgres grants |
-| Row-level security | Rows from other clinics | Postgres RLS keyed on `session_user` |
+| Row lock | Rows outside the agent's scope, reads and writes | Postgres RLS policies per agent role |
 | Read-only transaction | Writes hidden in CTEs or functions | Postgres |
 | Statement timeout | Runaway queries | Postgres role setting |
 | Masking | Identifiers in results, aliases, free text | Proxy, checksum-validated detectors |
