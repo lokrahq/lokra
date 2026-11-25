@@ -232,6 +232,12 @@ footer a:hover { color: var(--fg); }
 .compat-div { width: 1px; align-self: stretch; background: var(--line); }
 @media (max-width: 640px) { .compat { gap: 22px; } .compat-div { display: none; } }
 .block { margin-top: 128px; }
+.demo-run { margin-top: 96px; }
+.demo-run code { font: 14px var(--mono); background: var(--soft); padding: 2px 6px; }
+.rec { margin: 0; }
+.rec img { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 1px 2px rgba(10,10,10,.04), 0 18px 40px -18px rgba(10,10,10,.18); }
+.rec figcaption { margin-top: 16px; font: 13px var(--mono); color: var(--muted); text-align: center; }
+.rec figcaption span { color: var(--faint); margin-right: 6px; }
 .eyebrow-sm { font: 12px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 0 0 10px; }
 .block h2 { font-size: clamp(30px, 4vw, 40px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; margin: 0 0 36px; }
 .deploy { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }

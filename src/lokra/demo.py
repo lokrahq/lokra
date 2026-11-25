@@ -236,7 +236,8 @@ def _story(cfg, say, st: Style) -> None:
     links = [_glyph(st, e.get("event", "")) + (st.dim("─") if i < len(entries) - 1 else "")
              for i, e in enumerate(entries)]
     st.build("     ", links, say, step=0.05)
-    say("     " + st.dim(f"{st.green('●')} read  {st.yellow('◆')} write  {st.red('✗')} blocked  ○ control"))
+    say(f"     {st.green('●')} {st.dim('read')}  {st.yellow('◆')} {st.dim('write')}  "
+        f"{st.red('✗')} {st.dim('blocked')}  {st.dim('○ control')}")
     st.pause(0.3)
     say("", "  " + (st.ok(f"{len(entries)} entries, hash chain verified") if ok
                     else st.red(f"{len(entries)} entries, hash chain BROKEN")))

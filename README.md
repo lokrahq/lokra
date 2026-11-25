@@ -7,7 +7,7 @@
 
 <p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a></p>
 
-<p align="center"><img src="docs/demo.gif" alt="An agent's read is masked, then its attacks are blocked because each agent is its own Postgres role" width="820"></p>
+<p align="center"><img src="docs/demo.svg" alt="lokra demo: two AI agents meet a production-like Postgres. Row locks, masking, blocked prompt injection, an approved write, a rate limit and pause, and the signed ledger." width="820"></p>
 
 <p align="center">
   <a href="https://github.com/lokrahq/lokra/actions/workflows/ci.yml"><img src="https://github.com/lokrahq/lokra/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
