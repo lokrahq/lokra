@@ -23,8 +23,10 @@ locked-down identity instead, and puts these controls on every request:
 
 1. **Scoped identity.** Each agent logs in as its own Postgres role with only the tables,
    columns and rows its policy allows. Agents receive a short-lived signed token, never a password.
-2. **Masking.** Medicare numbers, IHIs, phone numbers and emails are masked in results,
-   including inside free-text notes and renamed columns.
+2. **Masking.** Emails, phone numbers, payment cards, IBANs, US Social Security numbers and
+   Australian Medicare and IHI numbers are masked in results, including inside free-text notes
+   and renamed columns. Cards, IBANs and health identifiers are checksum-validated, so ordinary
+   numbers are left alone.
 3. **Human approval for writes.** INSERT, UPDATE and DELETE are dry-run, shown with the
    number of rows they would change, and only run after a person approves them.
 4. **Tamper-evident audit ledger, with reporting.** Every request is written to a hash-chained,
@@ -140,6 +142,40 @@ claude mcp add clinic-db \
 Then ask something like "which patients have appointments on Monday?".
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
+
+## Approve writes in Slack
+
+`lokra slack` posts each pending write to a Slack channel, with the agent, the person it acts
+for, its reason, the masked SQL and the dry-run row count, plus Approve and Deny buttons. Only
+the people you list can decide, and every decision lands in the signed ledger. It connects out
+to Slack over Socket Mode, so Lokra needs no public URL.
+
+1. At [api.slack.com/apps](https://api.slack.com/apps), create an app from this manifest and
+   install it to your workspace. Copy the bot token (`xoxb-…`).
+
+   ```yaml
+   display_information: {name: Lokra}
+   features: {bot_user: {display_name: Lokra}}
+   oauth_config: {scopes: {bot: [chat:write]}}
+   settings: {interactivity: {is_enabled: true}, socket_mode_enabled: true}
+   ```
+
+2. Under Basic Information, create an app-level token with the `connections:write` scope
+   (`xapp-…`), and invite the bot to your approvals channel.
+3. Add the channel ID and the Slack member IDs of your approvers to `policies.yaml`:
+
+   ```yaml
+   slack: {channel: C0123ABCD, approvers: [U0123ABCD, U0456EFGH]}
+   ```
+
+4. Install the extra and run it next to your policy:
+
+   ```bash
+   pipx install 'lokra[slack]'
+   LOKRA_SLACK_BOT_TOKEN=xoxb-… LOKRA_SLACK_APP_TOKEN=xapp-… lokra slack
+   ```
+
+Writes approved or denied in the dashboard or the terminal close their Slack message too.
 
 ## Agents on other machines
 

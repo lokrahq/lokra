@@ -203,7 +203,7 @@ def test_introspect_matcher_and_build_policy():
     from lokra.introspect import _match, build_policy
 
     assert _match("patient_email") == ("redact", "email")
-    assert _match("home_phone") == ("last3", None)
+    assert _match("home_phone") == ("last3", "phone")
     assert _match("date_of_birth") == ("year_only", None)
     assert _match("medicare_number") == ("last4", "medicare")
     assert _match("full_name") is None
@@ -218,7 +218,7 @@ def test_introspect_matcher_and_build_policy():
     assert set(doc["agents"]["app-reader"]["read"]) == {"customers", "orders"}
     assert "rows" not in doc["agents"]["app-reader"]
     assert doc["masking"]["columns"] == {"email": "redact", "mobile": "last3"}
-    assert doc["masking"]["detectors"] == ["email"]
+    assert doc["masking"]["detectors"] == ["email", "phone"]
     assert yaml.safe_load(dump_policy(doc))["agents"]["app-reader"]["max_rows"] == 500
 
 
@@ -357,3 +357,38 @@ def test_schema_qualified_table_names(tmp_path):
     assert a.rows.column_for("orgs") == "id"
     assert sqlcheck.check_read("SELECT * FROM billing.invoices JOIN public.orgs o ON true").tables == \
         ["billing.invoices", "orgs"]
+
+
+@pytest.mark.parametrize("text,label", [
+    ("Card 4111 1111 1111 1111 on file", "[CARD]"),
+    ("amex 3782-822463-10005", "[CARD]"),
+    ("pay GB82 WEST 1234 5698 7654 32 today", "[IBAN]"),
+    ("DE89370400440532013000", "[IBAN]"),
+    ("SSN 078-05-1120", "[SSN]"),
+    ("call +1 415 555 0132", "[PHONE]"),
+    ("+44 20 7946 0958", "[PHONE]"),
+    ("(415) 555-0132", "[PHONE]"),
+])
+def test_international_detectors_mask(text, label):
+    from lokra.masking import DETECTORS
+    assert label in Masker({}, list(DETECTORS)).scrub_text(text)
+
+
+@pytest.mark.parametrize("text", [
+    "bad card 4111 1111 1111 1112",
+    "GB82 WEST 1234 5698 7654 33",
+    "SSN 000-12-3456", "id 666-12-3456", "id 912-12-3456",
+    "on 2026-11-25 at 10:30", "order 123456789", "ref 1234-5678",
+    "version 1.2.3.4", "total 1,250,000.00", "ip 192.168.100.1",
+])
+def test_international_detectors_leave_ordinary_numbers(text):
+    from lokra.masking import DETECTORS
+    assert Masker({}, list(DETECTORS)).scrub_text(text) == text
+
+
+def test_ihi_is_not_read_as_a_card():
+    from collections import Counter
+    from lokra.masking import DETECTORS
+    counts = Counter()
+    assert Masker({}, list(DETECTORS)).scrub_text("IHI 8003 6000 1338 9082", counts) == "IHI [IHI]"
+    assert counts == {"ihi": 1}

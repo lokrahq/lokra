@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <script src="/site.js" defer></script>
 <link rel="alternate" type="text/markdown" href="/llms.txt">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lokra","description":"Open-source MCP server between AI agents and Postgres: per-agent database roles, masking of sensitive identifiers, human approval for writes and a signed audit ledger.","url":"https://lokra.dev","applicationCategory":"SecurityApplication","operatingSystem":"Linux, macOS","softwareVersion":"0.3.0","license":"https://www.apache.org/licenses/LICENSE-2.0","codeRepository":"https://github.com/lokrahq/lokra","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Lokra","url":"https://lokra.dev","email":"hello@lokra.dev"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lokra","description":"Open-source MCP server between AI agents and Postgres: per-agent database roles, masking of sensitive identifiers, human approval for writes and a signed audit ledger.","url":"https://lokra.dev","applicationCategory":"SecurityApplication","operatingSystem":"Linux, macOS","softwareVersion":"0.4.0","license":"https://www.apache.org/licenses/LICENSE-2.0","codeRepository":"https://github.com/lokrahq/lokra","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Lokra","url":"https://lokra.dev","email":"hello@lokra.dev"}}</script>
 </head>
 <body>
 <div class="announce" data-announce>
@@ -129,6 +129,7 @@
         <ul class="ticks">
           <li>Runs inside your own network</li>
           <li>Your data never leaves your servers</li>
+          <li>Approve writes in Slack or the dashboard</li>
           <li>Apache-2.0, no usage limits</li>
         </ul>
         <pre class="cmd"><span>$</span> pipx install lokra
@@ -139,7 +140,7 @@
         <span class="tag soon">Coming soon</span>
         <h3>Lokra Cloud</h3>
         <ul class="ticks">
-          <li>One approval inbox in Slack and on your phone</li>
+          <li>One approval inbox for every database, on your phone</li>
           <li>Every database and agent in one place</li>
           <li>Audit history kept for years, SSO and team roles</li>
         </ul>
@@ -161,7 +162,7 @@
 
     <div class="teams">
       <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><div><h4>Product teams</h4><p>Ship agents that act on customer data. Each gets its own database role, locked to the right accounts, and its writes wait for a person.</p></div></div>
-      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M19 8l-5 5-3-3-4 4"/></svg><div><h4>Data &amp; analytics</h4><p>Let agents query production with emails, phone numbers and IDs masked, even inside free text.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M19 8l-5 5-3-3-4 4"/></svg><div><h4>Data &amp; analytics</h4><p>Let agents query production with emails, phone numbers, card numbers and IDs masked, even inside free text.</p></div></div>
       <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3M12.5 15H17"/></svg><div><h4>Platform &amp; engineering</h4><p>Give Claude Code, Cursor and OpenClaw a scoped role instead of the admin password. Revoke it in one line.</p></div></div>
       <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><h4>Security &amp; compliance</h4><p>A declared purpose on every request, a signed audit, and an evidence pack mapped to ISO 27001 and the Essential Eight.</p></div></div>
     </div>

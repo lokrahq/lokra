@@ -32,15 +32,41 @@ def luhn_valid(raw: str) -> bool:
     return total % 10 == 0
 
 
+def card_valid(raw: str) -> bool:
+    d = _digits(raw)
+    if not 13 <= len(d) <= 19 or not luhn_valid(d):
+        return False
+    return (d[0] == "4" or d[:2] in {"30", "34", "35", "36", "37", "38", "62", "65"} or d[:4] == "6011"
+            or 51 <= int(d[:2]) <= 55 or 2221 <= int(d[:4]) <= 2720 or 644 <= int(d[:3]) <= 649)
+
+
+def iban_valid(raw: str) -> bool:
+    s = raw.replace(" ", "").upper()
+    if not 15 <= len(s) <= 34:
+        return False
+    rearranged = s[4:] + s[:4]
+    return int("".join(str(int(ch, 36)) for ch in rearranged)) % 97 == 1
+
+
+def phone_valid(raw: str) -> bool:
+    return 8 <= len(_digits(raw)) <= 15
+
+
+# Order matters: more specific patterns run first, so an IHI is never read as a card.
 DETECTORS: dict[str, tuple[re.Pattern, Any]] = {
-    # ihi must run before medicare
     "ihi": (re.compile(r"\b8003[ -]?60\d{2}[ -]?\d{4}[ -]?\d{4}\b"), luhn_valid),
     "medicare": (re.compile(r"\b[2-6]\d{3}[ -]?\d{5}[ -]?\d(?:[ -]?\d)?\b"), medicare_valid),
+    "card": (re.compile(r"(?<![\d-])(?:\d[ -]?){12,18}\d(?![\d-])"), card_valid),
+    "iban": (re.compile(r"\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]{4}){2,7}(?: ?[A-Z0-9]{1,4})?\b"), iban_valid),
+    "us_ssn": (re.compile(r"(?<!\d)(?!000|666|9\d\d)\d{3}([- ])(?!00)\d{2}\1(?!0000)\d{4}(?!\d)"), None),
     "email": (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), None),
     "au_phone": (re.compile(r"(?<!\d)(?:\+?61[ -]?|0)4\d{2}[ -]?\d{3}[ -]?\d{3}(?!\d)"
                             r"|(?<!\d)(?:\+?61[ -]?|0)[2378][ -]?\d{4}[ -]?\d{4}(?!\d)"), None),
+    "phone": (re.compile(r"(?<![\w+])\+[1-9]\d{0,2}[ .-]?(?:\(\d{1,4}\)[ .-]?)?\d{1,4}(?:[ .-]?\d{1,4}){1,4}(?!\d)"
+                         r"|(?<![\d-])\(?[2-9]\d{2}\)?[ .-]\d{3}[ .-]\d{4}(?![\d-])"), phone_valid),
 }
-LABELS = {"ihi": "[IHI]", "medicare": "[MEDICARE]", "email": "[EMAIL]", "au_phone": "[PHONE]"}
+LABELS = {"ihi": "[IHI]", "medicare": "[MEDICARE]", "card": "[CARD]", "iban": "[IBAN]", "us_ssn": "[SSN]",
+          "email": "[EMAIL]", "au_phone": "[PHONE]", "phone": "[PHONE]"}
 
 
 def _strategy(value: Any, how: str) -> Any:

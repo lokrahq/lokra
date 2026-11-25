@@ -209,6 +209,11 @@ def cmd_serve(args):
     main()
 
 
+def cmd_slack(args):
+    from .slack import run
+    run(_cfg(args))
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="lokra", description="Policy proxy between AI agents and your database")
     p.add_argument("--config", help="path to policies.yaml (default: ./policies.yaml or $LOKRA_CONFIG)")
@@ -279,6 +284,9 @@ def main(argv=None):
     s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
 
+    s = sub.add_parser("slack", help="post pending writes to Slack and take approvals there")
+    s.set_defaults(fn=cmd_slack)
+
     s = sub.add_parser("serve", help="run the MCP server, over stdio (default) or HTTP")
     s.add_argument("--http", action="store_true", help="serve MCP over HTTP for agents on other machines; "
                                                        "each request needs an Authorization: Bearer token")
@@ -294,8 +302,9 @@ def main(argv=None):
         return args.fn(args) or 0
     except ConfigError as e:
         print(f"error: {e}", file=sys.stderr)
-        print("hint: run this from your project folder (where policies.yaml lives), "
-              "or pass --config /path/to/policies.yaml", file=sys.stderr)
+        if str(e).startswith("config not found"):
+            print("hint: run this from your project folder (where policies.yaml lives), "
+                  "or pass --config /path/to/policies.yaml", file=sys.stderr)
         return 1
     except Exception as e:
         if os.environ.get("LOKRA_DEBUG"):

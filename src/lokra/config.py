@@ -85,6 +85,8 @@ class Config:
     masking_detectors: list[str]
     approval_ttl_seconds: int = 3600
     require_purpose: bool = False
+    slack_channel: str | None = None
+    slack_approvers: list[str] = field(default_factory=list)
 
     @property
     def ledger_path(self) -> Path:
@@ -176,6 +178,9 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
             purposes=[str(p) for p in (a.get("purposes") or [])],
         )
     masking = raw.get("masking", {}) or {}
+    slack = raw.get("slack") or {}
+    if not isinstance(slack, dict):
+        raise ConfigError("slack should look like: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}")
     home = Path(home or os.environ.get("LOKRA_HOME") or path.parent / ".lokra").resolve()
     return Config(
         path=path,
@@ -188,4 +193,6 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
         masking_detectors=list(masking.get("detectors") or []),
         approval_ttl_seconds=int(raw.get("approval_ttl_seconds", 3600)),
         require_purpose=bool(raw.get("require_purpose", False)),
+        slack_channel=slack.get("channel") or None,
+        slack_approvers=[str(u) for u in (slack.get("approvers") or [])],
     )

@@ -75,7 +75,7 @@ def activity_payload(cfg: Config, limit: int = 500) -> dict:
     return {"entries": rows, "total": len(entries), "shown": len(rows), "chain_verified": chain_ok}
 
 
-def _write_view(record: dict, masker: Masker, ttl: int) -> dict:
+def write_view(record: dict, masker: Masker, ttl: int) -> dict:
     status = record["status"]
     if status == "approved" and time.time() - record.get("approved_at", 0) > ttl:
         status = "expired"
@@ -93,18 +93,18 @@ def _write_view(record: dict, masker: Masker, ttl: int) -> dict:
 def writes_payload(cfg: Config, recent: int = 10) -> dict:
     masker = Masker(cfg.masking_columns, cfg.masking_detectors)
     records = list_pending(cfg)
-    pending = [_write_view(r, masker, cfg.approval_ttl_seconds) for r in records if r["status"] == "pending"]
+    pending = [write_view(r, masker, cfg.approval_ttl_seconds) for r in records if r["status"] == "pending"]
     decided = [r for r in records if r["status"] != "pending"]
     decided.sort(key=lambda r: max(r.get(k) or 0 for k in ("created_at", "approved_at", "denied_at", "executed_at")),
                  reverse=True)
     return {"pending": pending,
-            "recent": [_write_view(r, masker, cfg.approval_ttl_seconds) for r in decided[:recent]],
+            "recent": [write_view(r, masker, cfg.approval_ttl_seconds) for r in decided[:recent]],
             "approval_ttl_seconds": cfg.approval_ttl_seconds}
 
 
 def decide_write(cfg: Config, write_id: str, approve: bool, by: str | None = None) -> dict:
     record = decide(cfg, write_id, approve, by or f"{getpass.getuser()} (dashboard)")
-    return _write_view(record, Masker(cfg.masking_columns, cfg.masking_detectors), cfg.approval_ttl_seconds)
+    return write_view(record, Masker(cfg.masking_columns, cfg.masking_detectors), cfg.approval_ttl_seconds)
 
 
 def policy_payload(cfg: Config) -> dict:
@@ -250,6 +250,9 @@ def _build_doc(cfg: Config, data: dict) -> dict:
     doc["agents"] = agents
     doc["masking"] = {"columns": columns, "detectors": detectors}
     doc["approval_ttl_seconds"] = ttl
+    kept = yaml.safe_load(cfg.path.read_text()) if cfg.path.exists() else {}
+    if (kept or {}).get("slack"):
+        doc["slack"] = kept["slack"]
     return doc
 
 
