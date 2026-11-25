@@ -208,6 +208,23 @@ to Slack over Socket Mode, so Lokra needs no public URL.
 
 Writes approved or denied in the dashboard or the terminal close their Slack message too.
 
+## Lokra Cloud
+
+[Lokra Cloud](https://cloud.lokra.dev) is one inbox for every database running Lokra: approve
+or deny writes, pause and resume agents, and read the activity of every gate, from a laptop or a
+phone. Sign in with GitHub, create a gate token under **Gates**, then run this next to the
+gate's `policies.yaml`:
+
+```bash
+LOKRA_CLOUD_TOKEN=lkg_… lokra cloud
+```
+
+`lokra cloud` connects out to Lokra Cloud, so the gate needs no public address. It sends the
+agents, pending and recently decided writes, and ledger entries; the SQL in them is already
+masked, and query results never leave your network. Decisions made in the Cloud come back to the
+gate, which applies them and records who made them, such as `dana (cloud)`. Add
+`--admin-dsn "<admin dsn>"` so a pause from the Cloud also blocks the agent's database login.
+
 ## Agents on other machines
 
 Always-on and hosted agents can reach Lokra over HTTP. Each request carries the agent's own
@@ -331,13 +348,14 @@ tests/
 ## Roadmap
 
 - [x] Works against any Postgres, including Supabase (`lokra init` scaffolds the policy)
-- [ ] Slack approve/deny buttons instead of the CLI
+- [x] Approve, deny and pause from Slack (`lokra slack`)
 - [x] Conformance suite: twelve safety guarantees, scored in `conformance/`
 - [x] Activity and risk reports from the ledger (`lokra report`, `lokra dashboard`)
 - [x] Control evidence pack (`lokra evidence`) mapped to the APPs, ISO/IEC 27001:2022, the Essential Eight, and — for health data — the Healthcare Identifiers Act, My Health Records Act and NDB scheme
 - [x] Purpose-of-use on every request: a declared, policy-enforced purpose recorded in the ledger (`require_purpose`, `--purpose`)
 - [ ] Deeper mapping to the US HSCC AI vendor questionnaire, question by question
-- [ ] Hosted control plane: policy editor, approvals UI, long ledger retention, SSO
+- [x] Hosted control plane: one inbox across gates, pause from a phone, team roles ([Lokra Cloud](https://cloud.lokra.dev))
+- [ ] Lokra Cloud: SSO and long ledger retention
 - [ ] DuckDB and Snowflake adapters
 
 ## License

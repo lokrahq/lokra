@@ -82,3 +82,12 @@ def test_commands_from_the_cloud_are_applied_and_reported(cfg):
 def test_gate_token_must_look_right(cfg):
     with pytest.raises(ConfigError, match="lkg_"):
         CloudSync(cfg, "http://cloud.test", "sk-live-abc")
+
+
+def test_a_new_gate_or_cloud_starts_from_the_first_ledger_entry(cfg):
+    first, second = FakeCloud(), FakeCloud()
+    CloudSync(cfg, "http://cloud.test", "lkg_a", post=first).sync_once()
+    CloudSync(cfg, "http://cloud.test", "lkg_a", post=first).sync_once()
+    assert first.sent[1]["events"] == []
+    CloudSync(cfg, "https://cloud.lokra.dev", "lkg_b", post=second).sync_once()
+    assert [e["seq"] for e in second.sent[0]["events"]] == [1, 2]

@@ -6,6 +6,7 @@ entries is already masked; query results never leave this machine.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -56,7 +57,10 @@ class CloudSync:
         self.post = post
         self.masker = Masker(cfg.masking_columns, cfg.masking_detectors)
         self.path = cfg.home / "cloud.json"
-        self.state = json.loads(self.path.read_text()) if self.path.exists() else {"cursor": 0, "results": []}
+        gate = hashlib.sha256(f"{self.url}|{token}".encode()).hexdigest()[:16]
+        self.state = json.loads(self.path.read_text()) if self.path.exists() else {}
+        if self.state.get("gate") != gate:
+            self.state = {"gate": gate, "cursor": 0, "results": []}
 
     def _save(self) -> None:
         self.cfg.ensure_home()

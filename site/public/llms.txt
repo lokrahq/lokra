@@ -2,7 +2,7 @@
 
 > Lokra is an open-source MCP server that sits between AI agents and Postgres. Each agent gets its own database role, so the database itself enforces what the agent can read and change. Lokra locks each agent to the rows it may see, masks sensitive values such as emails, phone numbers, card numbers, IBANs and government identifiers, requires human approval for every write, and records every action in a signed, tamper-evident audit ledger.
 
-- Status: v0.5, early release
+- Status: v0.6, early release
 - Licence: Apache-2.0, self-hosted and free (pipx install lokra); Lokra Cloud is coming soon
 - Works with: Claude Code, Cursor, OpenClaw and any MCP client, locally or over HTTP; PostgreSQL today, Supabase planned
 - Founded: 2026, in Australia
