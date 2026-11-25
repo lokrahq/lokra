@@ -380,7 +380,7 @@ footer a:hover { color: var(--fg); }
 @media (max-width: 760px) { .next { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .next-card { transition: none; } .next-card:hover { transform: none; } }
 
-/* hospitals section */
+/* who it's for */
 .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 44px; margin: 10px 0 48px; }
 .tm { display: flex; gap: 14px; align-items: flex-start; }
 .tm svg { flex: none; width: 22px; height: 22px; margin-top: 2px; color: #16a34a; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }

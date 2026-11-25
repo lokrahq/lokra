@@ -25,7 +25,7 @@
 <body>
 <div class="announce" data-announce>
   <div class="wrap announce-in">
-    <a href="#health" class="announce-msg"><span class="announce-dot" aria-hidden="true"></span>For healthcare teams &mdash; we're taking on a few design partners. <b>Learn more &rarr;</b></a>
+    <a href="#partners" class="announce-msg"><span class="announce-dot" aria-hidden="true"></span>Running AI agents on Postgres? We're taking on a few design partners. <b>Learn more &rarr;</b></a>
     <button type="button" class="announce-x" data-dismiss aria-label="Dismiss announcement">&times;</button>
   </div>
 </div>
@@ -41,7 +41,7 @@
   <section class="hero">
     <a class="pill" href="https://github.com/lokrahq/lokra"><b>Open-source MCP server for Postgres</b><span>Star on GitHub &rsaquo;</span></a>
     <h1>Lock rows for <mark>AI&nbsp;agents</mark>.</h1>
-    <p class="sub">It sits between your AI agents and Postgres. The database decides what each agent can see, sensitive values are masked, and every write waits for a human.</p>
+    <p class="sub">It sits between your AI agents and Postgres. The database decides which rows and columns each agent can see, sensitive values are masked, and every write waits for a human.</p>
     <div class="actions">
       <a class="btn primary" href="https://github.com/lokrahq/lokra#quick-start"><span class="chev"></span>Get started</a>
       <a class="btn" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> View on GitHub</a>
@@ -49,7 +49,7 @@
     <ul class="trust">
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></svg>Self-hosted</li>
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M7 7l-3 7a3 3 0 0 0 6 0zM17 7l-3 7a3 3 0 0 0 6 0z"/></svg>Apache-2.0</li>
-      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Medicare and IHI masked by default</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Enforced by Postgres, not the prompt</li>
     </ul>
   </section>
 
@@ -82,15 +82,15 @@
       <div class="col col-d">
         <span class="col-h">Your servers</span>
         <div class="srv">
-          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8v-13"/><path d="M5 12c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8"/></svg><em>Patient database</em></span>
-          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></svg><em>Clinical warehouse</em></span>
+          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8v-13"/><path d="M5 12c0 1.6 3.1 2.8 7 2.8s7-1.2 7-2.8"/></svg><em>App database</em></span>
+          <span class="dbi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></svg><em>Analytics replica</em></span>
         </div>
         <span class="col-s">on-prem &middot; in your region</span>
       </div>
     </div>
       <div class="scn" data-scn-bar role="group" aria-label="Send a request">
         <span class="scn-l">Send a request</span>
-        <button type="button" class="on" data-scn="read">Read patient</button>
+        <button type="button" class="on" data-scn="read">Read customer</button>
         <button type="button" data-scn="write">Update record</button>
         <button type="button" data-scn="attack">Injected attack</button>
       </div>
@@ -128,20 +128,20 @@
         <h3>Self-hosted</h3>
         <ul class="ticks">
           <li>Runs inside your own network</li>
-          <li>Patient data never leaves your servers</li>
+          <li>Your data never leaves your servers</li>
           <li>Apache-2.0, no usage limits</li>
         </ul>
-        <pre class="cmd"><span>$</span> docker compose up -d
-<span>$</span> lokra provision</pre>
+        <pre class="cmd"><span>$</span> pipx install lokra
+<span>$</span> lokra init "postgresql://…"</pre>
         <a class="more" href="https://github.com/lokrahq/lokra#quick-start">Quick start &rarr;</a>
       </article>
       <article class="card" id="hosted">
         <span class="tag soon">Coming soon</span>
         <h3>Lokra Cloud</h3>
         <ul class="ticks">
-          <li>Policy editor and Slack approvals</li>
-          <li>Long-term audit retention</li>
-          <li>SSO and team roles</li>
+          <li>One approval inbox in Slack and on your phone</li>
+          <li>Every database and agent in one place</li>
+          <li>Audit history kept for years, SSO and team roles</li>
         </ul>
         <form class="waitlist" action="/api/waitlist" method="post" novalidate>
           <label class="sr-only" for="email">Email address</label>
@@ -154,23 +154,23 @@
     </div>
   </section>
 
-  <section class="block" id="health">
-    <p class="eyebrow-sm">For hospitals &amp; health services</p>
-    <h2>Give clinical AI agents a safe path to patient data.</h2>
-    <p class="lede">Health has been Australia's most-breached sector in every OAIC report since 2018. Point Lokra at the database behind a hospital system and every agent request is scoped, masked, approved and logged. <a class="src" href="https://www.cliniccomply.com.au/blog/healthcare-data-breach-australia-obligations-guide">Source &#8599;</a></p>
+  <section class="block" id="partners">
+    <p class="eyebrow-sm">Who it's for</p>
+    <h2>Give AI agents a safe path to production data.</h2>
+    <p class="lede">Most teams hand an agent the same database password their app uses. Lokra gives each agent its own locked-down role instead, so a bad plan or an injected prompt can only reach the rows it was meant to.</p>
 
     <div class="teams">
-      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><div><h4>Clinical app teams</h4><p>Ship agents that book, triage and summarise. Each gets its own database role; writes to the record wait for a clinician.</p></div></div>
-      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M19 8l-5 5-3-3-4 4"/></svg><div><h4>Data &amp; analytics</h4><p>Let agents query the warehouse with Medicare and IHI masked and research cohorts de-identified.</p></div></div>
-      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5.5L4.6 18A2 2 0 0 0 6.4 21h11.2a2 2 0 0 0 1.8-3L14 8.5V3"/><path d="M7.7 14h8.6"/></svg><div><h4>Digital health &amp; innovation</h4><p>Pilot new agents without handing over the whole database. Scope or revoke access in one line.</p></div></div>
-      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><h4>Security &amp; privacy</h4><p>A declared purpose on every request, a signed audit, and an evidence pack mapped to the APPs and My Health Records Act.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg><div><h4>Product teams</h4><p>Ship agents that act on customer data. Each gets its own database role, locked to the right accounts, and its writes wait for a person.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M19 8l-5 5-3-3-4 4"/></svg><div><h4>Data &amp; analytics</h4><p>Let agents query production with emails, phone numbers and IDs masked, even inside free text.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9l3 3-3 3M12.5 15H17"/></svg><div><h4>Platform &amp; engineering</h4><p>Give Claude Code, Cursor and OpenClaw a scoped role instead of the admin password. Revoke it in one line.</p></div></div>
+      <div class="tm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><h4>Security &amp; compliance</h4><p>A declared purpose on every request, a signed audit, and an evidence pack mapped to ISO 27001 and the Essential Eight.</p></div></div>
     </div>
 
     <div class="partner">
-      <p>Working with patient data? We're taking on a few design partners.</p>
+      <p>Running agents against Postgres? We're taking on a few design partners.</p>
       <form class="waitlist" action="/api/waitlist" method="post" novalidate>
         <label class="sr-only" for="partner-email">Email address</label>
-        <input id="partner-email" name="email" type="email" autocomplete="email" placeholder="you@hospital.org.au" required maxlength="254">
+        <input id="partner-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required maxlength="254">
         <span class="hp" aria-hidden="true"><label for="partner-website">Website</label><input id="partner-website" name="website" type="text" tabindex="-1" autocomplete="off"></span>
         <button class="btn primary" type="submit">Talk to us</button>
         <p class="status" role="status" aria-live="polite"></p>
