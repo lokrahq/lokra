@@ -10,7 +10,7 @@ from typing import Any
 
 import psycopg
 
-from . import sqlcheck, tokens
+from . import controls, sqlcheck, tokens
 from .config import AgentPolicy, Config, ConfigError, table_key
 from .ledger import Ledger
 from .masking import Masker
@@ -58,6 +58,12 @@ class Gateway:
             reason = f"purpose '{purpose}' is not permitted for {agent.name}"
             self.ledger.append({"event": "denied", "tool": tool, "agent": agent.name, "reason": reason})
             raise GatewayError(f"access denied: {reason}")
+        stopped = controls.check(self.cfg, agent, claims.get("jti"))
+        if stopped:
+            control, reason = stopped
+            self.ledger.append({"event": "stopped", "control": control, "tool": tool, "agent": agent.name,
+                                "token_id": claims.get("jti"), "reason": reason})
+            raise GatewayError(f"stopped: {reason}")
         return claims, agent
 
     def _connect(self, agent: AgentPolicy, read_only: bool) -> psycopg.Connection:

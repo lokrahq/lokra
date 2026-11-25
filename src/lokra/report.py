@@ -15,6 +15,7 @@ REFUSAL_FLAG = 3        # repeated blocked statements from one agent
 BIG_READ_ROWS = 500     # a single read returning at least this many rows
 PHI_FLAG = 50           # masked identifiers seen by one agent in the window
 BIG_WRITE_ROWS = 100    # an approved/executed write touching at least this many rows
+LOOP_FLAG = 3           # rate-limit stops from one agent, a sign of a retry loop
 
 BLOCKED_EVENTS = {"rejected", "db_refused"}
 
@@ -31,6 +32,8 @@ class AgentActivity:
     writes_proposed: int = 0
     writes_approved: int = 0
     writes_denied: int = 0
+    stopped: int = 0
+    rate_limited: int = 0
     writes_executed: int = 0
     rows_written: int = 0
     blocked: int = 0
@@ -78,6 +81,10 @@ def build_report(entries: list[dict]) -> dict:
             a.tables.update(e.get("tables") or [])
         elif event in BLOCKED_EVENTS:
             a.blocked += 1
+        elif event == "stopped":
+            a.stopped += 1
+            if e.get("control") == "rate_limit":
+                a.rate_limited += 1
         elif event == "write_proposed":
             a.writes_proposed += 1
             if int(e.get("would_affect_rows", 0) or 0) >= BIG_WRITE_ROWS:
@@ -93,6 +100,8 @@ def build_report(entries: list[dict]) -> dict:
             a.rows_written += int(e.get("affected_rows", 0) or 0)
 
     for a in agents.values():
+        if a.rate_limited >= LOOP_FLAG:
+            a.flags.append(("looping", f"hit its rate limit {a.rate_limited} times, a sign of a retry loop"))
         if a.blocked >= REFUSAL_FLAG:
             a.flags.append(("probing", f"{a.blocked} blocked statements, a sign of probing or prompt injection"))
         if a.max_read_rows >= BIG_READ_ROWS:
@@ -151,7 +160,7 @@ def to_dict(report: dict, chain_ok: bool) -> dict:
              "masked": dict(a.masked), "masked_total": a.masked_total, "tables": sorted(a.tables),
              "writes_proposed": a.writes_proposed, "writes_approved": a.writes_approved,
              "writes_denied": a.writes_denied, "writes_executed": a.writes_executed,
-             "rows_written": a.rows_written, "blocked": a.blocked,
+             "rows_written": a.rows_written, "blocked": a.blocked, "stopped": a.stopped,
              "flags": [{"kind": k, "detail": d} for k, d in a.flags]}
             for a in sorted(report["agents"].values(), key=lambda x: x.agent)
         ],

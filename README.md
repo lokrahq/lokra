@@ -143,6 +143,24 @@ Then ask something like "which patients have appointments on Monday?".
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
 
+## Stop an agent
+
+Always-on agents need brakes that work in seconds, not a policy rewrite:
+
+```bash
+lokra pause support-bot --reason "deleting too much"   # refuse its requests, block its DB login, end its sessions
+lokra resume support-bot
+lokra revoke-token <token or token id>                 # kill one leaked token, keep the agent's others
+```
+
+The dashboard lists every agent with a Pause and Resume button, and `lokra slack` adds a
+Pause button to each approval message and posts a notice with a Resume button whenever an agent
+is paused, so you can stop an agent from your phone. A paused agent stays paused through
+`lokra provision`. To stop a stuck retry loop from
+hammering the database, cap its rate in the policy with `rate_limit: 60` (requests a minute);
+an agent that keeps hitting its cap is flagged as looping in `lokra report` and the dashboard.
+Every pause, resume, revocation and stopped request is written to the ledger.
+
 ## Approve writes in Slack
 
 `lokra slack` posts each pending write to a Slack channel, with the agent, the person it acts
@@ -172,8 +190,10 @@ to Slack over Socket Mode, so Lokra needs no public URL.
 
    ```bash
    pipx install 'lokra[slack]'
-   LOKRA_SLACK_BOT_TOKEN=xoxb-… LOKRA_SLACK_APP_TOKEN=xapp-… lokra slack
+   LOKRA_SLACK_BOT_TOKEN=xoxb-… LOKRA_SLACK_APP_TOKEN=xapp-… lokra slack --admin-dsn "<admin dsn>"
    ```
+
+   With `--admin-dsn`, pausing from Slack also blocks the agent's database login.
 
 Writes approved or denied in the dashboard or the terminal close their Slack message too.
 
@@ -184,7 +204,7 @@ short-lived token, so one Lokra serves many agents and every call is checked:
 
 ```bash
 lokra serve --http --host 0.0.0.0 --port 8787     # put TLS in front of this
-lokra mint-token support-bot --ttl 86400          # hand this token to the agent
+lokra mint-token support-bot --ttl 28800          # hand this token to the agent (max 8 hours)
 ```
 
 ```bash

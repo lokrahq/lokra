@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, urlsplit
 import psycopg
 from psycopg import sql
 
+from . import controls
 from .config import Config, ConfigError, dump_policy, load_config
 from .gateway import GatewayError, decide, list_pending
 from .ledger import Ledger
@@ -32,6 +33,7 @@ except ModuleNotFoundError:  # pragma: no cover
 STRATEGIES = ["none", "redact", "year_only", "hash", "last2", "last3", "last4"]
 MAX_BODY = 256 * 1024
 DECISION_PATH = re.compile(r"^/api/writes/(w_[0-9a-f]+)/(approve|deny)$")
+AGENT_PATH = re.compile(r"^/api/agents/([A-Za-z0-9 _-]+)/(pause|resume)$")
 
 
 def _detail(e: dict) -> str:
@@ -48,8 +50,14 @@ def _detail(e: dict) -> str:
         return f"{e.get('affected_rows', 0)} rows changed"
     if ev in ("write_approved", "write_denied"):
         return f"by {e.get('decided_by', '-')}"
-    if ev == "denied":
+    if ev in ("denied", "stopped"):
         return e.get("reason", "")
+    if ev == "agent_paused":
+        return f"by {e.get('decided_by', '-')}" + (f": {e['reason']}" if e.get("reason") else "")
+    if ev == "agent_resumed":
+        return f"by {e.get('decided_by', '-')}"
+    if ev == "token_revoked":
+        return f"{e.get('token_id', '')} by {e.get('decided_by', '-')}"
     if ev == "listed_tables":
         return ", ".join(e.get("tables") or [])
     return ""
@@ -100,6 +108,23 @@ def writes_payload(cfg: Config, recent: int = 10) -> dict:
     return {"pending": pending,
             "recent": [write_view(r, masker, cfg.approval_ttl_seconds) for r in decided[:recent]],
             "approval_ttl_seconds": cfg.approval_ttl_seconds}
+
+
+def agents_payload(cfg: Config) -> dict:
+    paused = controls.snapshot(cfg)["paused"]
+    return {"agents": [{"name": a.name, "description": a.description, "role": a.role,
+                        "rate_limit": a.rate_limit, "paused": paused.get(a.name)}
+                       for a in sorted(cfg.agents.values(), key=lambda a: a.name)]}
+
+
+def set_agent_paused(cfg: Config, admin_dsn: str, name: str, pause: bool, reason: str = "") -> dict:
+    agent = cfg.agent(name)
+    by = f"{getpass.getuser()} (dashboard)"
+    if pause:
+        detail = controls.pause_agent(cfg, agent, by, reason, admin_dsn)
+    else:
+        detail = controls.resume_agent(cfg, agent, by, admin_dsn)[1]
+    return {"ok": True, "agent": name, "paused": pause, "detail": detail}
 
 
 def decide_write(cfg: Config, write_id: str, approve: bool, by: str | None = None) -> dict:
@@ -328,6 +353,8 @@ def make_handler(cfg: Config, admin_dsn: str):
                 self._json(activity_payload(cfg, limit))
             elif path == "/api/writes":
                 self._json(writes_payload(cfg))
+            elif path == "/api/agents":
+                self._json(agents_payload(cfg))
             elif path == "/api/policy":
                 try:
                     self._json(policy_payload(cfg))
@@ -345,7 +372,8 @@ def make_handler(cfg: Config, admin_dsn: str):
         def do_POST(self):
             path = self.path.split("?", 1)[0]
             decision = DECISION_PATH.match(path)
-            if path != "/api/policy" and not decision:
+            agent_action = AGENT_PATH.match(path)
+            if path != "/api/policy" and not decision and not agent_action:
                 self._send(b"not found", "text/plain", 404)
                 return
             if not self._same_origin():
@@ -356,6 +384,17 @@ def make_handler(cfg: Config, admin_dsn: str):
                     self._json({"ok": True, "write": decide_write(cfg, decision[1], decision[2] == "approve")})
                 except GatewayError as e:
                     self._json({"ok": False, "error": str(e)}, 409)
+                return
+            if agent_action:
+                length = min(int(self.headers.get("Content-Length") or 0), 4096)
+                try:
+                    reason = str((json.loads(self.rfile.read(length) or b"{}") or {}).get("reason") or "")[:300]
+                except json.JSONDecodeError:
+                    reason = ""
+                try:
+                    self._json(set_agent_paused(cfg, admin_dsn, agent_action[1], agent_action[2] == "pause", reason))
+                except ConfigError as e:
+                    self._json({"ok": False, "error": str(e)}, 404)
                 return
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY:

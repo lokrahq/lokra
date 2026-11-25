@@ -59,6 +59,7 @@ class AgentPolicy:
     write: dict[str, list[str]] = field(default_factory=dict)
     max_rows: int = 200
     purposes: list[str] = field(default_factory=list)
+    rate_limit: int = 0
 
     @property
     def role(self) -> str:
@@ -176,6 +177,7 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
             write={normalize_table(k): v for k, v in (a.get("write") or {}).items()},
             max_rows=int(a.get("max_rows", 200)),
             purposes=[str(p) for p in (a.get("purposes") or [])],
+            rate_limit=int(a.get("rate_limit") or 0),
         )
     masking = raw.get("masking", {}) or {}
     slack = raw.get("slack") or {}

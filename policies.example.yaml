@@ -30,6 +30,7 @@ agents:
       orders: [update]
     purposes: [order-fulfilment]
     max_rows: 200
+    rate_limit: 60
 
 masking:
   columns:

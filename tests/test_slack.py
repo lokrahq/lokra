@@ -4,7 +4,8 @@ import pytest
 
 from lokra.config import ConfigError, load_config
 from lokra.gateway import _save_pending, decide
-from lokra.slack import APPROVE, DENY, SlackApprovals
+from lokra import controls
+from lokra.slack import APPROVE, DENY, PAUSE, RESUME, SlackApprovals
 
 POLICY = """
 agents:
@@ -62,7 +63,7 @@ def test_posts_each_pending_write_once_with_masked_sql(tmp_path):
     blocks = slack.posted[0]["blocks"]
     assert "ann@example.com" not in _text(blocks) and "[EMAIL]" in _text(blocks)
     buttons = blocks[-1]["elements"]
-    assert [b["action_id"] for b in buttons] == [APPROVE, DENY] and buttons[0]["value"] == "w_aaaa0001"
+    assert [b["action_id"] for b in buttons] == [APPROVE, DENY, PAUSE] and buttons[0]["value"] == "w_aaaa0001"
     assert SlackApprovals(cfg, FakeSlack()).posted["w_aaaa0001"]["open"]
 
 
@@ -114,3 +115,36 @@ def test_run_explains_missing_tokens(tmp_path, monkeypatch):
     monkeypatch.delenv("LOKRA_SLACK_BOT_TOKEN", raising=False)
     with pytest.raises(ConfigError, match="LOKRA_SLACK_BOT_TOKEN"):
         run(_cfg(tmp_path))
+
+
+def test_pause_from_a_write_message_and_resume_from_the_notice(tmp_path):
+    cfg, slack = _cfg(tmp_path), FakeSlack()
+    _pending(cfg, "w_aaaa0004")
+    bot = SlackApprovals(cfg, slack)
+    bot.sync()
+    bot.handle_action(_click("w_aaaa0004", PAUSE, user="U0INTERN"))
+    assert "ops-bot" not in controls.snapshot(cfg)["paused"]
+
+    bot.handle_action(_click("w_aaaa0004", PAUSE))
+    paused = controls.snapshot(cfg)["paused"]["ops-bot"]
+    assert paused["by"] == "boss (slack)" and paused["reason"] == "paused from Slack"
+    notice = slack.posted[-1]["blocks"]
+    assert "ops-bot* is paused by boss (slack)" in notice[0]["text"]["text"]
+    assert notice[-1]["elements"][0]["action_id"] == RESUME
+    bot.sync()
+    assert len(slack.posted) == 2
+
+    bot.handle_action(_click("ops-bot", RESUME))
+    assert "ops-bot" not in controls.snapshot(cfg)["paused"]
+    assert "running again" in slack.updated[-1]["blocks"][0]["text"]["text"]
+
+
+def test_pauses_from_elsewhere_get_a_notice(tmp_path):
+    cfg, slack = _cfg(tmp_path), FakeSlack()
+    bot = SlackApprovals(cfg, slack)
+    controls.pause(cfg, "ops-bot", "dana", "incident")
+    bot.sync()
+    assert "paused by dana: incident" in slack.posted[-1]["blocks"][0]["text"]["text"]
+    controls.resume(cfg, "ops-bot")
+    bot.sync()
+    assert slack.updated and "running again" in slack.updated[-1]["blocks"][0]["text"]["text"]

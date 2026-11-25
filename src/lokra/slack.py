@@ -11,12 +11,13 @@ import os
 import threading
 import time
 
+from . import controls
 from .config import Config, ConfigError
 from .dashboard import write_view
 from .gateway import GatewayError, decide, list_pending
 from .masking import Masker
 
-APPROVE, DENY = "lokra_approve", "lokra_deny"
+APPROVE, DENY, PAUSE, RESUME = "lokra_approve", "lokra_deny", "lokra_pause", "lokra_resume"
 MAX_SQL = 2800
 
 
@@ -47,6 +48,8 @@ def pending_blocks(w: dict) -> list[dict]:
          "text": {"type": "plain_text", "text": "Approve"}},
         {"type": "button", "action_id": DENY, "value": w["id"], "style": "danger",
          "text": {"type": "plain_text", "text": "Deny"}},
+        {"type": "button", "action_id": PAUSE, "value": w["id"],
+         "text": {"type": "plain_text", "text": f"Pause {w['agent']}"}},
     ]}]
 
 
@@ -60,14 +63,27 @@ def _outcome(w: dict) -> str:
     return f"{icon} {w['status'].capitalize()}{who}"
 
 
+def pause_blocks(agent: str, info: dict) -> list[dict]:
+    text = f":double_vertical_bar: *{agent}* is paused by {info['by']}" + (
+        f": {info['reason']}" if info.get("reason") else "") + ". Lokra refuses its requests."
+    return [{"type": "section", "text": {"type": "mrkdwn", "text": text}},
+            {"type": "actions", "elements": [{"type": "button", "action_id": RESUME, "value": agent,
+                                              "style": "primary", "text": {"type": "plain_text", "text": "Resume"}}]}]
+
+
+def resumed_blocks(agent: str) -> list[dict]:
+    return [{"type": "section", "text": {"type": "mrkdwn", "text": f":arrow_forward: *{agent}* is running again."}}]
+
+
 class SlackApprovals:
-    def __init__(self, cfg: Config, client):
+    def __init__(self, cfg: Config, client, admin_dsn: str | None = None):
         if not cfg.slack_channel:
             raise ConfigError("add the channel to policies.yaml: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}")
         if not cfg.slack_approvers:
             raise ConfigError("list who may approve: slack: {approvers: [U0123ABCD]} (Slack member IDs)")
         self.cfg = cfg
         self.client = client
+        self.admin_dsn = admin_dsn
         self.masker = Masker(cfg.masking_columns, cfg.masking_detectors)
         self.path = cfg.home / "slack.json"
         self.lock = threading.Lock()
@@ -98,11 +114,38 @@ class SlackApprovals:
                                             blocks=closed_blocks(w, _outcome(w)))
                     msg["open"] = False
                     changed = True
+            paused = controls.snapshot(self.cfg)["paused"]
+            for agent, info in paused.items():
+                key = f"pause:{agent}"
+                msg = self.posted.get(key)
+                if msg is None or not msg["open"] or msg.get("at") != info["at"]:
+                    res = self.client.chat_postMessage(channel=self.cfg.slack_channel, text=f"{agent} is paused",
+                                                       blocks=pause_blocks(agent, info))
+                    self.posted[key] = {"channel": res["channel"], "ts": res["ts"], "open": True, "at": info["at"]}
+                    changed = True
+            for key, msg in self.posted.items():
+                agent = key[len("pause:"):]
+                if key.startswith("pause:") and msg["open"] and agent not in paused:
+                    self.client.chat_update(channel=msg["channel"], ts=msg["ts"], text=f"{agent} is running again",
+                                            blocks=resumed_blocks(agent))
+                    msg["open"] = False
+                    changed = True
             if changed:
                 self._save()
 
+    def _pause_or_resume(self, action: dict, by: str) -> str | None:
+        if action["action_id"] == RESUME:
+            controls.resume_agent(self.cfg, self.cfg.agent(action["value"]), by, self.admin_dsn)
+            return None
+        records = [r for r in list_pending(self.cfg) if r["id"] == action["value"]]
+        if not records:
+            return "That write is gone, so Lokra can't tell which agent to pause."
+        controls.pause_agent(self.cfg, self.cfg.agent(records[0]["agent"]), by, "paused from Slack", self.admin_dsn)
+        return None
+
     def handle_action(self, payload: dict) -> None:
-        action = next((a for a in payload.get("actions") or [] if a.get("action_id") in (APPROVE, DENY)), None)
+        action = next((a for a in payload.get("actions") or []
+                       if a.get("action_id") in (APPROVE, DENY, PAUSE, RESUME)), None)
         if action is None:
             return
         user = payload.get("user") or {}
@@ -111,15 +154,21 @@ class SlackApprovals:
             self.client.chat_postEphemeral(channel=channel, user=user.get("id"),
                                            text="You're not on Lokra's approver list for this database.")
             return
-        name = user.get("username") or user.get("name") or user.get("id")
+        by = f"{user.get('username') or user.get('name') or user.get('id')} (slack)"
         try:
-            decide(self.cfg, action["value"], action["action_id"] == APPROVE, f"{name} (slack)")
-        except GatewayError as e:
-            self.client.chat_postEphemeral(channel=channel, user=user["id"], text=str(e))
+            if action["action_id"] in (PAUSE, RESUME):
+                problem = self._pause_or_resume(action, by)
+            else:
+                decide(self.cfg, action["value"], action["action_id"] == APPROVE, by)
+                problem = None
+        except (GatewayError, ConfigError) as e:
+            problem = str(e)
+        if problem:
+            self.client.chat_postEphemeral(channel=channel, user=user["id"], text=problem)
         self.sync()
 
 
-def run(cfg: Config) -> None:
+def run(cfg: Config, admin_dsn: str | None = None) -> None:
     try:
         from slack_sdk import WebClient
         from slack_sdk.socket_mode import SocketModeClient
@@ -130,7 +179,7 @@ def run(cfg: Config) -> None:
     if not bot or not app:
         raise ConfigError("set LOKRA_SLACK_BOT_TOKEN (xoxb-…) and LOKRA_SLACK_APP_TOKEN (xapp-…)")
     web = WebClient(token=bot)
-    approvals = SlackApprovals(cfg, web)
+    approvals = SlackApprovals(cfg, web, admin_dsn)
 
     def on_request(client, req):
         if req.type != "interactive":

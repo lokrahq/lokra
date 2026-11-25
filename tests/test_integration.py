@@ -521,3 +521,23 @@ def test_tables_in_other_schemas(tmp_path):
             if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_bill_bot'").fetchone():
                 conn.execute("DROP OWNED BY lokra_bill_bot")
                 conn.execute("DROP ROLE lokra_bill_bot")
+
+
+def test_pause_blocks_the_database_login_and_survives_provision(cfg):
+    from lokra import controls
+    from lokra.provision import set_login
+
+    agent = cfg.agent("test-researcher")
+    try:
+        controls.pause(cfg, agent.name, "pytest")
+        set_login(cfg, LAB_ADMIN_DSN, agent, allowed=False)
+        with pytest.raises(psycopg.OperationalError, match="not permitted to log in"):
+            raw(cfg, "test-researcher")
+        assert any(line.endswith("PAUSED") or ", PAUSED," in line for line in provision(cfg, LAB_ADMIN_DSN))
+        with pytest.raises(psycopg.OperationalError, match="not permitted to log in"):
+            raw(cfg, "test-researcher")
+    finally:
+        controls.resume(cfg, agent.name)
+        set_login(cfg, LAB_ADMIN_DSN, agent, allowed=True)
+    with raw(cfg, "test-researcher") as r:
+        assert r.execute("SELECT 1").fetchone() == (1,)

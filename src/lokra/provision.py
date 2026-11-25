@@ -5,6 +5,7 @@ import secrets
 import psycopg
 from psycopg import sql
 
+from . import controls
 from .config import AgentPolicy, Config, split_table, table_key
 
 WRITE_OPS = {"insert": "INSERT", "update": "UPDATE", "delete": "DELETE"}
@@ -129,9 +130,22 @@ def _release_unlocked_tables(conn: psycopg.Connection) -> None:
         conn.execute(sql.SQL("ALTER TABLE {} DISABLE ROW LEVEL SECURITY").format(t))
 
 
+def set_login(cfg: Config, admin_dsn: str, agent: AgentPolicy, allowed: bool) -> int:
+    """Allow or block the agent's database login. Blocking also ends its open sessions."""
+    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (agent.role,)).fetchone():
+            return 0
+        conn.execute(sql.SQL("ALTER ROLE {} " + ("LOGIN" if allowed else "NOLOGIN")).format(sql.Identifier(agent.role)))
+        if allowed:
+            return 0
+        return len(conn.execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename = %s",
+                                (agent.role,)).fetchall())
+
+
 def provision(cfg: Config, admin_dsn: str) -> list[str]:
     log: list[str] = []
     saved = cfg.db_secrets()
+    paused = controls.snapshot(cfg)["paused"]
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone():
             conn.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(AGENT_GROUP)))
@@ -150,8 +164,9 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
             prior = _prior_schemas(conn, agent.role) if exists else set()
             password = saved.get(agent.role) or secrets.token_urlsafe(24)
             verb, past = ("ALTER", "altered") if exists else ("CREATE", "created")
+            login = "NOLOGIN" if agent.name in paused else "LOGIN"
             conn.execute(sql.SQL(
-                verb + " ROLE {} WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT "
+                verb + " ROLE {} WITH " + login + " NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT "
                 "NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 10 PASSWORD {}"
             ).format(r, sql.Literal(password)))
             for setting, value in (("statement_timeout", "5s"),
@@ -174,6 +189,8 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
                     scope += f"; all rows on {unlocked}"
             else:
                 scope = "all rows (no row lock)"
+            if agent.name in paused:
+                scope += ", PAUSED"
             log.append(f"{past} role {agent.role}: {scope}, "
                        f"reads {sorted(agent.read)}, writes {sorted(agent.write) or 'none'}")
         with conn.transaction():

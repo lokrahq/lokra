@@ -209,9 +209,42 @@ def cmd_serve(args):
     main()
 
 
+def _admin_dsn(args) -> str:
+    return args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
+
+
+def cmd_pause(args):
+    from . import controls
+    cfg = _cfg(args)
+    agent = cfg.agent(args.agent)
+    db = controls.pause_agent(cfg, agent, getpass.getuser(), args.reason or "", _admin_dsn(args))
+    print(f"{agent.name} is paused: Lokra refuses its requests from now on; {db}")
+
+
+def cmd_resume(args):
+    from . import controls
+    cfg = _cfg(args)
+    agent = cfg.agent(args.agent)
+    was_paused, db = controls.resume_agent(cfg, agent, getpass.getuser(), _admin_dsn(args))
+    print(f"{agent.name} is running again; {db}" if was_paused else f"{agent.name} was not paused; {db}")
+
+
+def cmd_revoke(args):
+    from . import controls
+    from .ledger import Ledger
+    cfg = _cfg(args)
+    token_id = args.token
+    if token_id.startswith("lokra1."):
+        token_id = tokens.verify(cfg.signing_key(), token_id, now=0)["jti"]
+    controls.revoke(cfg, token_id, getpass.getuser())
+    Ledger(cfg.ledger_path, cfg.signing_key()).append(
+        {"event": "token_revoked", "token_id": token_id, "decided_by": getpass.getuser()})
+    print(f"token {token_id} revoked")
+
+
 def cmd_slack(args):
     from .slack import run
-    run(_cfg(args))
+    run(_cfg(args), args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN"))
 
 
 def main(argv=None):
@@ -284,7 +317,24 @@ def main(argv=None):
     s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
 
+    s = sub.add_parser("pause", help="stop an agent now: refuse its requests and block its database login")
+    s.add_argument("agent")
+    s.add_argument("--reason", help="recorded in the ledger and shown to the agent")
+    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN or the lab database)")
+    s.set_defaults(fn=cmd_pause)
+
+    s = sub.add_parser("resume", help="let a paused agent run again")
+    s.add_argument("agent")
+    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN or the lab database)")
+    s.set_defaults(fn=cmd_resume)
+
+    s = sub.add_parser("revoke-token", help="revoke one token, by the token itself or its id")
+    s.add_argument("token")
+    s.set_defaults(fn=cmd_revoke)
+
     s = sub.add_parser("slack", help="post pending writes to Slack and take approvals there")
+    s.add_argument("--admin-dsn", help="admin connection string, so pausing from Slack also blocks the "
+                                       "database login (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_slack)
 
     s = sub.add_parser("serve", help="run the MCP server, over stdio (default) or HTTP")

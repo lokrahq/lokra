@@ -138,6 +138,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .wcard .warn{color:var(--amb);font-size:12.5px;margin:-4px 0 12px}
 .wcard .acts{display:flex;gap:10px}
 .btn.deny{color:var(--red);border-color:#f3cdc8}.btn.deny:hover{background:var(--red-soft)}
+.agrow{display:flex;align-items:center;gap:14px;padding:12px 2px;border-bottom:1px solid var(--line)}.agrow:last-child{border-bottom:0}
+.agrow .an{flex:1;min-width:0}.agrow .an b{font-size:14px}.agrow .an small{display:block;color:var(--faint);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agrow .stt{font-size:12.5px;font-weight:500;white-space:nowrap}.agrow .stt.run{color:var(--grn)}.agrow .stt.pau{color:var(--red)}
 .wrecent .st{font-size:12.5px;font-weight:500}.st.approved,.st.executed{color:var(--grn)}.st.denied,.st.expired,.st.failed{color:var(--red)}
 @media(max-width:860px){.statbar{flex-wrap:wrap}.stat{flex:1 1 50%;border-bottom:1px solid var(--line)}.two{grid-template-columns:1fr}.side{display:none}main{padding:22px}td.hide{display:none}}
 </style>
@@ -178,6 +181,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <div class="panel"><div class="ph"><h2>Statement outcomes</h2><small data-window></small></div><div class="bars" data-outcomes></div></div>
       <div class="panel"><h2>Risk flags</h2><div class="flags" data-flags></div></div>
     </div>
+    <div class="panel"><div class="ph"><h2>Agents</h2><small>pause stops an agent at once</small></div><div data-agentlist></div></div>
   </section>
 
   <!-- APPROVALS -->
@@ -252,7 +256,7 @@ const $$=s=>[...document.querySelectorAll(s)];
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
 const esc=s=>String(s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const COLORS=["#16a34a","#0ea5e9","#f59e0b","#8b5cf6","#ef4444","#14b8a6","#64748b","#e11d48"];
-const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok2",write_approved:"ok2",write_proposed:"wait",rejected:"err",db_refused:"err",write_denied:"err",denied:"err"}[ev]||"read");
+const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok2",write_approved:"ok2",write_proposed:"wait",rejected:"err",db_refused:"err",write_denied:"err",denied:"err",stopped:"err",agent_paused:"wait",agent_resumed:"ok2",token_revoked:"wait"}[ev]||"read");
 const TRASH='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>';
 
 const main=$("main");
@@ -315,6 +319,26 @@ async function load(){
   $("[data-reasons]").innerHTML=rs.length?rs.map(x=>`<div><div class="top"><span class="rt">${esc(x.reason)}</span><b>${x.count}</b></div><div class="track"><div class="fill" style="width:${Math.round(x.count/rmax*100)}%"></div></div></div>`).join(""):'<div class="empty">nothing blocked</div>';
   // audit: recent activity
   $("[data-recent]").innerHTML=d.recent.slice(0,8).map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d hide">${esc(e.detail)}</td></tr>`).join("");
+}
+
+/* ---------- agents ---------- */
+async function loadAgents(){
+  let d;try{d=await (await fetch("/api/agents",{cache:"no-store"})).json();}catch(e){return;}
+  const box=$("[data-agentlist]");box.innerHTML=d.agents.length?"":'<div class="empty">no agents in the policy</div>';
+  d.agents.forEach(a=>{
+    const row=el("div","agrow");
+    const st=a.paused?`<span class="stt pau">Paused by ${esc(a.paused.by)}${a.paused.reason?": "+esc(a.paused.reason):""}</span>`:'<span class="stt run">Running</span>';
+    row.innerHTML=`<div class="an"><b>${esc(a.name)}</b><small>${esc(a.description||a.role)}${a.rate_limit?` · ${a.rate_limit} req/min`:""}</small></div>${st}`;
+    const b=el("button","btn"+(a.paused?"":" deny"),a.paused?"Resume":"Pause");
+    b.onclick=async()=>{
+      let reason="";
+      if(!a.paused){reason=prompt(`Pause ${a.name}? Optional reason:`,"");if(reason===null)return;}
+      b.disabled=true;
+      try{await fetch(`/api/agents/${encodeURIComponent(a.name)}/${a.paused?"resume":"pause"}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reason})});}catch(e){}
+      loadAgents();
+    };
+    row.appendChild(b);box.appendChild(row);
+  });
 }
 
 /* ---------- approvals ---------- */
@@ -462,7 +486,7 @@ async function savePolicy(){
 $("[data-save]").addEventListener("click",savePolicy);
 $("[data-reload]").addEventListener("click",()=>{policyLoaded=false;loadPolicy();msg("Reloaded from policies.yaml.","");});
 
-route();load();loadWrites();setInterval(()=>{load();loadWrites();if(location.hash.replace("#","")==="activity")loadActivity();},4000);
+route();load();loadWrites();loadAgents();setInterval(()=>{load();loadWrites();loadAgents();if(location.hash.replace("#","")==="activity")loadActivity();},4000);
 </script>
 </body>
 </html>
