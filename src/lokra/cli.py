@@ -242,6 +242,12 @@ def cmd_revoke(args):
     print(f"token {token_id} revoked")
 
 
+def cmd_cloud(args):
+    from .cloud import run
+    url = args.url or os.environ.get("LOKRA_CLOUD_URL") or "https://cloud.lokra.dev"
+    run(_cfg(args), url, args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN"), once=args.once)
+
+
 def cmd_demo(args):
     from .demo import main as demo
     return demo(args.dsn, args.keep)
@@ -321,6 +327,13 @@ def main(argv=None):
     s.add_argument("--port", type=int, default=8900)
     s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
+
+    s = sub.add_parser("cloud", help="connect this Lokra to Lokra Cloud (token in $LOKRA_CLOUD_TOKEN)")
+    s.add_argument("--url", help="Lokra Cloud address (default: $LOKRA_CLOUD_URL or https://cloud.lokra.dev)")
+    s.add_argument("--admin-dsn", help="admin connection string, so pauses from the Cloud also block the "
+                                       "database login (default: $LOKRA_ADMIN_DSN)")
+    s.add_argument("--once", action="store_true", help="sync once and exit")
+    s.set_defaults(fn=cmd_cloud)
 
     s = sub.add_parser("demo", help="watch Lokra handle two AI agents on a throwaway Postgres (needs Docker or --dsn)")
     s.add_argument("--dsn", help="use this Postgres instead of Docker; the demo needs to create roles, and removes "
