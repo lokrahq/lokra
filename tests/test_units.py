@@ -340,3 +340,20 @@ def test_rows_config_and_check(tmp_path):
         p.write_text(f"agents:\n  bot:\n    {bad}\n")
         with pytest.raises(ConfigError):
             load_config(p)
+
+
+def test_schema_qualified_table_names(tmp_path):
+    from lokra.config import ConfigError, load_config, normalize_table, split_table
+    assert split_table("orders") == ("public", "orders")
+    assert split_table("billing.invoices") == ("billing", "invoices")
+    assert normalize_table("public.orders") == "orders"
+    with pytest.raises(ConfigError):
+        split_table("a.b.c")
+    p = tmp_path / "policies.yaml"
+    p.write_text("agents:\n  bot:\n    rows: {column: org_id, values: [1], tables: {public.orgs: id}}\n"
+                 "    read: {public.orgs: '*', billing.invoices: '*'}\n    write: {billing.invoices: [update]}\n")
+    a = load_config(p).agents["bot"]
+    assert a.tables == ["billing.invoices", "orgs"] and a.schemas == ["billing", "public"]
+    assert a.rows.column_for("orgs") == "id"
+    assert sqlcheck.check_read("SELECT * FROM billing.invoices JOIN public.orgs o ON true").tables == \
+        ["billing.invoices", "orgs"]

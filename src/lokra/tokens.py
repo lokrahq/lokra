@@ -41,7 +41,7 @@ def mint(key: bytes, agent: str, on_behalf_of: str, ttl_seconds: int = 3600,
 
 def verify(key: bytes, token: str | None, now: float | None = None) -> dict:
     if not token:
-        raise TokenError("no agent token supplied (set LOKRA_TOKEN)")
+        raise TokenError("no agent token supplied (LOKRA_TOKEN, or an Authorization: Bearer header over HTTP)")
     parts = token.strip().split(".")
     if len(parts) != 3 or parts[0] != "lokra1":
         raise TokenError("malformed token")

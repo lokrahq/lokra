@@ -381,3 +381,143 @@ def test_rows_lock_any_table_without_touching_other_roles(tmp_path):
                 if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
                     conn.execute(f"DROP OWNED BY {role}")
                     conn.execute(f"DROP ROLE IF EXISTS {role}")
+
+
+def test_dashboard_approves_and_denies_writes(cfg):
+    import http.server
+    import threading
+    import urllib.error
+    import urllib.request
+
+    from lokra.dashboard import make_handler, writes_payload
+
+    agent = gw(cfg, "test-scheduler")
+    first = agent.propose_write("UPDATE appointments SET status = 'confirmed' WHERE id = 1", "patient confirmed")
+    second = agent.propose_write("UPDATE appointments SET status = 'cancelled' WHERE id = 1", "duplicate")
+    pending = {w["id"]: w for w in writes_payload(cfg)["pending"]}
+    assert {first["write_id"], second["write_id"]} <= set(pending)
+    assert pending[first["write_id"]]["would_affect_rows"] == 1
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), make_handler(cfg, LAB_ADMIN_DSN))
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{server.server_address[1]}"
+
+    def post(path, origin=None):
+        req = urllib.request.Request(base + path, data=b"", method="POST",
+                                     headers={"Origin": origin} if origin else {})
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read())
+
+    try:
+        status, _ = post(f"/api/writes/{first['write_id']}/approve", origin="https://evil.example")
+        assert status == 403
+        status, body = post(f"/api/writes/{first['write_id']}/approve", origin=base)
+        assert status == 200 and body["write"]["status"] == "approved"
+        status, body = post(f"/api/writes/{second['write_id']}/deny")
+        assert status == 200 and body["write"]["status"] == "denied"
+        status, body = post(f"/api/writes/{second['write_id']}/approve")
+        assert status == 409 and "already" in body["error"]
+    finally:
+        server.shutdown()
+
+    assert agent.execute_write(first["write_id"])["status"] == "executed"
+    with pytest.raises(GatewayError, match="denied"):
+        agent.execute_write(second["write_id"])
+    recent = {w["id"]: w for w in writes_payload(cfg)["recent"]}
+    assert recent[first["write_id"]]["status"] == "executed"
+    assert recent[second["write_id"]]["decided_by"].endswith("(dashboard)")
+
+
+def test_http_transport_takes_a_token_per_request(cfg):
+    import socket
+    import threading
+    import time
+    import urllib.request
+
+    import uvicorn
+
+    from lokra.server import build_server
+
+    app = build_server(cfg, http=True).streamable_http_app(stateless_http=True, json_response=True)
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
+    threading.Thread(target=server.run, daemon=True).start()
+    deadline = time.time() + 10
+    while not server.started and time.time() < deadline:
+        time.sleep(0.05)
+
+    def call(tool, arguments, token=None):
+        headers = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": tool, "arguments": arguments}}
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/mcp", data=json.dumps(body).encode(),
+                                     headers=headers, method="POST")
+        with urllib.request.urlopen(req) as r:
+            result = json.loads(r.read())["result"]
+        return result["isError"], result["content"][0]["text"]
+
+    try:
+        sched = tokens.mint(cfg.signing_key(), "test-scheduler", "pytest", 60)
+        research = tokens.mint(cfg.signing_key(), "test-researcher", "pytest", 60)
+        err, text = call("query", {"sql": "SELECT DISTINCT clinic_id FROM patients ORDER BY 1"}, sched)
+        assert not err and json.loads(text)["rows"] == [[1]]
+        err, text = call("query", {"sql": "SELECT DISTINCT clinic_id FROM patients ORDER BY 1"}, research)
+        assert not err and json.loads(text)["rows"] == [[1], [2], [3]]
+        err, text = call("whoami", {})
+        assert err and "no agent token" in text
+        err, text = call("whoami", {}, sched[:-2] + "xx")
+        assert err and "signature" in text
+    finally:
+        server.should_exit = True
+
+
+def test_tables_in_other_schemas(tmp_path):
+    from lokra.introspect import introspect
+
+    policy = tmp_path / "policies.yaml"
+    granted = ("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+               "agents:\n  bill-bot:\n    rows: {column: account_id, values: [7]}\n"
+               "    read: {lk_billing.invoices: \"*\"}\n"
+               "masking: {columns: {email: redact}, detectors: []}\n")
+    with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+        conn.execute("DROP SCHEMA IF EXISTS lk_billing CASCADE")
+        conn.execute("CREATE SCHEMA lk_billing")
+        conn.execute("CREATE TABLE lk_billing.invoices (id int PRIMARY KEY, account_id int, email text)")
+        conn.execute("INSERT INTO lk_billing.invoices VALUES (1, 7, 'a@x.com'), (2, 8, 'b@y.com')")
+        conn.execute("CREATE TABLE lk_billing.secrets (x text)")
+    try:
+        assert "lk_billing.invoices" in introspect(LAB_ADMIN_DSN, ["public", "lk_billing"])
+        policy.write_text(granted)
+        c = load_config(policy)
+        assert any("lk_billing.invoices" in line for line in provision(c, LAB_ADMIN_DSN))
+        agent = gw(c, "bill-bot")
+        assert list(agent.list_tables()["tables"]) == ["lk_billing.invoices"]
+        out = agent.query("SELECT account_id, email FROM lk_billing.invoices")
+        assert [r[0] for r in out["rows"]] == [7] and out["rows"][0][1] != "a@x.com"
+        with pytest.raises(GatewayError, match="permission denied"):
+            agent.query("SELECT * FROM lk_billing.secrets")
+        reads = [e for e in Ledger(c.ledger_path, c.signing_key()).entries() if e["event"] == "read"]
+        assert reads[-1]["tables"] == ["lk_billing.invoices"]
+
+        policy.write_text(granted.replace("lk_billing.invoices", "clinics").replace(
+            "    rows: {column: account_id, values: [7]}\n", ""))
+        provision(load_config(policy), LAB_ADMIN_DSN)
+        with raw(c, "bill-bot") as r:
+            with pytest.raises(psycopg.Error, match="permission denied for schema"):
+                r.execute("SELECT * FROM lk_billing.invoices")
+
+        policy.write_text(granted.replace("lk_billing.invoices", "lk_billing.nope"))
+        with pytest.raises(ValueError, match="lk_billing.nope"):
+            provision(load_config(policy), LAB_ADMIN_DSN)
+    finally:
+        with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
+            conn.execute("DROP SCHEMA IF EXISTS lk_billing CASCADE")
+            if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_bill_bot'").fetchone():
+                conn.execute("DROP OWNED BY lokra_bill_bot")
+                conn.execute("DROP ROLE lokra_bill_bot")

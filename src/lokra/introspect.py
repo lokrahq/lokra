@@ -6,6 +6,8 @@ import re
 import psycopg
 from psycopg import conninfo
 
+from .config import table_key
+
 # (keyword, masking strategy, value detector or None), most specific first.
 _PII = [
     ("medicare", "last4", "medicare"),
@@ -28,12 +30,12 @@ _PII = [
 ]
 
 _TABLES_QUERY = """
-SELECT c.table_name, c.column_name, c.data_type
+SELECT c.table_schema, c.table_name, c.column_name, c.data_type
 FROM information_schema.columns c
 JOIN information_schema.tables t
   ON t.table_schema = c.table_schema AND t.table_name = c.table_name
-WHERE c.table_schema = 'public' AND t.table_type = 'BASE TABLE'
-ORDER BY c.table_name, c.ordinal_position
+WHERE c.table_schema = ANY(%s) AND t.table_type = 'BASE TABLE'
+ORDER BY c.table_schema, c.table_name, c.ordinal_position
 """
 
 
@@ -46,14 +48,17 @@ def _match(column: str):
     return None
 
 
-def introspect(dsn: str) -> dict[str, list[tuple[str, str]]]:
-    """Return {table: [(column, type)]} for public base tables. Read-only."""
+def introspect(dsn: str, schemas: list[str] | tuple[str, ...] = ("public",)) -> dict[str, list[tuple[str, str]]]:
+    """Return {table: [(column, type)]} for base tables in the given schemas. Read-only.
+
+    Tables outside public are keyed as 'schema.table', the same way policies name them.
+    """
     with psycopg.connect(dsn, connect_timeout=10) as conn:
         conn.read_only = True
-        rows = conn.execute(_TABLES_QUERY).fetchall()
+        rows = conn.execute(_TABLES_QUERY, (list(schemas),)).fetchall()
     tables: dict[str, list[tuple[str, str]]] = {}
-    for table, column, dtype in rows:
-        tables.setdefault(table, []).append((column, dtype))
+    for schema, table, column, dtype in rows:
+        tables.setdefault(table_key(schema, table), []).append((column, dtype))
     return tables
 
 

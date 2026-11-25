@@ -128,6 +128,17 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .savemsg{font-size:13px;color:var(--muted);margin-bottom:16px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 15px}.savemsg.err{color:var(--red);border-color:#f3cdc8}.savemsg.ok{color:var(--grn);border-color:#c3eccf}
 .savemsg pre{font:12px/1.5 var(--mono);color:var(--muted);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:8px 0 0;max-height:150px;overflow:auto;white-space:pre-wrap}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}.kv:last-child{border:0}.kv .k{color:var(--muted)}.kv .v{font:12.5px var(--mono);color:var(--ink)}
+.side nav .badge{margin-left:auto;background:var(--amb);color:#fff;font-size:11px;font-weight:600;border-radius:999px;padding:1px 7px;line-height:17px}
+.wcard{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--amb);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.wcard .wt{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+.wcard .wt b{font-size:14.5px}.wcard .wt small{font:11.5px var(--mono);color:var(--faint)}
+.wcard .why{color:var(--muted);font-size:13px;margin:0 0 12px}
+.wcard pre{font:12.5px/1.5 var(--mono);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin:0 0 12px;white-space:pre-wrap;word-break:break-word}
+.wcard .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12.5px;color:var(--muted);margin-bottom:14px}.wcard .meta b{color:var(--ink);font-weight:600}
+.wcard .warn{color:var(--amb);font-size:12.5px;margin:-4px 0 12px}
+.wcard .acts{display:flex;gap:10px}
+.btn.deny{color:var(--red);border-color:#f3cdc8}.btn.deny:hover{background:var(--red-soft)}
+.wrecent .st{font-size:12.5px;font-weight:500}.st.approved,.st.executed{color:var(--grn)}.st.denied,.st.expired,.st.failed{color:var(--red)}
 @media(max-width:860px){.statbar{flex-wrap:wrap}.stat{flex:1 1 50%;border-bottom:1px solid var(--line)}.two{grid-template-columns:1fr}.side{display:none}main{padding:22px}td.hide{display:none}}
 </style>
 </head>
@@ -136,6 +147,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <div class="brand"><svg viewBox="21.5 26 57 48"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg>Lokra</div>
   <nav>
     <button class="on" data-view="dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+    <button data-view="approvals"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Approvals<span class="badge" data-pending-badge hidden></span></button>
     <button data-view="policy"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Policy</button>
     <button data-view="audit"><svg viewBox="0 0 24 24"><path d="M8 3h8l4 4v14H4V3z"/><path d="M8 12h8M8 16h8M8 8h4"/></svg>Audit</button>
   </nav>
@@ -165,6 +177,16 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     <div class="two">
       <div class="panel"><div class="ph"><h2>Statement outcomes</h2><small data-window></small></div><div class="bars" data-outcomes></div></div>
       <div class="panel"><h2>Risk flags</h2><div class="flags" data-flags></div></div>
+    </div>
+  </section>
+
+  <!-- APPROVALS -->
+  <section data-view="approvals" hidden>
+    <div class="savemsg" data-write-msg hidden></div>
+    <div data-pending></div>
+    <div class="panel wrecent">
+      <div class="ph"><h2>Recent decisions</h2><small data-ttl-note></small></div>
+      <table><thead><tr><th>Write</th><th>Agent</th><th>Status</th><th class="hide">Rows</th></tr></thead><tbody data-decided></tbody></table>
     </div>
   </section>
 
@@ -234,7 +256,7 @@ const sev=ev=>({read:"read",listed_tables:"read",write_executed:"ok2",write_appr
 const TRASH='<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13"/></svg>';
 
 const main=$("main");
-const TITLES={dashboard:"Dashboard",policy:"Policy",audit:"Audit log",activity:"Activity log"};
+const TITLES={dashboard:"Dashboard",approvals:"Approvals",policy:"Policy",audit:"Audit log",activity:"Activity log"};
 function show(view){
   if(!TITLES[view])view="dashboard";
   $$("section[data-view]").forEach(n=>n.hidden=n.dataset.view!==view);
@@ -244,6 +266,7 @@ function show(view){
   $("[data-policy-actions]").hidden=view!=="policy";
   if(view==="policy"&&!policyLoaded)loadPolicy();
   if(view==="activity")loadActivity();
+  if(view==="approvals")loadWrites();
   if(main)main.scrollTop=0;
 }
 function route(){show(location.hash.replace("#","")||"dashboard");}
@@ -292,6 +315,39 @@ async function load(){
   $("[data-reasons]").innerHTML=rs.length?rs.map(x=>`<div><div class="top"><span class="rt">${esc(x.reason)}</span><b>${x.count}</b></div><div class="track"><div class="fill" style="width:${Math.round(x.count/rmax*100)}%"></div></div></div>`).join(""):'<div class="empty">nothing blocked</div>';
   // audit: recent activity
   $("[data-recent]").innerHTML=d.recent.slice(0,8).map(e=>`<tr><td class="t">${esc(e.ts)}</td><td>${esc(e.agent)}</td><td><span class="ev ${sev(e.event)}">${esc(e.event)}</span></td><td class="d hide">${esc(e.detail)}</td></tr>`).join("");
+}
+
+/* ---------- approvals ---------- */
+const ago=s=>{const m=Math.max(0,Math.round((Date.now()/1000-s)/60));return m<1?"just now":m<60?m+" min ago":Math.round(m/60)+" h ago";};
+async function loadWrites(){
+  let d;try{d=await (await fetch("/api/writes",{cache:"no-store"})).json();}catch(e){return;}
+  const badge=$("[data-pending-badge]");badge.hidden=!d.pending.length;badge.textContent=d.pending.length;
+  $("[data-ttl-note]").textContent=`approvals last ${Math.round(d.approval_ttl_seconds/60)} min`;
+  const box=$("[data-pending]");
+  box.innerHTML=d.pending.length?"":'<div class="panel"><div class="ok"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>No writes waiting for approval.</div></div>';
+  d.pending.forEach(w=>{
+    const c=el("div","wcard");
+    c.innerHTML=`<div class="wt"><b>${esc(w.agent)} wants to ${esc((w.statement||"write").toUpperCase())} ${esc(w.tables.join(", "))}</b><small>${esc(w.id)} · ${ago(w.created_at)}</small></div>`+
+      `<p class="why">${w.reason?"“"+esc(w.reason)+"”":"No reason given."}${w.on_behalf_of?" On behalf of <b>"+esc(w.on_behalf_of)+"</b>.":""}</p>`+
+      `<pre>${esc(w.sql)}</pre>`+
+      `<div class="meta"><span>Dry run: <b>${w.would_affect_rows??"?"} row${w.would_affect_rows===1?"":"s"}</b> would change</span></div>`+
+      (w.warnings.length?`<div class="warn">${w.warnings.map(esc).join("<br>")}</div>`:"");
+    const acts=el("div","acts");
+    const ok=el("button","btn primary","Approve"),no=el("button","btn deny","Deny");
+    ok.onclick=()=>decideWrite(w.id,"approve",[ok,no]);no.onclick=()=>decideWrite(w.id,"deny",[ok,no]);
+    acts.append(ok,no);c.appendChild(acts);box.appendChild(c);
+  });
+  $("[data-decided]").innerHTML=d.recent.map(w=>`<tr><td class="t">${esc(w.id)}</td><td>${esc(w.agent)}</td><td><span class="st ${esc(w.status)}">${esc(w.status)}</span>${w.decided_by?` <span class="d">by ${esc(w.decided_by)}</span>`:""}</td><td class="d hide">${w.affected_rows??w.would_affect_rows??""}</td></tr>`).join("")||'<tr><td class="d">No decisions yet.</td></tr>';
+}
+async function decideWrite(id,action,btns){
+  btns.forEach(b=>b.disabled=true);
+  const msg=$("[data-write-msg]");
+  try{
+    const r=await (await fetch(`/api/writes/${id}/${action}`,{method:"POST"})).json();
+    msg.hidden=false;msg.className="savemsg "+(r.ok?"ok":"err");
+    msg.textContent=r.ok?`${id} ${action==="approve"?"approved. The agent can run it now.":"denied."}`:r.error;
+  }catch(e){msg.hidden=false;msg.className="savemsg err";msg.textContent="Could not reach the dashboard server.";}
+  loadWrites();
 }
 
 /* ---------- policy editor ---------- */
@@ -406,7 +462,7 @@ async function savePolicy(){
 $("[data-save]").addEventListener("click",savePolicy);
 $("[data-reload]").addEventListener("click",()=>{policyLoaded=false;loadPolicy();msg("Reloaded from policies.yaml.","");});
 
-route();load();setInterval(()=>{load();if(location.hash.replace("#","")==="activity")loadActivity();},4000);
+route();load();loadWrites();setInterval(()=>{load();loadWrites();if(location.hash.replace("#","")==="activity")loadActivity();},4000);
 </script>
 </body>
 </html>

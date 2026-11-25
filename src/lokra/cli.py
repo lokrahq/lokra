@@ -27,9 +27,10 @@ def cmd_init(args):
     if out.exists() and not args.force:
         print(f"error: {out} already exists (use --out PATH or --force to overwrite)", file=sys.stderr)
         return 1
-    tables = introspect(args.dsn)
+    schemas = [s.strip() for s in args.schemas.split(",") if s.strip()]
+    tables = introspect(args.dsn, schemas)
     if not tables:
-        print("no base tables found in schema 'public'", file=sys.stderr)
+        print(f"no base tables found in schema(s): {', '.join(schemas)}", file=sys.stderr)
         return 1
     doc = build_policy(args.dsn, tables)
     out.write_text(dump_policy(doc))
@@ -185,6 +186,19 @@ def cmd_serve(args):
         os.environ["LOKRA_CONFIG"] = args.config
     if args.home:
         os.environ["LOKRA_HOME"] = args.home
+    if args.http:
+        if args.dev_agent:
+            print("error: --dev-agent is for stdio; over HTTP each agent sends its own token "
+                  "(lokra mint-token <agent>) as Authorization: Bearer", file=sys.stderr)
+            return 2
+        _cfg(args)
+        if args.host not in ("127.0.0.1", "localhost", "::1"):
+            print("lokra: listening beyond this machine; put TLS in front, since agent tokens travel "
+                  "in the Authorization header", file=sys.stderr)
+        from .server import main_http
+        print(f"lokra: MCP over HTTP at http://{args.host}:{args.port}/mcp", file=sys.stderr)
+        main_http(args.host, args.port)
+        return
     if args.dev_agent and not os.environ.get("LOKRA_TOKEN"):
         cfg = _cfg(args)
         cfg.agent(args.dev_agent)
@@ -205,6 +219,7 @@ def main(argv=None):
     s.add_argument("dsn", help="connection string to the target database, e.g. a Supabase or local Postgres")
     s.add_argument("--out", help="where to write the policy (default: policies.yaml)")
     s.add_argument("--force", action="store_true", help="overwrite the file if it already exists")
+    s.add_argument("--schemas", default="public", help="comma-separated schemas to include (default: public)")
     s.set_defaults(fn=cmd_init)
 
     s = sub.add_parser("check", help="validate the policy against the database (read-only)")
@@ -264,7 +279,11 @@ def main(argv=None):
     s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
     s.set_defaults(fn=cmd_dashboard)
 
-    s = sub.add_parser("serve", help="run the MCP server (used by Claude Code)")
+    s = sub.add_parser("serve", help="run the MCP server, over stdio (default) or HTTP")
+    s.add_argument("--http", action="store_true", help="serve MCP over HTTP for agents on other machines; "
+                                                       "each request needs an Authorization: Bearer token")
+    s.add_argument("--host", default="127.0.0.1", help="HTTP bind address (default: 127.0.0.1)")
+    s.add_argument("--port", type=int, default=8787, help="HTTP port (default: 8787)")
     s.add_argument("--dev-agent", help="LOCAL DEV ONLY: issue an 8h token for this agent at startup "
                                        "if LOKRA_TOKEN is not set")
     s.add_argument("--on-behalf-of", help="human recorded in the audit log (default: your username)")

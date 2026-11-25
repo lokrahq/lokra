@@ -12,7 +12,7 @@ from .introspect import _match, introspect
 
 def check(cfg: Config, dsn: str) -> list[tuple[str, str]]:
     """Introspect the database (read-only) and validate the policy against it."""
-    tables = introspect(dsn)
+    tables = introspect(dsn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
     return analyze(cfg, {t: {c for c, _ in cols} for t, cols in tables.items()})
 
 

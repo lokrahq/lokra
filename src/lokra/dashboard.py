@@ -7,16 +7,20 @@ It binds to the loopback address and talks to the local database only.
 """
 from __future__ import annotations
 
+import getpass
 import http.server
 import json
+import re
+import time
 from urllib.parse import parse_qs, urlsplit
 
 import psycopg
 from psycopg import sql
 
 from .config import Config, ConfigError, dump_policy, load_config
+from .gateway import GatewayError, decide, list_pending
 from .ledger import Ledger
-from .masking import DETECTORS
+from .masking import DETECTORS, Masker
 from .provision import WRITE_OPS, provision
 from .report import build_report, to_dict
 
@@ -27,6 +31,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 STRATEGIES = ["none", "redact", "year_only", "hash", "last2", "last3", "last4"]
 MAX_BODY = 256 * 1024
+DECISION_PATH = re.compile(r"^/api/writes/(w_[0-9a-f]+)/(approve|deny)$")
 
 
 def _detail(e: dict) -> str:
@@ -68,6 +73,38 @@ def activity_payload(cfg: Config, limit: int = 500) -> dict:
     rows = [{"ts": e.get("ts") or "", "seq": e.get("seq"), "event": e.get("event"),
              "agent": e.get("agent") or "—", "detail": _detail(e)} for e in sliced]
     return {"entries": rows, "total": len(entries), "shown": len(rows), "chain_verified": chain_ok}
+
+
+def _write_view(record: dict, masker: Masker, ttl: int) -> dict:
+    status = record["status"]
+    if status == "approved" and time.time() - record.get("approved_at", 0) > ttl:
+        status = "expired"
+    return {
+        "id": record["id"], "status": status, "agent": record["agent"],
+        "on_behalf_of": record.get("on_behalf_of"), "reason": record.get("reason") or "",
+        "statement": record.get("statement"), "tables": record.get("tables") or [],
+        "sql": masker.scrub_text(record["sql"]), "warnings": record.get("warnings") or [],
+        "would_affect_rows": record.get("would_affect_rows"), "affected_rows": record.get("affected_rows"),
+        "decided_by": record.get("approved_by") or record.get("denied_by"),
+        "created_at": record.get("created_at"),
+    }
+
+
+def writes_payload(cfg: Config, recent: int = 10) -> dict:
+    masker = Masker(cfg.masking_columns, cfg.masking_detectors)
+    records = list_pending(cfg)
+    pending = [_write_view(r, masker, cfg.approval_ttl_seconds) for r in records if r["status"] == "pending"]
+    decided = [r for r in records if r["status"] != "pending"]
+    decided.sort(key=lambda r: max(r.get(k) or 0 for k in ("created_at", "approved_at", "denied_at", "executed_at")),
+                 reverse=True)
+    return {"pending": pending,
+            "recent": [_write_view(r, masker, cfg.approval_ttl_seconds) for r in decided[:recent]],
+            "approval_ttl_seconds": cfg.approval_ttl_seconds}
+
+
+def decide_write(cfg: Config, write_id: str, approve: bool, by: str | None = None) -> dict:
+    record = decide(cfg, write_id, approve, by or f"{getpass.getuser()} (dashboard)")
+    return _write_view(record, Masker(cfg.masking_columns, cfg.masking_detectors), cfg.approval_ttl_seconds)
 
 
 def policy_payload(cfg: Config) -> dict:
@@ -286,6 +323,8 @@ def make_handler(cfg: Config, admin_dsn: str):
                 except ValueError:
                     limit = 500
                 self._json(activity_payload(cfg, limit))
+            elif path == "/api/writes":
+                self._json(writes_payload(cfg))
             elif path == "/api/policy":
                 try:
                     self._json(policy_payload(cfg))
@@ -302,11 +341,18 @@ def make_handler(cfg: Config, admin_dsn: str):
 
         def do_POST(self):
             path = self.path.split("?", 1)[0]
-            if path != "/api/policy":
+            decision = DECISION_PATH.match(path)
+            if path != "/api/policy" and not decision:
                 self._send(b"not found", "text/plain", 404)
                 return
             if not self._same_origin():
                 self._json({"ok": False, "error": "cross-origin request refused"}, 403)
+                return
+            if decision:
+                try:
+                    self._json({"ok": True, "write": decide_write(cfg, decision[1], decision[2] == "approve")})
+                except GatewayError as e:
+                    self._json({"ok": False, "error": str(e)}, 409)
                 return
             length = int(self.headers.get("Content-Length") or 0)
             if length > MAX_BODY:

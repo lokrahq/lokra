@@ -58,7 +58,8 @@ def _single(sql: str) -> exp.Expression:
 
 
 def _tables(tree: exp.Expression) -> list[str]:
-    return sorted({t.name for t in tree.find_all(exp.Table) if t.name})
+    return sorted({f"{t.db}.{t.name}" if t.db and t.db != "public" else t.name
+                   for t in tree.find_all(exp.Table) if t.name})
 
 
 def _forbidden(tree: exp.Expression) -> str | None:

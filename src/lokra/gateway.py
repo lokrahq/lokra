@@ -11,7 +11,7 @@ from typing import Any
 import psycopg
 
 from . import sqlcheck, tokens
-from .config import AgentPolicy, Config, ConfigError
+from .config import AgentPolicy, Config, ConfigError, table_key
 from .ledger import Ledger
 from .masking import Masker
 
@@ -92,13 +92,14 @@ class Gateway:
     def list_tables(self) -> dict:
         claims, agent = self._identity("list_tables")
         base = self._base(claims, agent, "list_tables")
-        q = ("SELECT table_name, column_name, privilege_type FROM information_schema.column_privileges "
-             "WHERE grantee = current_user AND table_schema = 'public' ORDER BY table_name, column_name")
+        q = ("SELECT table_schema, table_name, column_name, privilege_type FROM information_schema.column_privileges "
+             "WHERE grantee = current_user AND table_schema NOT IN ('pg_catalog', 'information_schema') "
+             "ORDER BY table_schema, table_name, column_name")
         with self._connect(agent, read_only=True) as conn:
             rows = conn.execute(q).fetchall()
         tables: dict[str, dict[str, list[str]]] = {}
-        for table, column, priv in rows:
-            t = tables.setdefault(table, {"read": [], "write": []})
+        for schema, table, column, priv in rows:
+            t = tables.setdefault(table_key(schema, table), {"read": [], "write": []})
             bucket = "read" if priv == "SELECT" else "write"
             if column not in t[bucket]:
                 t[bucket].append(column)

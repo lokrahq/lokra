@@ -16,6 +16,24 @@ class ConfigError(Exception):
     pass
 
 
+def split_table(name: str) -> tuple[str, str]:
+    """'billing.invoices' -> ('billing', 'invoices'); an unqualified name is in the public schema."""
+    schema, dot, table = str(name).strip().partition(".")
+    if not dot:
+        return "public", schema
+    if not schema or not table or "." in table:
+        raise ConfigError(f"table name '{name}' should be 'table' or 'schema.table'")
+    return schema, table
+
+
+def table_key(schema: str, table: str) -> str:
+    return table if schema == "public" else f"{schema}.{table}"
+
+
+def normalize_table(name: str) -> str:
+    return table_key(*split_table(name))
+
+
 @dataclass
 class RowLock:
     column: str
@@ -45,6 +63,14 @@ class AgentPolicy:
     @property
     def role(self) -> str:
         return "lokra_" + re.sub(r"[^a-z0-9]+", "_", self.name.lower()).strip("_")
+
+    @property
+    def tables(self) -> list[str]:
+        return sorted(set(self.read) | set(self.write))
+
+    @property
+    def schemas(self) -> list[str]:
+        return sorted({split_table(t)[0] for t in self.tables} | {"public"})
 
 
 @dataclass
@@ -125,7 +151,7 @@ def _row_lock(agent: str, raw) -> RowLock | None:
     tables = raw.get("tables") or {}
     if not isinstance(tables, dict):
         raise ConfigError(f"{agent}: rows.tables maps a table to the column that holds its scope")
-    return RowLock(str(raw["column"]), values, {str(t): str(c) for t, c in tables.items()})
+    return RowLock(str(raw["column"]), values, {normalize_table(t): str(c) for t, c in tables.items()})
 
 
 def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike | None = None) -> Config:
@@ -144,8 +170,8 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
             name=name,
             description=a.get("description", ""),
             rows=_row_lock(name, a.get("rows")),
-            read=a.get("read", {}) or {},
-            write=a.get("write", {}) or {},
+            read={normalize_table(k): v for k, v in (a.get("read") or {}).items()},
+            write={normalize_table(k): v for k, v in (a.get("write") or {}).items()},
             max_rows=int(a.get("max_rows", 200)),
             purposes=[str(p) for p in (a.get("purposes") or [])],
         )

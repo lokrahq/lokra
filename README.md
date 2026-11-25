@@ -83,6 +83,11 @@ can create roles, such as `postgres`. Try it on a development project first.
 
 `policies.example.yaml` is a non-healthcare starting point you can copy instead.
 
+Tables outside the `public` schema are named `schema.table` in the policy, for example
+`billing.invoices: "*"`. Lokra grants the agent only those schemas, and takes them away
+again when they leave the policy. To scaffold from several schemas at once, run
+`lokra init "<dsn>" --schemas public,billing`.
+
 ### Lock rows
 
 Give an agent a `rows` rule and it only sees, inserts and updates rows whose column holds
@@ -136,6 +141,23 @@ Then ask something like "which patients have appointments on Monday?".
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
 
+## Agents on other machines
+
+Always-on and hosted agents can reach Lokra over HTTP. Each request carries the agent's own
+short-lived token, so one Lokra serves many agents and every call is checked:
+
+```bash
+lokra serve --http --host 0.0.0.0 --port 8787     # put TLS in front of this
+lokra mint-token support-bot --ttl 86400          # hand this token to the agent
+```
+
+```bash
+claude mcp add --transport http lokra https://lokra.internal.example/mcp \
+  --header "Authorization: Bearer <token>"
+```
+
+A request without a valid token is refused and recorded in the ledger.
+
 ## Website
 
 The lokra.dev site lives in `site/`. Preview it locally with clean URLs:
@@ -157,8 +179,9 @@ lokra report --json     # machine-readable, for a SIEM or an evidence pack
 ```
 
 For a live view, `lokra dashboard` serves a local web page (127.0.0.1) with a
-dashboard, a full audit log, and a policy editor that rewrites `policies.yaml`
-and reprovisions the database roles for you.
+dashboard, an approvals queue where you approve or deny pending writes after
+seeing the statement and its dry-run row count, a full audit log, and a policy
+editor that rewrites `policies.yaml` and reprovisions the database roles for you.
 
 <p align="center"><img src="docs/dashboard.png" alt="Lokra dashboard: agents, statement outcomes and risk flags" width="820"></p>
 
