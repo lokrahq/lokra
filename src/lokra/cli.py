@@ -7,7 +7,7 @@ import os
 import sys
 import time
 
-from . import tokens
+from . import __version__, tokens
 from .config import ConfigError, LAB_ADMIN_DSN, load_config
 from .gateway import Gateway, GatewayError, decide, list_pending
 from .ledger import Ledger
@@ -262,7 +262,8 @@ def main(argv=None):
     p = argparse.ArgumentParser(prog="lokra", description="Policy proxy between AI agents and your database")
     p.add_argument("--config", help="path to policies.yaml (default: ./policies.yaml or $LOKRA_CONFIG)")
     p.add_argument("--home", help="state directory (default: .lokra next to the config)")
-    sub = p.add_subparsers(dest="cmd", required=True)
+    p.add_argument("-V", "--version", action="version", version=f"lokra {__version__}")
+    sub = p.add_subparsers(dest="cmd")
 
     s = sub.add_parser("init", help="introspect a database (read-only) and scaffold a starter policies.yaml")
     s.add_argument("dsn", help="connection string to the target database, e.g. a Supabase or local Postgres")
@@ -372,6 +373,10 @@ def main(argv=None):
     s.set_defaults(fn=cmd_serve)
 
     args = p.parse_args(argv)
+    if args.cmd is None:
+        from .term import Style, welcome
+        print("\n".join(welcome(Style.detect())))
+        return 0
     try:
         return args.fn(args) or 0
     except ConfigError as e:

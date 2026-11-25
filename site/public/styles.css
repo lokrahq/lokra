@@ -247,6 +247,8 @@ footer a:hover { color: var(--fg); }
 .more { font-size: 14px; font-weight: 500; text-decoration: none; margin-top: auto; }
 .more:hover { text-decoration: underline; text-underline-offset: 3px; }
 .card .waitlist { flex: none; width: 100%; margin-top: auto; }
+.card .cloud-cta { margin-top: auto; }
+.card .note { font-size: 13px; color: var(--muted); margin: -4px 0 0; }
 .features4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .f { border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
 .f svg { width: 26px; height: 26px; fill: none; stroke: var(--fg); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 18px; }

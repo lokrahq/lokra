@@ -549,10 +549,12 @@ def test_demo_runs_end_to_end_and_cleans_up():
     lines: list[str] = []
     run_demo(LAB_ADMIN_DSN, out=lines.append)
     text = "\n".join(lines)
-    assert "3 of 6 customers come back" in text
+    assert "3 of 6 customers." in text and "✗ hidden" in text
     assert "[CARD]" in text and "ben@acme.example" not in text and "4012 8888" not in text
-    assert "REFUSED: send exactly one SQL statement" in text and "pg_read_file() is not allowed" in text
-    assert "2 row(s) updated" in text and "rate limit of 5 requests a minute" in text
+    assert text.count("✗ blocked") == 5
+    assert "one statement per call" in text and "pg_read_file() not allowed" in text
+    assert "writes wait for a person" in text
+    assert "2 rows updated" in text and "rate limit, 5 a minute" in text
     assert "paused by you (demo)" in text and "hash chain verified" in text
     assert "retry loop" in text and "probing" in text
     with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
