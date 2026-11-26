@@ -568,3 +568,9 @@ def test_demo_runs_end_to_end_and_cleans_up():
     finally:
         with psycopg.connect(LAB_ADMIN_DSN, autocommit=True) as conn:
             conn.execute("DROP SCHEMA lokra_demo")
+
+
+def test_connect_logs_in_as_the_agent(cfg):
+    from lokra.connect import readable_tables
+    assert readable_tables(cfg, cfg.agent("test-scheduler")) == 3
+    assert readable_tables(cfg, cfg.agent("test-researcher")) == 2

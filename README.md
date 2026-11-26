@@ -82,7 +82,7 @@ lokra init "postgresql://user:pass@host:5432/dbname"    # read-only, writes poli
 lokra check --dsn "postgresql://user:pass@host:5432/dbname"   # validate it against the schema
 # review and tighten policies.yaml, then provision the per-agent roles:
 lokra provision --admin-dsn "postgresql://admin:pass@host:5432/dbname"
-lokra dashboard
+lokra connect                                             # add the agent to Claude Code
 ```
 
 `lokra check` reads the database and flags grants on tables or columns that do
@@ -121,36 +121,31 @@ there. Where a table names the scope differently, map it with
 `tables: {accounts: id}`. `lokra check` warns about tables the agent can read that have
 no column to lock by.
 
-## Connect Claude Code
+## Connect your agent
 
-**Desktop app or CLI:** put this `.mcp.json` in the folder where the agent works, then open a
-new Claude Code session in that folder and allow the `clinic-db` server when asked.
-
-```json
-{
-  "mcpServers": {
-    "clinic-db": {
-      "command": "/absolute/path/to/lokra/.venv/bin/lokra",
-      "args": ["--config", "/absolute/path/to/lokra/policies.yaml",
-               "serve", "--dev-agent", "scheduling-bot"]
-    }
-  }
-}
+```bash
+lokra connect                           # Claude Code: writes .mcp.json in this folder
+lokra connect --client claude-desktop   # or cursor, vscode, windsurf
 ```
 
-`--dev-agent` issues an 8-hour token when the server starts. It is for local development
-only; in production the token is issued by a human or the control plane and passed in
-`LOKRA_TOKEN`.
+`lokra connect` logs in as the agent's own database role to check it works, then adds a
+`lokra-<agent>` server to the client's MCP config with absolute paths, so desktop apps that
+do not see your shell's PATH can start it. It keeps the other servers in that file. Name the
+agent when the policy has more than one: `lokra connect scheduling-bot`. Open the client
+(restart Claude Desktop), allow the server, and ask something like "which patients have
+appointments on Monday?".
 
-**CLI alternative**, with an explicit token:
+The server issues the agent an 8-hour token each time the client starts it (`serve
+--dev-agent`), which suits an agent on your own machine. Anywhere else, a human or the control
+plane issues the token and passes it in `LOKRA_TOKEN`:
 
 ```bash
 claude mcp add clinic-db \
-  -e LOKRA_TOKEN="$(.venv/bin/lokra mint-token scheduling-bot --ttl 28800)" \
-  -- "$PWD/.venv/bin/lokra" --config "$PWD/policies.yaml" serve
+  -e LOKRA_TOKEN="$(lokra mint-token scheduling-bot --ttl 28800)" \
+  -- "$(command -v lokra)" --config "$PWD/policies.yaml" serve
 ```
 
-Then ask something like "which patients have appointments on Monday?".
+For any other MCP client, `lokra connect --print` prints the entry to paste.
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
 

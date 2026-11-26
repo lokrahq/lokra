@@ -9,6 +9,7 @@ import time
 
 from . import __version__, tokens
 from .config import ConfigError, LAB_ADMIN_DSN, load_config
+from .connect import CLIENTS
 from .gateway import Gateway, GatewayError, decide, list_pending
 from .ledger import Ledger
 
@@ -42,7 +43,7 @@ def cmd_init(args):
     print("\nnext steps:")
     print("  1. review the policy and tighten the agent's read grants")
     print('  2. lokra provision --admin-dsn "<admin connection string>"')
-    print("  3. lokra dashboard")
+    print("  3. lokra connect          (adds the agent to Claude Code; --client cursor, vscode, ...)")
     return 0
 
 
@@ -203,7 +204,8 @@ def cmd_serve(args):
         cfg = _cfg(args)
         cfg.agent(args.dev_agent)
         os.environ["LOKRA_TOKEN"] = tokens.mint(cfg.signing_key(), args.dev_agent,
-                                              args.on_behalf_of or getpass.getuser(), 8 * 3600)
+                                              args.on_behalf_of or getpass.getuser(), 8 * 3600,
+                                              purpose=args.purpose)
         print(f"lokra: dev mode, issued an 8h token for {args.dev_agent}", file=sys.stderr)
     from .server import main
     main()
@@ -246,6 +248,45 @@ def cmd_cloud(args):
     from .cloud import run
     url = args.url or os.environ.get("LOKRA_CLOUD_URL") or "https://cloud.lokra.dev"
     run(_cfg(args), url, args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN"), once=args.once)
+
+
+def cmd_connect(args):
+    from . import connect
+    from .term import Style
+    cfg = _cfg(args)
+    if args.agent:
+        agent = cfg.agent(args.agent)
+    elif len(cfg.agents) == 1:
+        agent = next(iter(cfg.agents.values()))
+    else:
+        print(f"error: say which agent to connect, one of: {', '.join(cfg.agents) or '(none)'}",
+              file=sys.stderr)
+        return 2
+    if cfg.require_purpose and not args.purpose:
+        raise ConfigError("this policy requires a purpose-of-use; pass --purpose")
+    if args.purpose and agent.purposes and args.purpose not in agent.purposes:
+        raise ConfigError(f"purpose '{args.purpose}' is not permitted for {agent.name} "
+                          f"(allowed: {', '.join(agent.purposes)})")
+    target = connect.client(args.client)
+    name = args.name or f"lokra-{agent.name}"
+    server = connect.entry(cfg, agent, args.purpose, typed=target.typed)
+    if args.print:
+        print(json.dumps({target.key: {name: server}}, indent=2))
+        return 0
+    st = Style.detect()
+    if not args.no_check:
+        n = connect.readable_tables(cfg, agent)
+        print("  " + st.ok(f"{agent.name} logs in to {cfg.db_name} and can read {n} table{'s' * (n != 1)}"))
+    status = connect.install(target, name, server, args.force)
+    where = f"{connect.shown(target.path)} for {target.label}"
+    done = {"added": f"Added {st.bold(name)} to {where}",
+            "updated": f"Updated {st.bold(name)} in {where}",
+            "unchanged": f"{st.bold(name)} is already in {where}"}[status]
+    print("  " + st.ok(done))
+    print(f"\n  Next: {target.next_step.format(server=name)}")
+    ask = st.dim('"What tables can you see?"')
+    print(f"  Then ask it: {ask}")
+    return 0
 
 
 def cmd_demo(args):
@@ -336,6 +377,17 @@ def main(argv=None):
     s.add_argument("--once", action="store_true", help="sync once and exit")
     s.set_defaults(fn=cmd_cloud)
 
+    s = sub.add_parser("connect", help="add an agent to Claude Code, Claude Desktop, Cursor, VS Code or Windsurf")
+    s.add_argument("agent", nargs="?", help="agent from the policy (optional when there is only one)")
+    s.add_argument("--client", choices=CLIENTS, default="claude-code",
+                   help="where to add it (default: claude-code, which writes .mcp.json in this folder)")
+    s.add_argument("--name", help="server name in the client (default: lokra-<agent>)")
+    s.add_argument("--purpose", help="declared purpose-of-use for the agent's session token")
+    s.add_argument("--print", action="store_true", help="print the config entry instead of writing it")
+    s.add_argument("--no-check", action="store_true", help="skip logging in as the agent to test it")
+    s.add_argument("--force", action="store_true", help="replace a server of the same name that is not Lokra")
+    s.set_defaults(fn=cmd_connect)
+
     s = sub.add_parser("demo", help="watch Lokra handle two AI agents on a throwaway Postgres (needs Docker or --dsn)")
     s.add_argument("--dsn", help="use this Postgres instead of Docker; the demo needs to create roles, and removes "
                                  "everything it creates")
@@ -370,6 +422,7 @@ def main(argv=None):
     s.add_argument("--dev-agent", help="LOCAL DEV ONLY: issue an 8h token for this agent at startup "
                                        "if LOKRA_TOKEN is not set")
     s.add_argument("--on-behalf-of", help="human recorded in the audit log (default: your username)")
+    s.add_argument("--purpose", help="declared purpose-of-use for the --dev-agent token")
     s.set_defaults(fn=cmd_serve)
 
     args = p.parse_args(argv)

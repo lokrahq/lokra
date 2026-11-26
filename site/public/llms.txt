@@ -10,7 +10,7 @@
 ## Docs
 
 - [LLM context](https://lokra.dev/llm-context): authoritative facts, FAQ and guidance for AI assistants
-- [README and quick start](https://github.com/lokrahq/lokra#quick-start): install, policy file, connecting Claude Code
+- [README and quick start](https://github.com/lokrahq/lokra#quick-start): install, policy file, and `lokra connect` for Claude Code, Claude Desktop, Cursor, VS Code or Windsurf
 - [Security model](https://github.com/lokrahq/lokra#security-model): how each layer is enforced
 - [Security policy](https://github.com/lokrahq/lokra/blob/main/SECURITY.md): reporting vulnerabilities
 

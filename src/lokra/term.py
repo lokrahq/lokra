@@ -141,6 +141,7 @@ def welcome(st: Style) -> list[str]:
     steps = (
         ("🚀", "lokra demo", "watch it handle two AI agents, in about a minute"),
         ("🔧", 'lokra init "postgresql://…"', "write a starter policy for your database"),
+        ("🔌", "lokra connect", "add the agent to Claude Code, Cursor or VS Code"),
         ("📱", "lokra cloud", "approve writes from your phone at cloud.lokra.dev"),
         ("📖", "lokra --help", "every command"),
     )

@@ -288,7 +288,8 @@ def run_demo(dsn: str | None = None, keep: bool = False, out=print, style: Style
     say("", f"  ✨ {st.bold('Your turn')}", "",
         "     pipx install lokra",
         '     lokra init "postgresql://…"',
-        '     lokra provision --admin-dsn "…"', "")
+        '     lokra provision --admin-dsn "…"',
+        "     lokra connect", "")
     if keep:
         say(st.dim(f"  Kept the demo database: {dsn} (schema {SCHEMA})"))
     elif container:
