@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting" class="on" aria-current="page">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting" class="on" aria-current="page">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Reference</p>
@@ -44,28 +46,28 @@
 <p>For a full Python traceback instead of a one-line error, run the command again with <code>LOKRA_DEBUG=1</code>.</p>
 <h2 id="setup-and-policy-files">Setup and policy files<a class="anchor" href="#setup-and-policy-files" title="Permanent link">#</a></h2>
 <h3 id="config-not-found">config not found<a class="anchor" href="#config-not-found" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: config not found: /home/dana/policies.yaml
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: config not found: /home/dana/policies.yaml
 hint: run this from your project folder (where policies.yaml lives), or pass --config /path/to/policies.yaml
 </code></pre></div>
 
 <p>Lokra looks for <code>policies.yaml</code> in the current folder unless you say otherwise. Run the command from the folder that holds the policy, or pass <code>--config</code> before the command (<code>lokra --config ./app/policies.yaml check</code>), or set <code>LOKRA_CONFIG</code>.</p>
 <h3 id="pass-admin-dsn-postgresql-an-admin-login-to">pass --admin-dsn "postgresql://…", an admin login to<a class="anchor" href="#pass-admin-dsn-postgresql-an-admin-login-to" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: pass --admin-dsn "postgresql://…", an admin login to app on db.example.com:5432 (or set LOKRA_ADMIN_DSN)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: pass --admin-dsn "postgresql://…", an admin login to app on db.example.com:5432 (or set LOKRA_ADMIN_DSN)
 </code></pre></div>
 
 <p><code>provision</code> (and <code>check</code>, which asks for <code>--dsn</code>) needs a connection string, and none was given. Pass one, or set <code>LOKRA_ADMIN_DSN</code>. See <a href="/docs/connect-database#give-provision-the-admin-connection">connect your database</a>.</p>
 <h3 id="already-exists-use-out-path-or-force-to-overwrite">already exists (use --out PATH or --force to overwrite)<a class="anchor" href="#already-exists-use-out-path-or-force-to-overwrite" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: policies.yaml already exists (use --out PATH or --force to overwrite)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: policies.yaml already exists (use --out PATH or --force to overwrite)
 </code></pre></div>
 
 <p><code>lokra init</code> will not replace a policy you may have edited. Write the scaffold somewhere else with <code>--out new.yaml</code> and compare, or pass <code>--force</code>.</p>
 <h3 id="no-base-tables-found-in-schemas">no base tables found in schema(s)<a class="anchor" href="#no-base-tables-found-in-schemas" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>no base tables found in schema(s): public
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>no base tables found in schema(s): public
 </code></pre></div>
 
 <p><code>lokra init</code> found no tables it could read. Check the database name in the connection string, name the right schemas with <code>--schemas</code>, and make sure the login can see the tables. <code>init</code> skips views.</p>
 <h3 id="unknown-agent">unknown agent<a class="anchor" href="#unknown-agent" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: unknown agent 'suport-bot'
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: unknown agent 'suport-bot'
 </code></pre></div>
 
 <p>The agent name on the command line, or in the token, is not under <code>agents</code> in the policy. Check the spelling. An agent sees this as <code>access denied: unknown agent 'suport-bot'</code> when its token was minted for an agent that has since been removed or renamed.</p>
@@ -73,68 +75,68 @@ hint: run this from your project folder (where policies.yaml lives), or pass --c
 <p>Messages such as <code>rows needs a column and at least one value</code> or <code>approval auto_max_rows should be a whole number of rows, 0 or more</code> come from checking the policy file. The <a href="/docs/policy-reference#validation-errors">policy file reference</a> lists each one with its cause.</p>
 <h2 id="provisioning">Provisioning<a class="anchor" href="#provisioning" title="Permanent link">#</a></h2>
 <h3 id="the-admin-connection-is-to-database">the admin connection is to database<a class="anchor" href="#the-admin-connection-is-to-database" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: the admin connection is to database 'postgres', but the policy is for 'app'
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: the admin connection is to database 'postgres', but the policy is for 'app'
 </code></pre></div>
 
 <p>The admin connection string points at a different database from the policy's <code>database.dbname</code>. Lokra refuses it so it never creates roles and grants in the wrong place. On Supabase and RDS this often happens because the connection string ends in <code>/postgres</code>. Fix the database name in whichever one is wrong.</p>
 <h3 id="cannot-add-agents-to-the-lokra_agents-role">cannot add agents to the lokra_agents role<a class="anchor" href="#cannot-add-agents-to-the-lokra_agents-role" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: app_admin cannot add agents to the lokra_agents role, which another role created; as a superuser or that role, run: GRANT lokra_agents TO app_admin WITH ADMIN OPTION
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: app_admin cannot add agents to the lokra_agents role, which another role created; as a superuser or that role, run: GRANT lokra_agents TO app_admin WITH ADMIN OPTION
 </code></pre></div>
 
 <p>Underneath, Postgres said <code>permission denied to grant role "lokra_agents"</code>. Every agent role joins the <code>lokra_agents</code> group role. On Postgres 16 and later, a non-superuser can only add members to a role it created or holds <code>ADMIN OPTION</code> on, and here a different role created <code>lokra_agents</code>, usually an earlier <code>provision</code> run with another admin login. Run the command from the message as a superuser, or as the role that created <code>lokra_agents</code>, then run <code>lokra provision</code> again.</p>
 <h3 id="permission-denied-to-alter-role">permission denied to alter role<a class="anchor" href="#permission-denied-to-alter-role" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: permission denied to alter role
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: permission denied to alter role
 DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "lokra_support_bot" may alter this role.
 </code></pre></div>
 
 <p>The agent role was created by a different admin login, and on Postgres 16 and later only that login (or a superuser) may change it. Provision with the login that created it, or grant your admin login the right once, as a superuser:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">app_admin</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">ADMIN</span><span class="t-w"> </span><span class="t-k">OPTION</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">app_admin</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">ADMIN</span><span class="t-w"> </span><span class="t-k">OPTION</span><span class="t-p">;</span>
 </code></pre></div>
 
 <p>If the detail says <code>Only roles with the SUPERUSER attribute may alter roles with the SUPERUSER attribute</code>, someone made the agent role a superuser. Remove it as a superuser with <code>ALTER ROLE lokra_support_bot NOSUPERUSER</code>.</p>
 <h3 id="has-bypassrls-lokra-will-not-run-an-agent-with-that">has BYPASSRLS; Lokra will not run an agent with that<a class="anchor" href="#has-bypassrls-lokra-will-not-run-an-agent-with-that" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: role lokra_support_bot has BYPASSRLS; Lokra will not run an agent with that. Remove it as a superuser: ALTER ROLE lokra_support_bot NOBYPASSRLS
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: role lokra_support_bot has BYPASSRLS; Lokra will not run an agent with that. Remove it as a superuser: ALTER ROLE lokra_support_bot NOBYPASSRLS
 </code></pre></div>
 
 <p>The agent's role has gained an attribute that would let it skip row locks or change the database, such as <code>BYPASSRLS</code>, <code>CREATEDB</code> or <code>REPLICATION</code>. A non-superuser admin cannot remove it, so <code>provision</code> stops. Run the <code>ALTER ROLE</code> from the message as a superuser, then run <code>provision</code> again. A superuser admin removes these attributes on every <code>provision</code> without stopping.</p>
 <h3 id="must-be-owner-of-table">must be owner of table<a class="anchor" href="#must-be-owner-of-table" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: must be owner of table customers
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: must be owner of table customers
 </code></pre></div>
 
 <p>A row lock needs row-level security on the table, and only the table's owner can turn it on and create policies. Provision with the login that owns the tables, or make your admin login a member of the owning role. On RDS, tables created by a separate migration user belong to that user.</p>
 <h3 id="permission-denied-for-table-when-provisioning">permission denied for table (when provisioning)<a class="anchor" href="#permission-denied-for-table-when-provisioning" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: permission denied for table products
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: permission denied for table products
 </code></pre></div>
 
 <p>During <code>provision</code>, this means the admin login cannot grant access to the table: it neither owns the table nor holds the privilege <code>WITH GRANT OPTION</code>. <code>permission denied for schema billing</code> is the same problem one level up. Fix it as for <a href="#must-be-owner-of-table">must be owner of table</a>.</p>
 <h3 id="tables-in-the-policy-that-do-not-exist">tables in the policy that do not exist<a class="anchor" href="#tables-in-the-policy-that-do-not-exist" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: tables in the policy that do not exist: billing.invoice
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: tables in the policy that do not exist: billing.invoice
 </code></pre></div>
 
 <p>A table in <code>read</code> or <code>write</code> is not in the database, or is in a schema you did not name. Tables outside <code>public</code> must be written <code>schema.table</code>. <code>provision</code> checks this before it changes anything. <code>lokra check</code> lists each missing table and column.</p>
 <h3 id="is-a-view-which-runs-with-its-owners-rights">is a view, which runs with its owner's rights<a class="anchor" href="#is-a-view-which-runs-with-its-owners-rights" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: support-bot: order_totals is a view, which runs with its owner's rights, so the row lock would not apply through it; grant the tables it reads instead, or make it run as the agent (Postgres 15+): ALTER VIEW order_totals SET (security_invoker = true)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: support-bot: order_totals is a view, which runs with its owner's rights, so the row lock would not apply through it; grant the tables it reads instead, or make it run as the agent (Postgres 15+): ALTER VIEW order_totals SET (security_invoker = true)
 </code></pre></div>
 
 <p>An agent with a row lock cannot be given a plain view, because the view would read the tables with its owner's rights and skip the lock. Give the agent the tables instead, or make the view run as the agent with the <code>ALTER VIEW</code> from the message. See <a href="/docs/row-locks#views">views</a>.</p>
 <h3 id="is-a-materialized-view-which-a-row-lock-cannot-reach">is a materialized view, which a row lock cannot reach<a class="anchor" href="#is-a-materialized-view-which-a-row-lock-cannot-reach" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: support-bot: order_counts is a materialized view, which a row lock cannot reach; grant the tables it reads instead
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: support-bot: order_counts is a materialized view, which a row lock cannot reach; grant the tables it reads instead
 </code></pre></div>
 
 <p>A materialized view stores its rows, so no row lock can apply to them. Give an agent with a row lock the underlying tables instead.</p>
 <h2 id="connecting-agents">Connecting agents<a class="anchor" href="#connecting-agents" title="Permanent link">#</a></h2>
 <h3 id="is-not-provisioned-yet">is not provisioned yet<a class="anchor" href="#is-not-provisioned-yet" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: support-bot is not provisioned yet; run lokra provision --admin-dsn "&lt;admin connection string&gt;" first
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: support-bot is not provisioned yet; run lokra provision --admin-dsn "&lt;admin connection string&gt;" first
 </code></pre></div>
 
 <p><code>lokra connect</code> found no database password for the agent in <code>.lokra/secrets.json</code>. Run <code>lokra provision</code> first. If you did, check that <code>connect</code> is using the same policy and <code>--home</code> as <code>provision</code>.</p>
 <h3 id="agent-is-not-provisioned-run-lokra-provision">agent is not provisioned; run lokra provision<a class="anchor" href="#agent-is-not-provisioned-run-lokra-provision" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>agent 'support-bot' is not provisioned; run `lokra provision`
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>agent 'support-bot' is not provisioned; run `lokra provision`
 </code></pre></div>
 
 <p>The same problem, seen by an agent. The MCP server has no password for the agent's role in its home folder. This happens when the server runs with a different <code>--home</code> or <code>LOKRA_HOME</code>, or in a container whose <code>/work/.lokra</code> is not the folder you provisioned from.</p>
 <h3 id="could-not-log-in-to">could not log in to<a class="anchor" href="#could-not-log-in-to" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: support-bot could not log in to app at db.example.com:5432: connection failed: connection to server at "db.example.com", port 5432 failed: FATAL:  password authentication failed for user "lokra_support_bot" (--no-check writes the config anyway)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: support-bot could not log in to app at db.example.com:5432: connection failed: connection to server at "db.example.com", port 5432 failed: FATAL:  password authentication failed for user "lokra_support_bot" (--no-check writes the config anyway)
 </code></pre></div>
 
 <p><code>lokra connect</code> tried to log in as the agent's role and Postgres refused. The text after the address says why:</p>
@@ -144,23 +146,23 @@ DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "
 <li><code>Connection refused</code> or a timeout: the policy's <code>host</code> or <code>port</code> is wrong, or a firewall or security group blocks the machine running Lokra.</li>
 </ul>
 <h3 id="this-policy-requires-a-purpose-of-use-pass-purpose">this policy requires a purpose-of-use; pass --purpose<a class="anchor" href="#this-policy-requires-a-purpose-of-use-pass-purpose" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: this policy requires a purpose-of-use; pass --purpose
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: this policy requires a purpose-of-use; pass --purpose
 </code></pre></div>
 
 <p>The policy sets <code>require_purpose: true</code>, so the agent's token must carry a purpose. Pass one of the agent's <code>purposes</code>: <code>lokra connect support-bot --purpose customer-support</code>.</p>
 <h3 id="say-which-agent-to-connect">say which agent to connect<a class="anchor" href="#say-which-agent-to-connect" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: say which agent to connect, one of: support-bot, ops-bot
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: say which agent to connect, one of: support-bot, ops-bot
 </code></pre></div>
 
 <p>The policy has more than one agent. Name one: <code>lokra connect support-bot</code>.</p>
 <h3 id="already-has-a-server-called">already has a server called<a class="anchor" href="#already-has-a-server-called" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: .mcp.json already has a server called lokra-support-bot that is not Lokra; choose another --name, or --force to replace it
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: .mcp.json already has a server called lokra-support-bot that is not Lokra; choose another --name, or --force to replace it
 </code></pre></div>
 
 <p>The client's config already has a server with that name that Lokra did not write. Pick another name with <code>--name</code>, or replace it with <code>--force</code>.</p>
 <h2 id="agent-requests">Agent requests<a class="anchor" href="#agent-requests" title="Permanent link">#</a></h2>
 <h3 id="access-denied-no-agent-token-supplied">access denied: no agent token supplied<a class="anchor" href="#access-denied-no-agent-token-supplied" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>access denied: no agent token supplied (LOKRA_TOKEN, or an Authorization: Bearer header over HTTP)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>access denied: no agent token supplied (LOKRA_TOKEN, or an Authorization: Bearer header over HTTP)
 </code></pre></div>
 
 <p>Over stdio, the server was started without <code>LOKRA_TOKEN</code> and without <code>--dev-agent</code>. Over HTTP, the request had no <code>Authorization: Bearer</code> header. Give the agent a token from <code>lokra mint-token support-bot</code>. See <a href="/docs/connect-clients">connect AI clients</a>.</p>
@@ -171,44 +173,44 @@ DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "
 <h3 id="access-denied-a-declared-purpose-of-use-is-required-for-this-request">access denied: a declared purpose-of-use is required for this request<a class="anchor" href="#access-denied-a-declared-purpose-of-use-is-required-for-this-request" title="Permanent link">#</a></h3>
 <p>The policy sets <code>require_purpose: true</code> and the token carries no purpose. Mint or connect with <code>--purpose</code>.</p>
 <h3 id="access-denied-purpose-is-not-permitted">access denied: purpose is not permitted<a class="anchor" href="#access-denied-purpose-is-not-permitted" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>access denied: purpose 'billing' is not permitted for support-bot
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>access denied: purpose 'billing' is not permitted for support-bot
 </code></pre></div>
 
 <p>The token's purpose is not in the agent's <code>purposes</code> list. Matching is exact. Use a listed purpose, or add this one to the policy.</p>
 <h3 id="stopped-is-paused">stopped: is paused<a class="anchor" href="#stopped-is-paused" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>stopped: support-bot is paused by dana: deleting too much
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>stopped: support-bot is paused by dana: deleting too much
 </code></pre></div>
 
 <p>Someone paused the agent, from the terminal, the dashboard, Slack or Lokra Cloud. Lokra refuses every request until it is resumed. When you are ready, run <code>lokra resume support-bot</code>. See <a href="/docs/stop-agents">stop agents</a>.</p>
 <h3 id="stopped-rate-limit-reached">stopped: rate limit reached<a class="anchor" href="#stopped-rate-limit-reached" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>stopped: rate limit of 60 requests a minute reached; wait before retrying
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>stopped: rate limit of 60 requests a minute reached; wait before retrying
 </code></pre></div>
 
 <p>The agent made more requests in the last 60 seconds than its <code>rate_limit</code> allows. It can retry once older requests age out. If the agent keeps hitting the cap, it is probably stuck in a retry loop; <code>lokra report</code> flags it. Raise <code>rate_limit</code> only if the agent really needs more.</p>
 <h3 id="stopped-this-token-was-revoked-ask-for-a-new-one">stopped: this token was revoked; ask for a new one<a class="anchor" href="#stopped-this-token-was-revoked-ask-for-a-new-one" title="Permanent link">#</a></h3>
 <p>Someone revoked this token with <code>lokra revoke-token</code>. The agent's other tokens still work. Mint a new one.</p>
 <h3 id="the-masked-column-can-only-be-selected-as-itself">the masked column can only be selected as itself<a class="anchor" href="#the-masked-column-can-only-be-selected-as-itself" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>the masked column email can only be selected as itself, or used in WHERE, JOIN, GROUP BY or ORDER BY; it cannot go inside a function, alias, UNION or subquery result
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>the masked column email can only be selected as itself, or used in WHERE, JOIN, GROUP BY or ORDER BY; it cannot go inside a function, alias, UNION or subquery result
 </code></pre></div>
 
 <p>The query would return a masked column under another name, for example <code>lower(email)</code> or <code>email AS contact</code>, where the masking rule could not see it. Select the column as itself (<code>SELECT email FROM customers</code>) and let Lokra mask it, or use it only to filter, join, group or sort. See <a href="/docs/masking#queries-lokra-refuses">masking</a>.</p>
 <h3 id="refers-to-a-whole-row-which-would-carry-masked-columns">refers to a whole row, which would carry masked columns<a class="anchor" href="#refers-to-a-whole-row-which-would-carry-masked-columns" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>c refers to a whole row, which would carry masked columns; select the columns you need
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>c refers to a whole row, which would carry masked columns; select the columns you need
 </code></pre></div>
 
 <p>The query passes a whole row to something, as in <code>row_to_json(c)</code> or <code>SELECT c FROM customers c</code>. List the columns instead. The same applies to <code>c.* inside an expression would carry masked columns</code>.</p>
 <h3 id="database-refused-the-query-permission-denied-for-table">database refused the query: permission denied for table<a class="anchor" href="#database-refused-the-query-permission-denied-for-table" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>database refused the query: permission denied for table customers
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>database refused the query: permission denied for table customers
 </code></pre></div>
 
 <p>Postgres refused because the agent's role has no grant for something in the query. Usually the agent asked for a column it was not given, often through <code>SELECT *</code> on a table where its <code>read</code> lists only some columns, or an <code>UPDATE</code> filters on a column it cannot read. Ask for the listed columns (the agent's <code>list_tables</code> tool shows them), or add the column to the policy and run <code>lokra provision</code>.</p>
 <h3 id="database-refused-the-query-relation-does-not-exist">database refused the query: relation does not exist<a class="anchor" href="#database-refused-the-query-relation-does-not-exist" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>database refused the query: relation "invoices" does not exist
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>database refused the query: relation "invoices" does not exist
 </code></pre></div>
 
 <p>The table is in another schema, or not granted to this agent at all. Agent roles only search <code>public</code>, so tables elsewhere must be written with their schema: <code>billing.invoices</code>.</p>
 <h3 id="canceling-statement-due-to-statement-timeout">canceling statement due to statement timeout<a class="anchor" href="#canceling-statement-due-to-statement-timeout" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>database refused the query: canceling statement due to statement timeout
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>database refused the query: canceling statement due to statement timeout
 </code></pre></div>
 
 <p>Agent roles have a 5-second statement timeout, so one runaway query cannot tie up the database. Narrow the query, filter on indexed columns, or add a <code>LIMIT</code>.</p>
@@ -217,62 +219,62 @@ DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "
 <h3 id="send-exactly-one-sql-statement-per-call">send exactly one SQL statement per call<a class="anchor" href="#send-exactly-one-sql-statement-per-call" title="Permanent link">#</a></h3>
 <p>The query held more than one statement, such as <code>SELECT …; DROP TABLE …</code>. Send one statement per call.</p>
 <h3 id="the-function-is-not-allowed">the function is not allowed<a class="anchor" href="#the-function-is-not-allowed" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>the function pg_sleep() is not allowed
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>the function pg_sleep() is not allowed
 </code></pre></div>
 
 <p>Lokra refuses functions that read files, run programs, reach other systems, change session settings, advance sequences, stall the connection or run a query given as text, such as <code>pg_read_file</code>, <code>dblink</code>, <code>set_config</code>, <code>pg_sleep</code>, <code>nextval</code> and <code>query_to_xml</code>. Agents cannot call them in reads or writes.</p>
 <h3 id="only-select-queries-are-allowed-here">only SELECT queries are allowed here<a class="anchor" href="#only-select-queries-are-allowed-here" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>only SELECT queries are allowed here (got COMMAND)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>only SELECT queries are allowed here (got COMMAND)
 </code></pre></div>
 
 <p>The <code>query</code> tool only runs a single <code>SELECT</code> (including <code>WITH … SELECT</code> and <code>UNION</code>). Anything else is refused: <code>SET ROLE</code>, <code>SHOW</code>, <code>EXPLAIN</code> and <code>VACUUM</code> are reported as <code>COMMAND</code>, and <code>COPY</code>, <code>CREATE</code> and <code>BEGIN</code> by name.</p>
 <h3 id="is-not-allowed-in-a-read-query">is not allowed in a read query<a class="anchor" href="#is-not-allowed-in-a-read-query" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>LOCK is not allowed in a read query
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>LOCK is not allowed in a read query
 </code></pre></div>
 
 <p>The <code>SELECT</code> contains a clause that writes or locks: <code>SELECT … INTO</code> is reported as <code>INTO</code>, and <code>FOR UPDATE</code> or <code>FOR SHARE</code> as <code>LOCK</code>. Remove the clause. A <code>WITH</code> clause that changes data is refused with <code>data-modifying statements inside a SELECT (for example in a WITH clause) are not allowed</code>.</p>
 <h3 id="propose_write-accepts-a-single-insert-update-or-delete">propose_write accepts a single INSERT, UPDATE or DELETE<a class="anchor" href="#propose_write-accepts-a-single-insert-update-or-delete" title="Permanent link">#</a></h3>
 <p><code>propose_write</code> only takes one <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code>. <code>TRUNCATE</code>, <code>MERGE</code>, DDL and plain <code>SELECT</code> statements are refused. Instead of <code>TRUNCATE</code>, an agent can propose a <code>DELETE</code>, which needs <code>delete</code> in its policy and goes through approval like any other write.</p>
 <h3 id="could-not-parse-sql-safely">could not parse SQL safely<a class="anchor" href="#could-not-parse-sql-safely" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>could not parse SQL safely: Invalid expression / Unexpected token. Line 1, Col: 13.
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>could not parse SQL safely: Invalid expression / Unexpected token. Line 1, Col: 13.
 </code></pre></div>
 
 <p>Lokra could not parse the statement, so it refused it rather than guess. Fix the SQL syntax. Lokra parses Postgres SQL.</p>
 <h3 id="unknown-detectors">unknown detectors<a class="anchor" href="#unknown-detectors" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>unknown detectors: ['phone_au']
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>unknown detectors: ['phone_au']
 </code></pre></div>
 
 <p><code>masking.detectors</code> lists a name that does not exist. The valid names are <code>ihi</code>, <code>medicare</code>, <code>card</code>, <code>iban</code>, <code>us_ssn</code>, <code>email</code>, <code>au_phone</code> and <code>phone</code>. Until you fix it, every request fails.</p>
 <h2 id="writes-and-approvals">Writes and approvals<a class="anchor" href="#writes-and-approvals" title="Permanent link">#</a></h2>
 <h3 id="new-row-violates-row-level-security-policy-for-table">new row violates row-level security policy for table<a class="anchor" href="#new-row-violates-row-level-security-policy-for-table" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>database refused the query: new row violates row-level security policy for table "notes"
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>database refused the query: new row violates row-level security policy for table "notes"
 </code></pre></div>
 
 <p>The write would create or move a row outside the agent's <a href="/docs/row-locks#writes">row lock</a>, for example an insert with another account's <code>account_id</code>. The dry run caught it, so nothing was proposed. Set the lock column to one of the agent's values.</p>
 <h3 id="changes-no-rows-they-may-not-exist-or-be-outside-this-agents-scope">changes no rows: they may not exist, or be outside this agent's scope<a class="anchor" href="#changes-no-rows-they-may-not-exist-or-be-outside-this-agents-scope" title="Permanent link">#</a></h3>
 <p>A warning, not an error. The dry run changed 0 rows. The rows may not exist, or a row lock hides them from this agent. Check the <code>WHERE</code> clause before approving.</p>
 <h3 id="is-pending-not-approved">is 'pending', not approved<a class="anchor" href="#is-pending-not-approved" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>write w_377e8285 is 'pending', not approved
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>write w_377e8285 is 'pending', not approved
 </code></pre></div>
 
 <p>The agent called <code>execute_write</code> before the write was approved. If it needs two people, it stays <code>pending</code> until the second approves. The quoted status can also be <code>denied</code>, <code>executed</code>, <code>failed</code> or <code>expired</code>; only an <code>approved</code> write can run.</p>
 <h3 id="approval-expired-propose-it-again">approval expired; propose it again<a class="anchor" href="#approval-expired-propose-it-again" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>approval for w_377e8285 expired; propose it again
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>approval for w_377e8285 expired; propose it again
 </code></pre></div>
 
 <p>The agent did not execute the write within <code>approval_ttl_seconds</code> of its approval. The agent proposes it again and someone approves the new one. See <a href="/docs/approvals#approval-expiry">approval expiry</a>.</p>
 <h3 id="would-now-change-more-rows-than-were-approved">would now change more rows than were approved<a class="anchor" href="#would-now-change-more-rows-than-were-approved" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>it would now change 3 rows, more than the 2 that were approved, so nothing was changed. Propose it again for a fresh approval.
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>it would now change 3 rows, more than the 2 that were approved, so nothing was changed. Propose it again for a fresh approval.
 </code></pre></div>
 
 <p>The data changed between the dry run and the execute, and the statement would now touch more rows than the approval covered. Lokra rolled it back and marked the write <code>failed</code>. The agent proposes it again so a person sees the new row count. See <a href="/docs/approvals#the-row-count-check-at-execute">the row-count check</a>.</p>
 <h3 id="has-already-approved-it-needs-a-different-person">has already approved; it needs a different person<a class="anchor" href="#has-already-approved-it-needs-a-different-person" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: alice has already approved w_377e8285; it needs a different person
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: alice has already approved w_377e8285; it needs a different person
 </code></pre></div>
 
 <p>The write needs two people and this person already approved it. Lokra treats the same name from the terminal, Slack (<code>alice (slack)</code>) and Lokra Cloud (<code>alice (cloud)</code>) as one person. Ask a second approver.</p>
 <h3 id="is-already-denied">is already denied<a class="anchor" href="#is-already-denied" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: write w_377e8285 is already 'denied'
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: write w_377e8285 is already 'denied'
 </code></pre></div>
 
 <p>Someone already decided the write, possibly in another channel. A write can only be decided while it is <code>pending</code>. Check <code>lokra pending --all</code>.</p>
@@ -280,18 +282,18 @@ DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "
 <p>The write ID does not exist in this Lokra's home folder, or belongs to another agent. An agent can only check and run its own writes. If you approve from a different machine or folder from the one the server runs in, you are looking at a different set of pending writes.</p>
 <h2 id="stopping-agents">Stopping agents<a class="anchor" href="#stopping-agents" title="Permanent link">#</a></h2>
 <h3 id="database-login-unchanged-no-admin-connection-pass-admin-dsn-to-change-it-too">database login unchanged (no admin connection; pass --admin-dsn to change it too)<a class="anchor" href="#database-login-unchanged-no-admin-connection-pass-admin-dsn-to-change-it-too" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login unchanged (no admin connection; pass --admin-dsn to change it too)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login unchanged (no admin connection; pass --admin-dsn to change it too)
 </code></pre></div>
 
 <p>The pause worked: Lokra refuses every request from the agent. It could not also block the agent's database login because there was no admin connection. To block the login and end the agent's open sessions too, pass <code>--admin-dsn</code> or set <code>LOKRA_ADMIN_DSN</code>. The same applies to <code>lokra resume</code>, <code>lokra slack</code> and <code>lokra cloud</code>. See <a href="/docs/stop-agents">stop agents</a>.</p>
 <h3 id="could-not-disable-the-database-login">could not disable the database login<a class="anchor" href="#could-not-disable-the-database-login" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; could not disable the database login: connection failed: …
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; could not disable the database login: connection failed: …
 </code></pre></div>
 
 <p>The pause took effect in Lokra, but the admin connection failed, so the login is still open. Fix the admin connection string and run <code>lokra pause</code> again.</p>
 <h2 id="slack-and-lokra-cloud">Slack and Lokra Cloud<a class="anchor" href="#slack-and-lokra-cloud" title="Permanent link">#</a></h2>
 <h3 id="lokra-cloud-does-not-recognise-this-gate-token">Lokra Cloud does not recognise this gate token<a class="anchor" href="#lokra-cloud-does-not-recognise-this-gate-token" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: Lokra Cloud does not recognise this gate token. It may be mistyped or only partly copied, or its gate was removed. Create a new token under Gates in Lokra Cloud and run lokra cloud again.
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: Lokra Cloud does not recognise this gate token. It may be mistyped or only partly copied, or its gate was removed. Create a new token under Gates in Lokra Cloud and run lokra cloud again.
 </code></pre></div>
 
 <p>Lokra Cloud rejected the token. Copy it again in full, or create a new one under <strong>Gates</strong>, and set <code>LOKRA_CLOUD_TOKEN</code>. See <a href="/docs/cloud-gates">connect a gate</a>.</p>
@@ -300,22 +302,22 @@ DETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role "
 <h3 id="set-lokra_cloud_token-to-a-gate-token-from-lokra-cloud">set LOKRA_CLOUD_TOKEN to a gate token from Lokra Cloud<a class="anchor" href="#set-lokra_cloud_token-to-a-gate-token-from-lokra-cloud" title="Permanent link">#</a></h3>
 <p><code>lokra cloud</code> needs <code>LOKRA_CLOUD_TOKEN</code> in its environment. Create a token under <strong>Gates</strong> in Lokra Cloud.</p>
 <h3 id="could-not-reach-lokra-cloud">could not reach Lokra Cloud<a class="anchor" href="#could-not-reach-lokra-cloud" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>lokra: could not reach Lokra Cloud: [Errno 61] Connection refused; retrying in 3s
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra: could not reach Lokra Cloud: [Errno 61] Connection refused; retrying in 3s
 </code></pre></div>
 
 <p>The gate could not connect out to Lokra Cloud. Check outbound HTTPS from the machine, any proxy, and <code>--url</code> or <code>LOKRA_CLOUD_URL</code> if you set them. <code>lokra cloud</code> keeps retrying, waiting up to a minute between attempts.</p>
 <h3 id="slack-support-needs-an-extra-package">Slack support needs an extra package<a class="anchor" href="#slack-support-needs-an-extra-package" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: Slack support needs an extra package: pipx install 'lokra[slack]'
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: Slack support needs an extra package: pipx install 'lokra[slack]'
 </code></pre></div>
 
 <p>Install Lokra with the Slack extra, as the message says.</p>
 <h3 id="set-lokra_slack_bot_token-and-lokra_slack_app_token">set LOKRA_SLACK_BOT_TOKEN and LOKRA_SLACK_APP_TOKEN<a class="anchor" href="#set-lokra_slack_bot_token-and-lokra_slack_app_token" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: set LOKRA_SLACK_BOT_TOKEN (xoxb-…) and LOKRA_SLACK_APP_TOKEN (xapp-…)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: set LOKRA_SLACK_BOT_TOKEN (xoxb-…) and LOKRA_SLACK_APP_TOKEN (xapp-…)
 </code></pre></div>
 
 <p><code>lokra slack</code> needs both tokens in its environment. <a href="/docs/slack">Approve in Slack</a> shows where to find them.</p>
 <h3 id="add-the-channel-to-policiesyaml">add the channel to policies.yaml<a class="anchor" href="#add-the-channel-to-policiesyaml" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>error: add the channel to policies.yaml: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: add the channel to policies.yaml: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}
 </code></pre></div>
 
 <p>The policy has no <code>slack</code> block, or no <code>channel</code> in it. Add the channel ID and your approvers' Slack member IDs. A missing approver list gives <code>list who may approve: slack: {approvers: [U0123ABCD]} (Slack member IDs)</code>.</p>

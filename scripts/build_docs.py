@@ -33,6 +33,11 @@ NAV = [
 ORDER = [slug for _, slugs in NAV for slug in slugs]
 SECTION = {slug: name for name, slugs in NAV for slug in slugs}
 CALLOUT = re.compile(r"<blockquote>\s*<p><strong>(Note|Warning|Tip):</strong>")
+# A fence can name its block after the language, as in ```ini lokra.service; otherwise the language decides.
+FENCE = re.compile(r"^([ \t]*)```(\w+)(?:[ \t]+([^`\n]+?))?[ \t]*$", re.M)
+LABELS = {"bash": "Terminal", "yaml": "policies.yaml", "json": "JSON", "sql": "SQL", "ini": "INI", "text": "Output"}
+MENU = ('<svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/>'
+        '<path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg>')
 
 BRAND = ('<a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" '
          'fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" '
@@ -77,7 +82,7 @@ def cli_page() -> str:
     helps = {choice.dest: choice.help for choice in sub._choices_actions}
     for name, command in sub.choices.items():
         summary = helps.get(name) or ""
-        out += ["", f"## lokra {name}", "", f"{summary[:1].upper()}{summary[1:]}.", "", "```text",
+        out += ["", f"## lokra {name}", "", f"{summary[:1].upper()}{summary[1:]}.", "", "```text Usage",
                 command.format_usage().replace("usage: ", "").strip(), "```"]
         rows = [a for a in command._actions if a.dest != "help"]
         if rows:
@@ -93,13 +98,30 @@ def cell(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ")
 
 
+def code_labels(body: str) -> tuple[str, list[tuple[str, str]]]:
+    blocks = []
+
+    def strip(m):
+        blocks.append((m.group(2), (m.group(3) or LABELS.get(m.group(2), m.group(2).upper())).strip()))
+        return f"{m.group(1)}```{m.group(2)}"
+
+    return FENCE.sub(strip, body), blocks
+
+
 def render(slug: str, text: str) -> tuple[dict, str, list]:
     meta, body = front_matter(text)
+    body, blocks = code_labels(body)
     md = markdown.Markdown(extensions=["fenced_code", "tables", "toc", "attr_list", "sane_lists", "codehilite"],
                            extension_configs={
                                "toc": {"permalink": "#", "permalink_class": "anchor", "toc_depth": "2-3"},
                                "codehilite": {"css_class": "hl", "guess_lang": False, "noclasses": False, "classprefix": "t-"}})
     content = md.convert(body)
+    opening = '<div class="hl"><pre>'
+    if content.count(opening) != len(blocks):
+        raise ValueError(f"{slug}: {len(blocks)} code fences but {content.count(opening)} code blocks")
+    labelled = iter(blocks)
+    content = re.sub(re.escape(opening), lambda m: '<div class="hl" data-lang="{}"><div class="code-head"><span>{}</span></div><pre>'.format(
+        *(html.escape(part) for part in next(labelled))), content)
     content = CALLOUT.sub(lambda m: f'<blockquote class="callout {m.group(1).lower()}">\n<p><strong>{m.group(1)}:</strong>', content)
     return meta, content, md.toc_tokens
 
@@ -154,22 +176,24 @@ def page(slug: str, meta: dict, content: str, tokens: list, titles: dict) -> str
 <meta property="og:image" content="{SITE}/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand">{BRAND}<a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand">{BRAND}<a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="{REPO}">{GITHUB}<span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu>{MENU}</button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="{REPO}">{GITHUB}<span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav>{nav_html(slug, titles)}</nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs">{nav_html(slug, titles)}</nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">{html.escape(SECTION[slug])}</p>
@@ -207,7 +231,8 @@ def search_entries(slug: str, meta: dict, content: str) -> list[dict]:
     entries = [{"t": meta["title"], "s": SECTION[slug], "u": url, "x": meta["description"]}]
     for match in re.finditer(r'<h([23]) id="([^"]+)">(.*?)</h\1>(.*?)(?=<h[23] id=|\Z)', content, re.S):
         heading = re.sub(r"<[^>]+>", "", match.group(3)).strip().rstrip("#").strip()
-        text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", match.group(4)))).strip()
+        body = re.sub(r'<div class="code-head">.*?</div>', " ", match.group(4))
+        text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", body))).strip()
         entries.append({"t": heading, "s": meta["title"], "u": f"{url}#{match.group(2)}", "x": text[:220]})
     return entries
 

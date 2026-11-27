@@ -17,7 +17,7 @@ Lokra gives every agent the same six MCP tools, whichever client it uses and whe
 
 When a client connects, Lokra sends these instructions, which most clients pass to the model:
 
-```text
+```text Server instructions
 You are connected to a database through Lokra, a policy proxy. Call list_tables first to see what you may read. Use query for one SELECT at a time. Rows outside your scope are invisible, and sensitive values are masked. To change data, call propose_write. It returns status approved when the policy allows small writes to run without a person; otherwise a human (or two, for some statements) must approve it before execute_write will run. Check write_status, then call execute_write.
 ```
 

@@ -73,7 +73,7 @@ Then ask the agent something like "What tables can you see?". It should call `li
 
 For Claude Code, Claude Desktop, Cursor and Windsurf, the entry looks like this:
 
-```json
+```json MCP config
 {
   "mcpServers": {
     "lokra-support-bot": {
@@ -92,7 +92,7 @@ For Claude Code, Claude Desktop, Cursor and Windsurf, the entry looks like this:
 
 VS Code uses a `servers` key and needs a `type`, so its entry is:
 
-```json
+```json .vscode/mcp.json
 {
   "servers": {
     "lokra-support-bot": {

@@ -123,7 +123,7 @@ Run `lokra cloud` as a long-running service on the same machine, as the same use
 
 Put the token and admin connection string in a file only root can read, such as `/etc/lokra/cloud.env`:
 
-```text
+```text cloud.env
 LOKRA_CLOUD_TOKEN=lkg_…
 LOKRA_ADMIN_DSN=postgresql://lokra_admin:…@db.internal:5432/app
 ```
@@ -134,7 +134,7 @@ sudo chmod 600 /etc/lokra/cloud.env
 
 Then create `/etc/systemd/system/lokra-cloud.service`. Use the path `which lokra` prints, and the user and folder your gate runs with:
 
-```ini
+```ini lokra-cloud.service
 [Unit]
 Description=Lokra Cloud sync
 After=network-online.target

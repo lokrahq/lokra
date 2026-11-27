@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies" class="on" aria-current="page">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies" class="on" aria-current="page">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Self-hosting</p>
@@ -82,7 +84,7 @@
 <p><strong>Tip:</strong> You do not have to start from an empty file. <code>lokra init</code> scaffolds a policy from your schema, and <code>policies.example.yaml</code> in the repository is a non-healthcare starting point. See <a href="/docs/connect-database#scaffold-a-policy-with-lokra-init">connect your database</a>.</p>
 </blockquote>
 <h2 id="1-point-at-the-database">1. Point at the database<a class="anchor" href="#1-point-at-the-database" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
 <span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
 <span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>
@@ -91,7 +93,7 @@
 <p>This is where agents log in, each as its own Postgres role. There is no user name or password here: agent passwords are created by <code>lokra provision</code> and kept in <code>.lokra/secrets.json</code>, and the admin login is passed separately with <code>--admin-dsn</code>.</p>
 <p>Always set all three keys. The defaults (<code>127.0.0.1</code>, <code>55432</code>, <code>clinic</code>) are Lokra's development lab, not your database.</p>
 <h2 id="2-add-an-agent">2. Add an agent<a class="anchor" href="#2-add-an-agent" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">support-bot</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">description</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Answers customer questions for the Acme account. Can add notes.</span>
 </code></pre></div>
@@ -99,7 +101,7 @@
 <p>The key under <code>agents</code> is the agent's name. You use it with <code>lokra connect</code>, <code>lokra mint-token</code> and <code>lokra pause</code>, and it decides the database role: <code>support-bot</code> becomes <code>lokra_support_bot</code>. The description shows in the agent's <code>whoami</code> tool, the dashboard and Lokra Cloud, so write it for the people who will approve its writes.</p>
 <h2 id="3-choose-what-it-can-read">3. Choose what it can read<a class="anchor" href="#3-choose-what-it-can-read" title="Permanent link">#</a></h2>
 <p><code>read</code> maps each table to the columns the agent may select. Use <code>"*"</code> for every column, or a list:</p>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">name</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">plan</span><span class="t-p t-p-Indicator">]</span>
 <span class="t-w">      </span><span class="t-nt">customers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">account_id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">name</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">email</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">phone</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">created_at</span><span class="t-p t-p-Indicator">]</span>
 <span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
@@ -116,14 +118,14 @@
 <p>Tables outside the <code>public</code> schema are written <code>schema.table</code>, for example <code>billing.invoices: "*"</code>.</p>
 <h2 id="4-let-it-change-data">4. Let it change data<a class="anchor" href="#4-let-it-change-data" title="Permanent link">#</a></h2>
 <p><code>write</code> maps each table to the statements the agent may propose: <code>insert</code>, <code>update</code> and <code>delete</code>.</p>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">notes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">insert</span><span class="t-p t-p-Indicator">]</span>
 </code></pre></div>
 
 <p>Writes never run straight away. Each one is dry-run and waits for approval unless an <a href="#9-decide-which-writes-need-a-person">approval rule</a> lets it through. See <a href="/docs/approvals">approve writes</a>.</p>
 <p>Give the agent read access to any table it writes, too. Postgres needs <code>SELECT</code> on the columns an <code>UPDATE</code> or <code>DELETE</code> filters on, and the agent needs to read rows to know what to change. <code>lokra check</code> warns about a table an agent can write but not read.</p>
 <h2 id="5-lock-it-to-one-accounts-rows">5. Lock it to one account's rows<a class="anchor" href="#5-lock-it-to-one-accounts-rows" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">account_id</span>
 <span class="t-w">      </span><span class="t-nt">values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]</span>
 <span class="t-w">      </span><span class="t-nt">tables</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">id</span><span class="t-p t-p-Indicator">}</span>
@@ -132,19 +134,19 @@
 <p>With a <code>rows</code> rule, the agent only sees, inserts and updates rows whose <code>account_id</code> is 42, on every table it can reach that has an <code>account_id</code> column. The <code>accounts</code> table names the same thing <code>id</code>, so <code>tables</code> maps it. <code>products</code> has no <code>account_id</code>, so the agent sees all of it, which is what you want for a shared catalogue; <code>lokra check</code> warns about it so you notice.</p>
 <p>The database enforces this with row-level security policies on the agent's role. <a href="/docs/row-locks">Row locks</a> explains how, and what happens with views.</p>
 <h2 id="6-cap-how-much-it-reads-at-once">6. Cap how much it reads at once<a class="anchor" href="#6-cap-how-much-it-reads-at-once" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">200</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">200</span>
 </code></pre></div>
 
 <p>A query returns at most <code>max_rows</code> rows; the rest are cut off and the result says <code>"truncated": true</code>. The default is 200. This keeps a careless <code>SELECT</code> from pulling a whole table into the agent's context.</p>
 <h2 id="7-limit-how-fast-it-can-go">7. Limit how fast it can go<a class="anchor" href="#7-limit-how-fast-it-can-go" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rate_limit</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">60</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rate_limit</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">60</span>
 </code></pre></div>
 
 <p><code>rate_limit</code> caps the agent at that many requests a minute, across all of its tokens. Every tool call counts, including <code>list_tables</code> and <code>write_status</code>. When the agent hits the cap, Lokra refuses with <code>stopped: rate limit of 60 requests a minute reached; wait before retrying</code>. Leave it out, or set <code>0</code>, for no limit.</p>
 <p>An agent that keeps hitting its cap is flagged as looping in <code>lokra report</code> and the dashboard. See <a href="/docs/stop-agents">stop agents</a>.</p>
 <h2 id="8-require-a-purpose">8. Require a purpose<a class="anchor" href="#8-require-a-purpose" title="Permanent link">#</a></h2>
 <p>A token can carry a declared purpose of use, and every request records it in the ledger. Two keys control it:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">require_purpose</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">true</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">require_purpose</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">true</span>
 
 <span class="t-nt">agents</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">support-bot</span><span class="t-p">:</span>
@@ -156,13 +158,13 @@
 <li><code>purposes</code> (per agent) lists the purposes that agent may declare. A token with any other purpose is refused. With no list, any purpose is accepted.</li>
 </ul>
 <p>The purpose goes on the token when it is issued:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot<span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot<span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
 lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">3600</span>
 </code></pre></div>
 
 <h2 id="9-decide-which-writes-need-a-person">9. Decide which writes need a person<a class="anchor" href="#9-decide-which-writes-need-a-person" title="Permanent link">#</a></h2>
 <p>By default every write waits for one person to approve it. The <code>approval</code> block changes that per agent:</p>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">auto_max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">1</span>
 <span class="t-w">      </span><span class="t-nt">auto_statements</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">insert</span><span class="t-p t-p-Indicator">]</span>
 </code></pre></div>
@@ -196,13 +198,13 @@ lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<s
 </table>
 <p><a href="/docs/approvals#approval-rules">Approve writes</a> covers how the rules combine and how two-person approval works.</p>
 <h2 id="10-set-how-long-an-approval-lasts">10. Set how long an approval lasts<a class="anchor" href="#10-set-how-long-an-approval-lasts" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">approval_ttl_seconds</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">900</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">approval_ttl_seconds</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">900</span>
 </code></pre></div>
 
 <p>Once a write is approved, the agent has this many seconds to call <code>execute_write</code>. After that the approval expires and the agent has to propose it again. The default is 3600 (one hour). A shorter window means an approval cannot be used long after the data it was based on has changed.</p>
 <h2 id="11-mask-sensitive-values">11. Mask sensitive values<a class="anchor" href="#11-mask-sensitive-values" title="Permanent link">#</a></h2>
 <p><code>masking</code> sits at the top level and applies to every agent:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">columns</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">email</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">redact</span>
 <span class="t-w">    </span><span class="t-nt">phone</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">last3</span>
@@ -216,7 +218,7 @@ lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<s
 </ul>
 <p>A masked column can only be selected as itself, so an agent cannot slip it out through a function, an alias or <code>row_to_json</code>. <a href="/docs/masking">Masking</a> lists every strategy and detector, and what gets refused.</p>
 <h2 id="12-send-approvals-to-slack">12. Send approvals to Slack<a class="anchor" href="#12-send-approvals-to-slack" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">channel</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">C0123ABCD</span>
 <span class="t-w">  </span><span class="t-nt">approvers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">U0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">U0456EFGH</span><span class="t-p t-p-Indicator">]</span>
 </code></pre></div>
@@ -224,7 +226,7 @@ lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<s
 <p><code>lokra slack</code> posts each pending write to this channel with Approve and Deny buttons. Only the listed Slack member IDs can decide. <a href="/docs/slack">Approve in Slack</a> walks through creating the Slack app.</p>
 <h2 id="the-complete-policy">The complete policy<a class="anchor" href="#the-complete-policy" title="Permanent link">#</a></h2>
 <p>Here is the whole file, with the second agent added. <code>ops-bot</code> has no row lock, reads only the order columns it needs, can update up to five orders without a person, and needs two people for any delete.</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
 <span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
 <span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>
@@ -283,24 +285,24 @@ lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<s
 
 <h2 id="apply-it">Apply it<a class="anchor" href="#apply-it" title="Permanent link">#</a></h2>
 <p>Check the policy against the database:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>  WARN   support-bot: sees every row of 'products', which has no 'account_id' column to lock rows by
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>  WARN   support-bot: sees every row of 'products', which has no 'account_id' column to lock rows by
 
 0 error(s), 1 warning(s)
 </code></pre></div>
 
 <p>The warning is expected here, because <code>products</code> is shared. Then provision the roles:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
 </code></pre></div>
 
 <p>Run <code>provision</code> again after every change to the policy; it updates grants and row locks in place. See <a href="/docs/connect-database#provision-the-agent-roles">connect your database</a> for what it creates.</p>
 <p>Then try each agent from the terminal before you connect a client:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>try<span class="t-w"> </span>support-bot<span class="t-w"> </span><span class="t-s2">"SELECT id, name, email, phone FROM customers"</span><span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>try<span class="t-w"> </span>support-bot<span class="t-w"> </span><span class="t-s2">"SELECT id, name, email, phone FROM customers"</span><span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>{
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>{
   "columns": ["id", "name", "email", "phone"],
   "rows": [
     [1, "Ana Lima", "[REDACTED]", "********678"],

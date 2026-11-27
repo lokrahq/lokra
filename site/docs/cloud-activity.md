@@ -95,7 +95,7 @@ Any cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets a 
 
 For every field of every entry, not only the columns above, export JSON lines instead. While signed in, open this address in the same browser:
 
-```text
+```text URL
 https://cloud.lokra.dev/api/events/export?format=json
 ```
 
@@ -109,7 +109,7 @@ To narrow it, add the same parameters the Activity page uses:
 | `from` | The earliest time, as an ISO 8601 timestamp such as `2026-11-01T00:00:00Z`. |
 | `to` | The time to stop before, in the same form. |
 
-```text
+```text URL
 https://cloud.lokra.dev/api/events/export?format=json&kind=b&from=2026-11-01T00:00:00Z
 ```
 
@@ -131,7 +131,7 @@ Deleting a gate's entries in Cloud never touches the gate's own ledger. Removing
 
 Each plan copies a set number of agent actions a month: 25,000 on Free, 1,000,000 on Team. Past that, Cloud stops copying new entries until the month resets or you upgrade, and Activity says so:
 
-```text
+```text Lokra Cloud
 Cloud has copied this month's 25,000 agent actions on Free. Your gates keep every entry in their own ledgers, and approvals and pauses keep working.
 ```
 

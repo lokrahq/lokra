@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart" class="on" aria-current="page">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart" class="on" aria-current="page">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Getting started</p>
@@ -42,29 +44,29 @@
     <div class="docs-body">
 <p>This takes about ten minutes. You will install the <code>lokra</code> command, run the built-in demo, then put one read-only agent in front of your own database and connect it to Claude Code.</p>
 <h2 id="1-install">1. Install<a class="anchor" href="#1-install" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span>lokra
 </code></pre></div>
 
 <p><code>uv tool install lokra</code> works too. Check it is on your path:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>--version
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>--version
 </code></pre></div>
 
 <p>Other options, including the container image, are on the <a href="/docs/install">install</a> page.</p>
 <h2 id="2-watch-the-demo">2. Watch the demo<a class="anchor" href="#2-watch-the-demo" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>demo
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>demo
 </code></pre></div>
 
 <p>The demo starts a throwaway Postgres in Docker, loads a small fake SaaS database and walks two agents through row locks, masking, refused injections, an approved write, a rate limit, a pause and the signed ledger. It removes everything when it finishes.</p>
 <p>No Docker? Point it at any Postgres where you can create roles. It works in its own schema and cleans up after itself:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>demo<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:password@localhost:5432/postgres"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>demo<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:password@localhost:5432/postgres"</span>
 </code></pre></div>
 
 <h2 id="3-scaffold-a-policy-from-your-database">3. Scaffold a policy from your database<a class="anchor" href="#3-scaffold-a-policy-from-your-database" title="Permanent link">#</a></h2>
 <p>Run this from the folder where you want <code>policies.yaml</code> to live. It connects <strong>read-only</strong>, lists your tables and flags columns that look sensitive:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>init<span class="t-w"> </span><span class="t-s2">"postgresql://app_user:password@db.example.com:5432/shop"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>init<span class="t-w"> </span><span class="t-s2">"postgresql://app_user:password@db.example.com:5432/shop"</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>introspected 6 table(s), 41 column(s) (read-only)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>introspected 6 table(s), 41 column(s) (read-only)
 flagged 3 column(s) to mask: card_last4, email, phone
 wrote policies.yaml
 
@@ -75,7 +77,7 @@ next steps:
 </code></pre></div>
 
 <p>The starter policy gives one agent, <code>app-reader</code>, read access to every table. Open <code>policies.yaml</code> and cut it down to what the agent needs. <a href="/docs/policies">Write a policy</a> walks through every option. A small first version could be:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">db.example.com</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">5432</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">shop</span><span class="t-p t-p-Indicator">}</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">db.example.com</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">5432</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">shop</span><span class="t-p t-p-Indicator">}</span>
 <span class="t-nt">agents</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">app-reader</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">description</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Answers questions about orders. Read only.</span>
@@ -89,12 +91,12 @@ next steps:
 </code></pre></div>
 
 <h2 id="4-check-it-against-the-database">4. Check it against the database<a class="anchor" href="#4-check-it-against-the-database" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://app_user:password@db.example.com:5432/shop"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://app_user:password@db.example.com:5432/shop"</span>
 </code></pre></div>
 
 <p><code>check</code> reads the schema and reports tables or columns that do not exist, sensitive-looking columns an agent can read with nothing masking them, and writes without a matching read. Fix anything marked <code>ERROR</code> before you go on.</p>
 <h2 id="5-provision-the-agents-role">5. Provision the agent's role<a class="anchor" href="#5-provision-the-agents-role" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:password@db.example.com:5432/shop"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:password@db.example.com:5432/shop"</span>
 </code></pre></div>
 
 <p>This creates one Postgres login role per agent, grants it exactly what the policy lists, and adds row-level security policies for any row locks. The admin login needs to be able to create roles; it does not need to be a superuser, so the Supabase <code>postgres</code> user and the RDS master user work. Agent passwords are stored in <code>.lokra/secrets.json</code> next to your policy, readable only by you.</p>
@@ -102,26 +104,26 @@ next steps:
 <p><strong>Warning:</strong> Try this against a development or staging database first. Provisioning changes roles and grants, and turns on row-level security for tables that need row locks.</p>
 </blockquote>
 <h2 id="6-connect-claude-code">6. Connect Claude Code<a class="anchor" href="#6-connect-claude-code" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>connect
 </code></pre></div>
 
 <p><code>connect</code> logs in as the agent's role to check it works, then adds a <code>lokra-app-reader</code> server to <code>.mcp.json</code> in the current folder. For other clients, add <code>--client claude-desktop</code>, <code>cursor</code>, <code>vscode</code> or <code>windsurf</code>. See <a href="/docs/connect-clients">connect AI clients</a>.</p>
 <p>Open Claude Code in that folder, allow the <code>lokra-app-reader</code> server when asked, and try:</p>
-<div class="hl"><pre><span></span><code>What tables can you see?
+<div class="hl" data-lang="text"><div class="code-head"><span>Prompt</span></div><pre><span></span><code>What tables can you see?
 </code></pre></div>
 
 <p>Then ask for something that touches a masked column, such as recent customers with their email. The <code>email</code> column comes back as <code>[REDACTED]</code>, from the masking rule, and any email address inside free text, such as a note, comes back as <code>[EMAIL]</code>, from the detector.</p>
 <h2 id="7-approve-a-write">7. Approve a write<a class="anchor" href="#7-approve-a-write" title="Permanent link">#</a></h2>
 <p>Give the agent write access to one table, provision again, and ask it to change something:</p>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">]</span>
 </code></pre></div>
 
 <p>The agent's <code>propose_write</code> call is dry-run and held. List and approve it from the terminal:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>pending
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>pending
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>approve<span class="t-w"> </span>w_3f9c1a2b
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>approve<span class="t-w"> </span>w_3f9c1a2b
 </code></pre></div>
 
 <p>The agent then calls <code>execute_write</code> to run it. Approvals also work from a <a href="/docs/approvals#where-to-approve">local dashboard, Slack or your phone</a>, and <a href="/docs/approvals#approval-rules">approval rules</a> can let small writes through on their own.</p>

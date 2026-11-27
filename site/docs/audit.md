@@ -76,7 +76,7 @@ SELECT id, name FROM customers WHERE email = 'jo@example.com'
 
 is recorded as:
 
-```text
+```text Ledger
 SELECT id, name FROM customers WHERE email = '[EMAIL]'
 ```
 

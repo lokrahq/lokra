@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci" class="on" aria-current="page">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci" class="on" aria-current="page">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Running agents</p>
@@ -42,17 +44,17 @@
     <div class="docs-body">
 <p>Your schema changes more often than your policy. A migration that adds <code>customers.phone</code> gives every agent with <code>customers: "*"</code> a new sensitive column, unmasked, the moment it reaches production. <code>lokra check</code> catches that: it reads the schema and compares it with <code>policies.yaml</code>. Run it in CI against a database with your migrations applied, and the pull request fails before the column ships.</p>
 <h2 id="what-lokra-check-does">What lokra check does<a class="anchor" href="#what-lokra-check-does" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:postgres@localhost:5432/app"</span><span class="t-w"> </span>--strict
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:postgres@localhost:5432/app"</span><span class="t-w"> </span>--strict
 </code></pre></div>
 
 <p>It connects read-only, reads the tables, views and columns in the schemas your agents use, and reports what does not line up:</p>
-<div class="hl"><pre><span></span><code>  WARN   support-bot: can read 'customers.phone', which looks sensitive, with no masking rule or detector
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>  WARN   support-bot: can read 'customers.phone', which looks sensitive, with no masking rule or detector
 
 0 error(s), 1 warning(s)
 </code></pre></div>
 
 <p>When nothing is wrong:</p>
-<div class="hl"><pre><span></span><code>  OK     policy matches the database, nothing sensitive left unmasked
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>  OK     policy matches the database, nothing sensitive left unmasked
 
 0 error(s), 0 warning(s)
 </code></pre></div>
@@ -136,13 +138,13 @@
 </tbody>
 </table>
 <p>Lokra also stops with an error if it cannot connect, or if the connection is to a different database from the one the policy names:</p>
-<div class="hl"><pre><span></span><code>error: the admin connection is to database 'postgres', but the policy is for 'app'
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: the admin connection is to database 'postgres', but the policy is for 'app'
 </code></pre></div>
 
 <p>Use <code>--strict</code> in CI. Without it, the unmasked <code>phone</code> column above is only a warning and the build passes.</p>
 <h2 id="github-actions">GitHub Actions<a class="anchor" href="#github-actions" title="Permanent link">#</a></h2>
 <p>This workflow starts Postgres as a service container, applies your migrations, installs Lokra and checks the policy on every pull request and every push to <code>main</code>:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Lokra policy</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>GitHub Actions</span></div><pre><span></span><code><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Lokra policy</span>
 
 <span class="t-nt">on</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">pull_request</span><span class="t-p">:</span>
@@ -236,13 +238,13 @@
 <p>Most of these read the connection from an environment variable such as <code>DATABASE_URL</code>, which the job sets for every step.</p>
 <h3 id="policy-in-a-subfolder">Policy in a subfolder<a class="anchor" href="#policy-in-a-subfolder" title="Permanent link">#</a></h3>
 <p>If the policy is not at the repository root, pass <code>--config</code> before the command:</p>
-<div class="hl"><pre><span></span><code><span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Check the policy against the schema</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>GitHub Actions</span></div><pre><span></span><code><span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Check the policy against the schema</span>
 <span class="t-w">        </span><span class="t-nt">run</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">lokra --config infra/lokra/policies.yaml check --dsn "$DATABASE_URL" --strict</span>
 </code></pre></div>
 
 <h3 id="run-it-only-when-it-matters">Run it only when it matters<a class="anchor" href="#run-it-only-when-it-matters" title="Permanent link">#</a></h3>
 <p>The check takes a few seconds, so running it on every pull request is simplest. If you would rather run it only when the schema or policy changes, add path filters:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">on</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>GitHub Actions</span></div><pre><span></span><code><span class="t-nt">on</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">pull_request</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">paths</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-s">"db/migrations/**"</span>
@@ -252,7 +254,7 @@
 <p>If you use path filters, make sure they cover every place a migration can live. A migration that slips past the filter is exactly the change this check is for.</p>
 <h2 id="other-ci-systems">Other CI systems<a class="anchor" href="#other-ci-systems" title="Permanent link">#</a></h2>
 <p>Any CI that can start Postgres can run the same three steps: apply migrations, <code>pip install lokra</code>, then <code>lokra check --dsn "&lt;dsn&gt;" --strict</code>. Lokra needs Python 3.11 or later. The <a href="/docs/production#run-in-a-container">container image</a> works too, if your CI prefers containers:</p>
-<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span><span class="t-se">\</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:postgres@db:5432/app"</span><span class="t-w"> </span>--strict
 </code></pre></div>
 

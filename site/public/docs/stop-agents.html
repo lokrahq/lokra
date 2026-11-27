@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents" class="on" aria-current="page">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents" class="on" aria-current="page">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Running agents</p>
@@ -73,14 +75,14 @@
 </tbody>
 </table>
 <h2 id="pause-an-agent">Pause an agent<a class="anchor" href="#pause-an-agent" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>pause<span class="t-w"> </span>support-bot<span class="t-w"> </span>--reason<span class="t-w"> </span><span class="t-s2">"deleting too much"</span><span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>pause<span class="t-w"> </span>support-bot<span class="t-w"> </span>--reason<span class="t-w"> </span><span class="t-s2">"deleting too much"</span><span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login disabled, 2 open session(s) ended
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login disabled, 2 open session(s) ended
 </code></pre></div>
 
 <p>From that moment, every tool call from that agent fails, whichever token it uses. The agent sees the person who paused it and the reason:</p>
-<div class="hl"><pre><span></span><code>stopped: support-bot is paused by dana: deleting too much
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>stopped: support-bot is paused by dana: deleting too much
 </code></pre></div>
 
 <table>
@@ -134,7 +136,7 @@
 </tbody>
 </table>
 <p>Without an admin connection, Lokra says so:</p>
-<div class="hl"><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login unchanged (no admin connection; pass --admin-dsn to change it too)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>support-bot is paused: Lokra refuses its requests from now on; database login unchanged (no admin connection; pass --admin-dsn to change it too)
 </code></pre></div>
 
 <p>Blocking the login matters if anything else could use the agent's role: a copy of <code>.lokra/secrets.json</code>, or a Lokra process that does not share your state directory. Set <code>LOKRA_ADMIN_DSN</code> wherever you run <code>pause</code>, the dashboard, <code>lokra slack</code> or <code>lokra cloud</code>, so every pause blocks the login too. The admin connection must be to the database the policy names.</p>
@@ -147,40 +149,40 @@
 <li>It does not change the policy. The agent keeps its grants, masking and row lock.</li>
 </ul>
 <h2 id="resume-an-agent">Resume an agent<a class="anchor" href="#resume-an-agent" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>resume<span class="t-w"> </span>support-bot<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>resume<span class="t-w"> </span>support-bot<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>support-bot is running again; database login enabled
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>support-bot is running again; database login enabled
 </code></pre></div>
 
 <p>If the agent was not paused, Lokra says <code>support-bot was not paused</code>, and with an admin connection it still makes sure the login is enabled. Every resume is written to the ledger.</p>
 <h2 id="pauses-survive-provisioning">Pauses survive provisioning<a class="anchor" href="#pauses-survive-provisioning" title="Permanent link">#</a></h2>
 <p><code>lokra provision</code> keeps a paused agent paused. It creates or updates the role with <code>NOLOGIN</code> and marks it in its output:</p>
-<div class="hl"><pre><span></span><code>altered role lokra_ops_bot: rows where account_id in [42] on ['orders'], PAUSED, reads ['orders'], writes ['orders']
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>altered role lokra_ops_bot: rows where account_id in [42] on ['orders'], PAUSED, reads ['orders'], writes ['orders']
 </code></pre></div>
 
 <p>So you can fix the policy while the agent is stopped, provision, check the result, and only then resume it.</p>
 <h2 id="revoke-one-token">Revoke one token<a class="anchor" href="#revoke-one-token" title="Permanent link">#</a></h2>
 <p>When one token leaks, revoke it and leave the agent's other tokens working. Pass the token itself or its id:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>lokra1.eyJhZ2VudCI6InN1cHBvcnQtYm90Ii...
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>lokra1.eyJhZ2VudCI6InN1cHBvcnQtYm90Ii...
 lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>fe6ac14c196d581b
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>token fe6ac14c196d581b revoked
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>token fe6ac14c196d581b revoked
 </code></pre></div>
 
 <p>When you pass the whole token, Lokra checks its signature first and refuses one this Lokra did not issue. An expired token can still be revoked. The token id is the <code>token_id</code> field on every request in the ledger, so you can find it from what the token did:</p>
-<div class="hl"><pre><span></span><code>grep<span class="t-w"> </span><span class="t-s1">'"agent": "support-bot"'</span><span class="t-w"> </span>.lokra/ledger.jsonl<span class="t-w"> </span><span class="t-p">|</span><span class="t-w"> </span>tail<span class="t-w"> </span>-n<span class="t-w"> </span><span class="t-m">3</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>grep<span class="t-w"> </span><span class="t-s1">'"agent": "support-bot"'</span><span class="t-w"> </span>.lokra/ledger.jsonl<span class="t-w"> </span><span class="t-p">|</span><span class="t-w"> </span>tail<span class="t-w"> </span>-n<span class="t-w"> </span><span class="t-m">3</span>
 </code></pre></div>
 
 <p>A request with a revoked token fails with:</p>
-<div class="hl"><pre><span></span><code>stopped: this token was revoked; ask for a new one
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>stopped: this token was revoked; ask for a new one
 </code></pre></div>
 
 <p>A revocation is permanent, and needs no admin connection: it does not touch the database role. To stop every token for an agent, pause the agent instead.</p>
 <h2 id="cap-the-request-rate">Cap the request rate<a class="anchor" href="#cap-the-request-rate" title="Permanent link">#</a></h2>
 <p>A stuck agent can retry the same call hundreds of times a minute. Cap it in the policy:</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">ops-bot</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span><span class="t-p t-p-Indicator">}</span>
 <span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">]}</span>
@@ -189,17 +191,17 @@ lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>fe6ac14c196
 
 <p><code>rate_limit</code> is the number of requests the agent may make in any 60-second window. It counts every tool call, including <code>whoami</code>, <code>list_tables</code> and <code>write_status</code>, across all of the agent's tokens and every Lokra process that shares the state directory. Leave it out, or set it to <code>0</code>, for no limit.</p>
 <p>A call over the cap is refused, and does not count against the next window:</p>
-<div class="hl"><pre><span></span><code>stopped: rate limit of 60 requests a minute reached; wait before retrying
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>stopped: rate limit of 60 requests a minute reached; wait before retrying
 </code></pre></div>
 
 <p>Run <code>lokra provision</code> and restart <code>lokra serve --http</code> after changing it; the server reads the policy at start-up. See <a href="/docs/production#change-the-policy">change the policy</a>.</p>
 <h3 id="stopped-events-and-looping-flags">Stopped events and looping flags<a class="anchor" href="#stopped-events-and-looping-flags" title="Permanent link">#</a></h3>
 <p>Every refused request, whether paused, revoked or over its rate limit, is written to the ledger as a <code>stopped</code> event with a <code>control</code> of <code>paused</code>, <code>revoked</code> or <code>rate_limit</code>:</p>
-<div class="hl"><pre><span></span><code>   68 2026-11-27T09:18:58 ops-bot            stopped         rate limit of 60 requests a minute reached; wait before retrying
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>   68 2026-11-27T09:18:58 ops-bot            stopped         rate limit of 60 requests a minute reached; wait before retrying
 </code></pre></div>
 
 <p><code>lokra report</code> and the dashboard flag an agent that hit its rate limit three or more times in the ledger as looping:</p>
-<div class="hl"><pre><span></span><code>ops-bot (for dana)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>ops-bot (for dana)
   reads 18 · rows 20 · masked 0
   writes 6 proposed, 5 approved, 1 denied, 1 executed (3 rows)
   blocked 2 · tables orders
@@ -209,7 +211,7 @@ lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>fe6ac14c196
 <p>A looping flag is a good reason to pause the agent and look at what it was trying to do. See <a href="/docs/audit#risk-flags">audit ledger and reports</a> for the other flags.</p>
 <h2 id="pause-from-the-dashboard">Pause from the dashboard<a class="anchor" href="#pause-from-the-dashboard" title="Permanent link">#</a></h2>
 <p><code>lokra dashboard</code> lists every agent with its state and a <strong>Pause</strong> or <strong>Resume</strong> button. Pause asks for an optional reason. The ledger records the decision as your username followed by <code>(dashboard)</code>. Start the dashboard with <code>--admin-dsn</code> (or set <code>LOKRA_ADMIN_DSN</code>) so its pauses also block the database login:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>dashboard<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>dashboard<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
 </code></pre></div>
 
 <p>See <a href="/docs/audit#the-dashboard">audit ledger and reports</a> for the rest of the dashboard.</p>
@@ -217,7 +219,7 @@ lokra<span class="t-w"> </span>revoke-token<span class="t-w"> </span>fe6ac14c196
 <p>With <code>lokra slack</code> running, every approval message has a <strong>Pause</strong> button for the agent that proposed the write, and Lokra posts a notice with a <strong>Resume</strong> button whenever an agent is paused, from anywhere. Only the approvers listed in the policy can press them. Start <code>lokra slack</code> with <code>--admin-dsn</code> so a pause from Slack also blocks the login. See <a href="/docs/slack#pause-and-resume-from-slack">approve in Slack</a>.</p>
 <h2 id="pause-from-lokra-cloud">Pause from Lokra Cloud<a class="anchor" href="#pause-from-lokra-cloud" title="Permanent link">#</a></h2>
 <p>With <code>lokra cloud</code> connected, you can pause and resume agents from <a href="https://cloud.lokra.dev">Lokra Cloud</a>, from a laptop or a phone. The gate applies the pause and records who made it. Start <code>lokra cloud</code> with <code>--admin-dsn</code> so a pause from the Cloud also blocks the database login:</p>
-<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_...<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_...<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
 </code></pre></div>
 
 <p>See <a href="/docs/cloud">Lokra Cloud</a> for setting up the connection.</p>

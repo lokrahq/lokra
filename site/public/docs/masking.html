@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking" class="on" aria-current="page">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking" class="on" aria-current="page">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Self-hosting</p>
@@ -41,7 +43,7 @@
     <p class="docs-lede">How Lokra masks sensitive values in query results, every masking strategy and detector, and which queries it refuses so a masked column cannot leave under another name.</p>
     <div class="docs-body">
 <p>Lokra masks sensitive values in every query result before it reaches the agent. You set it up once, in the <code>masking</code> block of <code>policies.yaml</code>, and it applies to every agent. This page explains the two kinds of masking, lists every strategy and detector, and shows which queries Lokra refuses to keep masked columns masked.</p>
-<div class="hl"><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">columns</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">email</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">redact</span>
 <span class="t-w">    </span><span class="t-nt">phone</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">last3</span>
@@ -56,7 +58,7 @@
 <li><strong>Detectors</strong> (<code>masking.detectors</code>) scan text for values that look like a card number, an email address, a phone number and so on, wherever they appear: in a free-text note, inside JSON, in an array.</li>
 </ul>
 <p>Lokra applies both to the rows it returns from the agent's <code>query</code> tool. Each result says what it masked:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"name"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"email"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"phone"</span><span class="t-p">],</span>
 <span class="t-w">  </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[[</span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"Ana Lima"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"[REDACTED]"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"********678"</span><span class="t-p">]],</span>
 <span class="t-w">  </span><span class="t-nt">"row_count"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
@@ -247,7 +249,7 @@
 <p>A masked column is any name in <code>masking.columns</code> whose strategy is not <code>none</code>. Lokra matches by name, not by table, so the check covers every column with that name.</p>
 <h3 id="inside-a-function-alias-cast-union-or-subquery">Inside a function, alias, cast, UNION or subquery<a class="anchor" href="#inside-a-function-alias-cast-union-or-subquery" title="Permanent link">#</a></h3>
 <p>These are refused:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">lower</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">lower</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">split_part</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'@'</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">contact</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-p">::</span><span class="t-nb">text</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
@@ -261,35 +263,35 @@
 </code></pre></div>
 
 <p>Each one fails with:</p>
-<div class="hl"><pre><span></span><code>the masked column email can only be selected as itself, or used in WHERE, JOIN, GROUP BY or ORDER BY; it cannot go inside a function, alias, UNION or subquery result
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>the masked column email can only be selected as itself, or used in WHERE, JOIN, GROUP BY or ORDER BY; it cannot go inside a function, alias, UNION or subquery result
 </code></pre></div>
 
 <h3 id="whole-row-references">Whole-row references<a class="anchor" href="#whole-row-references" title="Permanent link">#</a></h3>
 <p>A reference to a whole row carries every column in it, masked ones included:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">row_to_json</span><span class="t-p">(</span><span class="t-k">c</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">row_to_json</span><span class="t-p">(</span><span class="t-k">c</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">j</span><span class="t-p">.</span><span class="t-n">value</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-k">LATERAL</span><span class="t-w"> </span><span class="t-n">jsonb_each_text</span><span class="t-p">(</span><span class="t-n">to_jsonb</span><span class="t-p">(</span><span class="t-k">c</span><span class="t-p">))</span><span class="t-w"> </span><span class="t-n">j</span><span class="t-p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>c refers to a whole row, which would carry masked columns; select the columns you need
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>c refers to a whole row, which would carry masked columns; select the columns you need
 </code></pre></div>
 
 <p>A star inside an expression is refused the same way:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">to_jsonb</span><span class="t-p">(</span><span class="t-k">c</span><span class="t-p">.</span><span class="t-o">*</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">to_jsonb</span><span class="t-p">(</span><span class="t-k">c</span><span class="t-p">.</span><span class="t-o">*</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">;</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>c.* inside an expression would carry masked columns; select the columns you need
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>c.* inside an expression would carry masked columns; select the columns you need
 </code></pre></div>
 
 <p>Because masked columns are matched by name, this applies to every table once your policy has any masked column, even a table with nothing sensitive in it, such as <code>row_to_json(p)</code> on <code>products</code>.</p>
 <h3 id="functions-that-run-a-query-from-text">Functions that run a query from text<a class="anchor" href="#functions-that-run-a-query-from-text" title="Permanent link">#</a></h3>
 <p><code>query_to_xml</code>, <code>table_to_xml</code>, <code>cursor_to_xml</code>, <code>schema_to_xml</code>, <code>database_to_xml</code> and their <code>xmlschema</code> variants run a query that is passed in as a string, where Lokra's check cannot see it. They are refused for every agent, masking or not:</p>
-<div class="hl"><pre><span></span><code>the function query_to_xml() is not allowed
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>the function query_to_xml() is not allowed
 </code></pre></div>
 
 <h2 id="work-with-masking">Work with masking<a class="anchor" href="#work-with-masking" title="Permanent link">#</a></h2>
 <p>Most queries need no change. These are all allowed:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-o">*</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">.</span><span class="t-n">email</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">o</span><span class="t-p">.</span><span class="t-n">total</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-w"> </span><span class="t-k">JOIN</span><span class="t-w"> </span><span class="t-n">orders</span><span class="t-w"> </span><span class="t-n">o</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">o</span><span class="t-p">.</span><span class="t-n">customer_id</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-k">c</span><span class="t-p">.</span><span class="t-n">id</span><span class="t-p">;</span>
@@ -299,7 +301,7 @@
 
 <p>The column comes out under its own name, and Lokra masks it on the way out.</p>
 <p><strong>Filter, join, group and sort on masked columns freely.</strong> A masked column can appear anywhere that only decides which rows come back, including inside functions there:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-k">lower</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'ana@acme.example'</span><span class="t-p">;</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-k">lower</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'ana@acme.example'</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">count</span><span class="t-p">(</span><span class="t-o">*</span><span class="t-p">),</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">GROUP</span><span class="t-w"> </span><span class="t-k">BY</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-p">;</span>
 <span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">ORDER</span><span class="t-w"> </span><span class="t-k">BY</span><span class="t-w"> </span><span class="t-k">lower</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">);</span>
 </code></pre></div>
@@ -308,7 +310,7 @@
 <p><strong>Note:</strong> Filtering lets an agent confirm a guess, for example <code>WHERE email = 'ana@acme.example'</code> returns a row only if that address exists. Masking stops the agent reading a value; it does not stop it testing one. If an agent must learn nothing about a column, leave the column out of its <code>read</code> grant.</p>
 </blockquote>
 <p><strong>Need part of a value?</strong> An agent cannot compute it in SQL, because the masked column would leave inside a function. Store the safe part under its own name instead, for example a generated column, and grant that:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">TABLE</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">ADD</span><span class="t-w"> </span><span class="t-k">COLUMN</span><span class="t-w"> </span><span class="t-n">email_domain</span><span class="t-w"> </span><span class="t-nb">text</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">TABLE</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">ADD</span><span class="t-w"> </span><span class="t-k">COLUMN</span><span class="t-w"> </span><span class="t-n">email_domain</span><span class="t-w"> </span><span class="t-nb">text</span>
 <span class="t-w">  </span><span class="t-k">GENERATED</span><span class="t-w"> </span><span class="t-n">ALWAYS</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">split_part</span><span class="t-p">(</span><span class="t-n">email</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'@'</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">))</span><span class="t-w"> </span><span class="t-n">STORED</span><span class="t-p">;</span>
 </code></pre></div>
 

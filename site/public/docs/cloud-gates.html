@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates" class="on" aria-current="page">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates" class="on" aria-current="page">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Lokra Cloud</p>
@@ -54,7 +56,7 @@
 <li>Choose <strong>Create token</strong>.</li>
 </ol>
 <p>Cloud shows the command to run, with the token in it:</p>
-<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--url<span class="t-w"> </span>https://cloud.lokra.dev
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--url<span class="t-w"> </span>https://cloud.lokra.dev
 </code></pre></div>
 
 <p>Choose <strong>Copy</strong> to copy the whole command, or click the token to copy only the token. <code>--url https://cloud.lokra.dev</code> is the default, so you can leave it out.</p>
@@ -63,12 +65,12 @@
 </blockquote>
 <h2 id="run-lokra-cloud">Run lokra cloud<a class="anchor" href="#run-lokra-cloud" title="Permanent link">#</a></h2>
 <p>Run it from the folder that holds the gate's <code>policies.yaml</code>, as the same user that runs the gate:</p>
-<div class="hl"><pre><span></span><code><span class="t-nb">cd</span><span class="t-w"> </span>/srv/lokra
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code><span class="t-nb">cd</span><span class="t-w"> </span>/srv/lokra
 <span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
 </code></pre></div>
 
 <p><code>lokra cloud</code> has to share the gate's state: the pending writes, pauses and ledger in the <code>.lokra</code> folder next to <code>policies.yaml</code>. That is how a decision made in Cloud reaches the agents. If the policy lives somewhere else, pass <code>--config</code> (or set <code>LOKRA_CONFIG</code>) before the command name:</p>
-<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>--config<span class="t-w"> </span>/etc/lokra/policies.yaml<span class="t-w"> </span>cloud
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>--config<span class="t-w"> </span>/etc/lokra/policies.yaml<span class="t-w"> </span>cloud
 </code></pre></div>
 
 <p><code>lokra cloud</code> reads <code>policies.yaml</code> when it starts. Restart it after you change the policy, so Cloud sees agents you added or removed.</p>
@@ -101,7 +103,7 @@
 </table>
 <p>The token always comes from the <code>LOKRA_CLOUD_TOKEN</code> environment variable, never from a flag, so it stays out of your process list. See the <a href="/docs/cli">CLI reference</a> and <a href="/docs/environment">Environment variables</a>.</p>
 <h3 id="what-the-startup-lines-mean">What the startup lines mean<a class="anchor" href="#what-the-startup-lines-mean" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>lokra: connecting to https://cloud.lokra.dev
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra: connecting to https://cloud.lokra.dev
 lokra: serving support-bot, billing-bot from /srv/lokra/policies.yaml
 lokra: a pause from Cloud also blocks the agent's database login
 lokra: connected as gate "production-db" (Ctrl+C to stop)
@@ -114,7 +116,7 @@ lokra: connected as gate "production-db" (Ctrl+C to stop)
 <li><strong>connected as gate</strong> confirms that Cloud accepted the token, and gives the gate's name in Cloud. If the name is not the one you expect, you used another gate's token.</li>
 </ul>
 <p>When someone decides in Cloud, <code>lokra cloud</code> prints what it applied:</p>
-<div class="hl"><pre><span></span><code>lokra: approve w_3f9a1c2e from dana (cloud): w_3f9a1c2e approved
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra: approve w_3f9a1c2e from dana (cloud): w_3f9a1c2e approved
 lokra: pause support-bot from dana (cloud): database login disabled, 2 open session(s) ended
 </code></pre></div>
 
@@ -123,10 +125,10 @@ lokra: pause support-bot from dana (cloud): database login disabled, 2 open sess
 <p>With <code>--admin-dsn</code>, a pause also turns off the role's login and ends its open sessions, and a resume turns the login back on. The admin connection string stays on the gate; Cloud never receives it. See <a href="/docs/stop-agents">Stop an agent</a>.</p>
 <h3 id="check-the-connection-once">Check the connection once<a class="anchor" href="#check-the-connection-once" title="Permanent link">#</a></h3>
 <p><code>--once</code> syncs a single time, applies any decisions waiting in Cloud, and exits. Any error stops it with a non-zero exit code, which makes it a quick test before you set up a service:</p>
-<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--once
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud<span class="t-w"> </span>--once
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>lokra: connecting to https://cloud.lokra.dev
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra: connecting to https://cloud.lokra.dev
 lokra: serving support-bot from /srv/lokra/policies.yaml
 lokra: no --admin-dsn, so a pause from Cloud refuses the agent's requests but leaves its database login on
 lokra: connected as gate "production-db"
@@ -134,7 +136,7 @@ lokra: connected as gate "production-db"
 
 <h2 id="if-the-token-is-refused">If the token is refused<a class="anchor" href="#if-the-token-is-refused" title="Permanent link">#</a></h2>
 <p>If Cloud does not know the token, <code>lokra cloud</code> stops at once with exit code 1 instead of retrying:</p>
-<div class="hl"><pre><span></span><code>error: Lokra Cloud does not recognise this gate token. It may be mistyped or only partly copied, or its gate was removed. Create a new token under Gates in Lokra Cloud and run lokra cloud again.
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>error: Lokra Cloud does not recognise this gate token. It may be mistyped or only partly copied, or its gate was removed. Create a new token under Gates in Lokra Cloud and run lokra cloud again.
 </code></pre></div>
 
 <p>Two other mistakes stop it before it connects:</p>
@@ -143,22 +145,22 @@ lokra: connected as gate "production-db"
 <li>The value does not start with <code>lkg_</code>: <code>error: LOKRA_CLOUD_TOKEN should start with lkg_; create one under Gates in Lokra Cloud</code></li>
 </ul>
 <p>Network problems do not stop it. It prints the error and retries, waiting 3 seconds at first and doubling each time up to 60 seconds:</p>
-<div class="hl"><pre><span></span><code>lokra: could not reach Lokra Cloud: timed out; retrying in 3s
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra: could not reach Lokra Cloud: timed out; retrying in 3s
 </code></pre></div>
 
 <h2 id="keep-it-running">Keep it running<a class="anchor" href="#keep-it-running" title="Permanent link">#</a></h2>
 <p>Run <code>lokra cloud</code> as a long-running service on the same machine, as the same user and with the same <code>policies.yaml</code> as the gate. Lokra keeps its state folder private to that user, so a different user cannot read it.</p>
 <h3 id="systemd">systemd<a class="anchor" href="#systemd" title="Permanent link">#</a></h3>
 <p>Put the token and admin connection string in a file only root can read, such as <code>/etc/lokra/cloud.env</code>:</p>
-<div class="hl"><pre><span></span><code>LOKRA_CLOUD_TOKEN=lkg_…
+<div class="hl" data-lang="text"><div class="code-head"><span>cloud.env</span></div><pre><span></span><code>LOKRA_CLOUD_TOKEN=lkg_…
 LOKRA_ADMIN_DSN=postgresql://lokra_admin:…@db.internal:5432/app
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>sudo<span class="t-w"> </span>chmod<span class="t-w"> </span><span class="t-m">600</span><span class="t-w"> </span>/etc/lokra/cloud.env
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>sudo<span class="t-w"> </span>chmod<span class="t-w"> </span><span class="t-m">600</span><span class="t-w"> </span>/etc/lokra/cloud.env
 </code></pre></div>
 
 <p>Then create <code>/etc/systemd/system/lokra-cloud.service</code>. Use the path <code>which lokra</code> prints, and the user and folder your gate runs with:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">[Unit]</span>
+<div class="hl" data-lang="ini"><div class="code-head"><span>lokra-cloud.service</span></div><pre><span></span><code><span class="t-k">[Unit]</span>
 <span class="t-na">Description</span><span class="t-o">=</span><span class="t-s">Lokra Cloud sync</span>
 <span class="t-na">After</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
 <span class="t-na">Wants</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
@@ -175,7 +177,7 @@ LOKRA_ADMIN_DSN=postgresql://lokra_admin:…@db.internal:5432/app
 <span class="t-na">WantedBy</span><span class="t-o">=</span><span class="t-s">multi-user.target</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span>daemon-reload
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span>daemon-reload
 sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span><span class="t-nb">enable</span><span class="t-w"> </span>--now<span class="t-w"> </span>lokra-cloud
 journalctl<span class="t-w"> </span>-u<span class="t-w"> </span>lokra-cloud<span class="t-w"> </span>-f
 </code></pre></div>
@@ -183,7 +185,7 @@ journalctl<span class="t-w"> </span>-u<span class="t-w"> </span>lokra-cloud<span
 <p><code>lokra cloud</code> reads <code>LOKRA_ADMIN_DSN</code> from the environment, so the unit does not need <code>--admin-dsn</code>.</p>
 <h3 id="docker">Docker<a class="anchor" href="#docker" title="Permanent link">#</a></h3>
 <p>The Lokra image runs any <code>lokra</code> command. Run <code>cloud</code> with the same folder mounted at <code>/work</code> and the same user as the container that serves your agents, so both share <code>/work/.lokra</code>:</p>
-<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>-d<span class="t-w"> </span>--name<span class="t-w"> </span>lokra-cloud<span class="t-w"> </span>--restart<span class="t-w"> </span>unless-stopped<span class="t-w"> </span><span class="t-se">\</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>-d<span class="t-w"> </span>--name<span class="t-w"> </span>lokra-cloud<span class="t-w"> </span>--restart<span class="t-w"> </span>unless-stopped<span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>--env-file<span class="t-w"> </span>/etc/lokra/cloud.env<span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span>cloud

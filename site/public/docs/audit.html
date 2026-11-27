@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit" class="on" aria-current="page">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit" class="on" aria-current="page">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Running agents</p>
@@ -205,17 +207,17 @@
 </table>
 <p><code>decided_by</code> shows where a decision came from: a terminal username such as <code>dana</code>, <code>dana (dashboard)</code>, <code>dana (slack)</code>, a name from Lokra Cloud, or <code>policy (up to 5 rows)</code> for a write the <a href="/docs/approvals">approval rules</a> let through.</p>
 <p>Here is a <code>read</code> entry:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"agent"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"support-bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"event"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"read"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"hash"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"ccc879d924437a763ba98d1be2de729204da8f61b1d6bd377dc695316dc12d6d"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span><span class="t-nt">"column:last3"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"column:redact"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">},</span><span class="t-w"> </span><span class="t-nt">"ms"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">20</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"prev"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"0000000000000000000000000000000000000000000000000000000000000000"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"role"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"lokra_support_bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"seq"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sig"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"151baf8fcf3c24fb9be021087f38521c5a8e49fefce809c43016b05ac808723e"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, name, email, phone FROM customers ORDER BY id LIMIT 3"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"customers"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"token_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"b4476ff04ead5a3a"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tool"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"query"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"ts"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"2026-11-27T09:17:15.422+00:00"</span><span class="t-p">}</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"agent"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"support-bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"event"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"read"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"hash"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"ccc879d924437a763ba98d1be2de729204da8f61b1d6bd377dc695316dc12d6d"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span><span class="t-nt">"column:last3"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"column:redact"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">},</span><span class="t-w"> </span><span class="t-nt">"ms"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">20</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"prev"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"0000000000000000000000000000000000000000000000000000000000000000"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"role"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"lokra_support_bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"seq"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sig"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"151baf8fcf3c24fb9be021087f38521c5a8e49fefce809c43016b05ac808723e"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, name, email, phone FROM customers ORDER BY id LIMIT 3"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"customers"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"token_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"b4476ff04ead5a3a"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tool"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"query"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"ts"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"2026-11-27T09:17:15.422+00:00"</span><span class="t-p">}</span>
 </code></pre></div>
 
 <p>The ledger never holds query results. <code>masked</code> counts what was masked, by rule: <code>column:&lt;strategy&gt;</code> for a <a href="/docs/masking">column rule</a>, or the detector's name, such as <code>email</code> or <code>au_phone</code>, for a value found by a detector.</p>
 <h3 id="sql-is-masked-before-it-is-written">SQL is masked before it is written<a class="anchor" href="#sql-is-masked-before-it-is-written" title="Permanent link">#</a></h3>
 <p>Agents sometimes put identifiers in the SQL itself, for example in a <code>WHERE</code> clause. Before writing a statement to the ledger, Lokra runs the policy's value detectors over it, so this query:</p>
-<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'jo@example.com'</span>
+<div class="hl" data-lang="sql"><div class="code-head"><span>SQL</span></div><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'jo@example.com'</span>
 </code></pre></div>
 
 <p>is recorded as:</p>
-<div class="hl"><pre><span></span><code>SELECT id, name FROM customers WHERE email = '[EMAIL]'
+<div class="hl" data-lang="text"><div class="code-head"><span>Ledger</span></div><pre><span></span><code>SELECT id, name FROM customers WHERE email = '[EMAIL]'
 </code></pre></div>
 
 <p>Only values a configured detector recognises are replaced. If the policy has no <code>detectors</code>, SQL is recorded as written. The same masked SQL is what Slack, the dashboard and Lokra Cloud show.</p>
@@ -228,10 +230,10 @@
 </ul>
 <h2 id="lokra-log">lokra log<a class="anchor" href="#lokra-log" title="Permanent link">#</a></h2>
 <p>Show the most recent entries:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>log<span class="t-w"> </span>-n<span class="t-w"> </span><span class="t-m">5</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>log<span class="t-w"> </span>-n<span class="t-w"> </span><span class="t-m">5</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>   77 2026-11-27T09:18:58 support-bot        rejected        SELECT pg_read_file('/etc/passwd')
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>   77 2026-11-27T09:18:58 support-bot        rejected        SELECT pg_read_file('/etc/passwd')
    78 2026-11-27T09:18:59 support-bot        rejected        SELECT * FROM orders; DROP TABLE orders
    79 2026-11-27T09:18:59 support-bot        rejected        SET ROLE postgres
    80 2026-11-27T09:19:49 support-bot        read            SELECT id, name FROM customers WHERE email = '[EMAIL]'
@@ -240,10 +242,10 @@
 
 <p>Each line shows the sequence number, the UTC time, the agent, the event, and the SQL, reason or write id, cut to 90 characters. <code>-n</code> sets how many entries to show; the default is 20. For every field, read <code>.lokra/ledger.jsonl</code> directly, for example with <code>jq</code>.</p>
 <h2 id="lokra-verify-ledger">lokra verify-ledger<a class="anchor" href="#lokra-verify-ledger" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>verify-ledger
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>verify-ledger
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>ok: 82 entries verified
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>ok: 82 entries verified
 </code></pre></div>
 
 <p>If anything is wrong, it names the first bad entry and exits with status 2:</p>
@@ -272,10 +274,10 @@
 <p>Run it on a schedule, and before you hand a report or evidence pack to anyone.</p>
 <h2 id="lokra-report">lokra report<a class="anchor" href="#lokra-report" title="Permanent link">#</a></h2>
 <p><code>lokra report</code> turns the ledger into a per-agent activity and risk summary:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>report
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>report
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>Lokra activity report — 79 ledger entries, chain verified
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>Lokra activity report — 79 ledger entries, chain verified
   5 access attempt(s) by an unknown or expired agent
 
 ops-bot (for dana)
@@ -357,16 +359,16 @@ support-bot (for dana)
 </tbody>
 </table>
 <h3 id="json-output">JSON output<a class="anchor" href="#json-output" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>report<span class="t-w"> </span>--json
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>report<span class="t-w"> </span>--json
 </code></pre></div>
 
 <p>The top level holds <code>chain_verified</code>, <code>entry_count</code>, <code>identity_denials</code>, <code>risk_flags</code> (the total), <code>events_by_type</code> (a count per event), <code>blocked_reasons</code> (the six most common, each with <code>reason</code> and <code>count</code>), and <code>agents</code>. Each agent has <code>agent</code>, <code>on_behalf_of</code>, <code>reads</code>, <code>rows_read</code>, <code>max_read_rows</code>, <code>masked</code>, <code>masked_total</code>, <code>tables</code>, <code>writes_proposed</code>, <code>writes_approved</code>, <code>writes_denied</code>, <code>writes_executed</code>, <code>rows_written</code>, <code>blocked</code>, <code>stopped</code>, and <code>flags</code>, a list of objects with <code>kind</code> and <code>detail</code>. Use it to feed a SIEM or your own reporting.</p>
 <h2 id="the-dashboard">The dashboard<a class="anchor" href="#the-dashboard" title="Permanent link">#</a></h2>
 <p><code>lokra dashboard</code> serves a local web page with the same report, refreshed every four seconds, and lets you act on it:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>dashboard<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>dashboard<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code>Lokra dashboard on http://127.0.0.1:8900  (Ctrl+C to stop)
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>Lokra dashboard on http://127.0.0.1:8900  (Ctrl+C to stop)
 </code></pre></div>
 
 <table>
@@ -403,7 +405,7 @@ support-bot (for dana)
 <p>The dashboard binds to <code>127.0.0.1</code> only and has no login of its own: anyone who can reach that port on the machine can approve writes. Do not put it behind a proxy. It refuses cross-origin requests that try to change anything. After saving a policy in it, restart <code>lokra serve --http</code> so the server picks up the change.</p>
 <h2 id="lokra-evidence">lokra evidence<a class="anchor" href="#lokra-evidence" title="Permanent link">#</a></h2>
 <p>For a security review or a vendor questionnaire, <code>lokra evidence</code> turns the policy and the ledger into a control evidence pack:</p>
-<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>evidence<span class="t-w">                      </span><span class="t-c1"># Markdown to stdout</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>evidence<span class="t-w">                      </span><span class="t-c1"># Markdown to stdout</span>
 lokra<span class="t-w"> </span>evidence<span class="t-w"> </span>--out<span class="t-w"> </span>evidence.md<span class="t-w">    </span><span class="t-c1"># write it to a file</span>
 lokra<span class="t-w"> </span>evidence<span class="t-w"> </span>--json<span class="t-w">               </span><span class="t-c1"># structured, for your own templates</span>
 </code></pre></div>

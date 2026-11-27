@@ -89,7 +89,7 @@ Tokens are not refreshed for you. Plan for something to mint a new token at leas
 
 Tokens are bearer credentials, so never send them over plain HTTP beyond the local machine. Run Lokra on `127.0.0.1` and put a reverse proxy that terminates TLS in front of it. Caddy is a short example because it gets and renews certificates by itself:
 
-```text
+```text Caddyfile
 lokra.example.com {
 	reverse_proxy 127.0.0.1:8787 {
 		header_up Host {upstream_hostport}
@@ -138,7 +138,7 @@ Two things trip people up:
 
 This runs the HTTP server, `lokra cloud` and Caddy, all sharing one state directory. Put `policies.yaml` in `./lokra` and make that directory owned by uid 10001 (`sudo chown -R 10001:10001 lokra`).
 
-```yaml
+```yaml compose.yaml
 services:
   lokra:
     image: ghcr.io/lokrahq/lokra:0.8.2
@@ -174,7 +174,7 @@ volumes:
 
 Inside Compose, Caddy reaches Lokra by its service name, and no `Host` rewrite is needed because the container binds to `0.0.0.0`:
 
-```text
+```text Caddyfile
 lokra.example.com {
 	reverse_proxy lokra:8787
 }
@@ -182,7 +182,7 @@ lokra.example.com {
 
 `cloud.env` holds the secrets for `lokra cloud`. Keep it out of version control:
 
-```ini
+```ini cloud.env
 LOKRA_CLOUD_TOKEN=lkg_your_gate_token
 LOKRA_ADMIN_DSN=postgresql://lokra_admin:secret@db.internal:5432/app
 ```
@@ -216,7 +216,7 @@ sudo -u lokra /opt/lokra/bin/lokra --config /srv/lokra/policies.yaml provision -
 
 Save as `/etc/systemd/system/lokra.service`:
 
-```ini
+```ini lokra.service
 [Unit]
 Description=Lokra MCP server
 After=network-online.target
@@ -244,14 +244,14 @@ WantedBy=multi-user.target
 
 Save the secrets as `/etc/lokra/cloud.env`, owned by root with mode 600:
 
-```ini
+```ini cloud.env
 LOKRA_CLOUD_TOKEN=lkg_your_gate_token
 LOKRA_ADMIN_DSN=postgresql://lokra_admin:secret@db.internal:5432/app
 ```
 
 Then `/etc/systemd/system/lokra-cloud.service`:
 
-```ini
+```ini lokra-cloud.service
 [Unit]
 Description=Lokra Cloud connector
 After=network-online.target

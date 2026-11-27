@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools" class="on" aria-current="page">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools" class="on" aria-current="page">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Reference</p>
@@ -84,13 +86,13 @@
 </table>
 <h2 id="server-instructions">Server instructions<a class="anchor" href="#server-instructions" title="Permanent link">#</a></h2>
 <p>When a client connects, Lokra sends these instructions, which most clients pass to the model:</p>
-<div class="hl"><pre><span></span><code>You are connected to a database through Lokra, a policy proxy. Call list_tables first to see what you may read. Use query for one SELECT at a time. Rows outside your scope are invisible, and sensitive values are masked. To change data, call propose_write. It returns status approved when the policy allows small writes to run without a person; otherwise a human (or two, for some statements) must approve it before execute_write will run. Check write_status, then call execute_write.
+<div class="hl" data-lang="text"><div class="code-head"><span>Server instructions</span></div><pre><span></span><code>You are connected to a database through Lokra, a policy proxy. Call list_tables first to see what you may read. Use query for one SELECT at a time. Rows outside your scope are invisible, and sensitive values are masked. To change data, call propose_write. It returns status approved when the policy allows small writes to run without a person; otherwise a human (or two, for some statements) must approve it before execute_write will run. Check write_status, then call execute_write.
 </code></pre></div>
 
 <h2 id="results-and-errors">Results and errors<a class="anchor" href="#results-and-errors" title="Permanent link">#</a></h2>
 <p>Every tool returns a JSON object, sent as the text of the tool result. The field names below are exactly what the agent sees.</p>
 <p>When a call fails, the tool result is marked as an error and its text explains why, in a form the agent can act on:</p>
-<div class="hl"><pre><span></span><code>Error executing tool query: send exactly one SQL statement per call
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>Error executing tool query: send exactly one SQL statement per call
 </code></pre></div>
 
 <p>Before any tool does its work, Lokra checks the agent's token, its purpose, whether it is paused, whether the token was revoked, and its rate limit. These errors can come from any tool:</p>
@@ -147,7 +149,7 @@
 <p>Every call counts towards the rate limit, including <code>whoami</code> and <code>write_status</code>, and every refusal above is written to the <a href="/docs/audit">audit ledger</a>.</p>
 <h2 id="whoami">whoami<a class="anchor" href="#whoami" title="Permanent link">#</a></h2>
 <p>Shows which identity the agent has and when its access ends. It takes no inputs.</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"agent"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"support-bot"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"description"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Answers customer questions for one account. Read only."</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span>
@@ -193,7 +195,7 @@
 </table>
 <h2 id="list_tables">list_tables<a class="anchor" href="#list_tables" title="Permanent link">#</a></h2>
 <p>Lists what the agent may touch. It takes no inputs. The server instructions ask the agent to call it first.</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
 <span class="t-w">    </span><span class="t-nt">"customers"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
 <span class="t-w">      </span><span class="t-nt">"read"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"account_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"created_at"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"email"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"name"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"phone"</span><span class="t-p">],</span>
@@ -253,7 +255,7 @@
 </tr>
 </tbody>
 </table>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"name"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"email"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"phone"</span><span class="t-p">],</span>
 <span class="t-w">  </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span>
 <span class="t-w">    </span><span class="t-p">[</span><span class="t-mi">2</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"Customer 2"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"[REDACTED]"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"********134"</span><span class="t-p">],</span>
@@ -372,7 +374,7 @@
 </tr>
 </tbody>
 </table>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span>
@@ -417,7 +419,7 @@
 </tbody>
 </table>
 <p>When the agent's <a href="/docs/approvals">approval rules</a> let a small write through, the same call comes back already approved:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_0429f71d"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
@@ -496,7 +498,7 @@
 </tr>
 </tbody>
 </table>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span>
@@ -601,7 +603,7 @@
 </tbody>
 </table>
 <p>It returns <code>write_id</code> followed by the same fields as <code>write_status</code>, now with <code>status</code> set to <code>executed</code> and <code>affected_rows</code> filled in:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"executed"</span><span class="t-p">,</span>
@@ -691,17 +693,17 @@
 <h2 id="example-a-write-from-start-to-finish">Example: a write from start to finish<a class="anchor" href="#example-a-write-from-start-to-finish" title="Permanent link">#</a></h2>
 <p>Here <code>ops-bot</code> has <code>read: {orders: "*"}</code> and <code>write: {orders: [update]}</code>, with no approval rules, so every write waits for a person. The user asks: "The courier picked up order 1042, mark it shipped."</p>
 <p>The agent checks the order first, with <code>query</code>:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, status FROM orders WHERE id = 1042"</span><span class="t-p">}</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, status FROM orders WHERE id = 1042"</span><span class="t-p">}</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"status"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[[</span><span class="t-mi">1042</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">]],</span><span class="t-w"> </span><span class="t-nt">"row_count"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{}}</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"status"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[[</span><span class="t-mi">1042</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">]],</span><span class="t-w"> </span><span class="t-nt">"row_count"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{}}</span>
 </code></pre></div>
 
 <p>Then it proposes the change, with <code>propose_write</code>:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">}</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">}</span>
 </code></pre></div>
 
-<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span>
 <span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_a4e81f7f"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">,</span>
 <span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
@@ -712,7 +714,7 @@
 </code></pre></div>
 
 <p>The agent tells the user it is waiting for approval. A person sees the write, its reason and the one-row dry run, in the terminal with <code>lokra pending</code>, in the dashboard, in <a href="/docs/slack">Slack</a> or in <a href="/docs/cloud">Lokra Cloud</a>, and approves it. A moment later the agent calls <code>write_status</code> with <code>{"write_id": "w_a4e81f7f"}</code>:</p>
-<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_a4e81f7f"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"orders"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approved_by"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"sam (slack)"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span><span class="t-w"> </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approvals"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"sam (slack)"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">}</span>
+<div class="hl" data-lang="json"><div class="code-head"><span>JSON</span></div><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_a4e81f7f"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"orders"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approved_by"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"sam (slack)"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span><span class="t-w"> </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approvals"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"sam (slack)"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">}</span>
 </code></pre></div>
 
 <p>Finally it calls <code>execute_write</code> with the same id. The result has <code>"status": "executed"</code> and <code>"affected_rows": 1</code>, and the agent confirms to the user that order 1042 is marked shipped.</p>

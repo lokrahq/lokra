@@ -18,22 +18,24 @@
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
-<header class="wrap nav docs-top">
-  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
-  <div class="docs-search" role="search">
-    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
-    <kbd>/</kbd>
-    <div class="docs-results" data-results hidden></div>
+<header class="docs-header">
+  <div class="wrap docs-top">
+    <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+    <div class="docs-search" role="search">
+      <input type="search" placeholder="Search docs" aria-label="Search the docs" autocomplete="off" data-search>
+      <kbd>/</kbd>
+      <div class="docs-results" data-results hidden></div>
+    </div>
+    <nav class="links">
+      <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+      <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    </nav>
+    <button class="docs-menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="docs-side" data-menu><svg viewBox="0 0 20 20" aria-hidden="true"><path class="i-open" d="M3 6h14M3 10h14M3 14h14"/><path class="i-close" d="M5 5l10 10M15 5L5 15"/></svg></button>
   </div>
-  <nav class="links">
-    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
-    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
-  </nav>
 </header>
 <div class="wrap docs-shell">
-  <aside class="docs-side">
-    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
-    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference" class="on" aria-current="page">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  <aside class="docs-side" id="docs-side">
+    <nav class="docs-nav" aria-label="Docs"><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference" class="on" aria-current="page">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
   </aside>
   <main class="docs-main">
     <p class="docs-eyebrow">Reference</p>
@@ -100,7 +102,7 @@
 </table>
 <p>An agent setting Lokra does not recognise, such as a typo like <code>max_row</code>, is an error, and so is a masking strategy it does not know. Unknown top-level keys are ignored. See <a href="#validation-errors">validation errors</a>.</p>
 <h2 id="database">database<a class="anchor" href="#database" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
 <span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
 <span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>
@@ -209,7 +211,7 @@
 <p>Write a table in the <code>public</code> schema by its name (<code>customers</code>) and any other table as <code>schema.table</code> (<code>billing.invoices</code>). <code>public.customers</code> is the same as <code>customers</code>. The same form is used in <code>read</code>, <code>write</code> and <code>rows.tables</code>.</p>
 <p>Columns in <code>read</code> must be a YAML list, such as <code>[id, name, email]</code>. A comma-separated string such as <code>"id, name"</code> is not split into columns. Column names are matched exactly as Postgres stores them, so a camelCase column is written <code>phoneNumber</code>.</p>
 <h3 id="rows">rows<a class="anchor" href="#rows" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">account_id</span>
 <span class="t-w">      </span><span class="t-nt">values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]</span>
 <span class="t-w">      </span><span class="t-nt">tables</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">id</span><span class="t-p t-p-Indicator">}</span>
@@ -247,7 +249,7 @@
 </table>
 <p>The lock applies to every table in the agent's <code>read</code> or <code>write</code> that has the column. See <a href="/docs/row-locks">row locks</a>.</p>
 <h3 id="approval">approval<a class="anchor" href="#approval" title="Permanent link">#</a></h3>
-<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
 <span class="t-w">      </span><span class="t-nt">auto_max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5</span>
 <span class="t-w">      </span><span class="t-nt">auto_statements</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">]</span>
 <span class="t-w">      </span><span class="t-nt">two_people</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">delete</span><span class="t-p t-p-Indicator">]</span>
@@ -285,7 +287,7 @@
 </table>
 <p>Statement names are not case-sensitive. See <a href="/docs/approvals#approval-rules">approval rules</a>.</p>
 <h2 id="masking">masking<a class="anchor" href="#masking" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">columns</span><span class="t-p">:</span>
 <span class="t-w">    </span><span class="t-nt">email</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">redact</span>
 <span class="t-w">    </span><span class="t-nt">phone</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">last3</span>
@@ -332,7 +334,7 @@
 </table>
 <p>An unknown strategy name stops the policy loading with an error, and so does <code>last0</code>, which would show the whole value. An unknown detector name is an error when an agent next makes a request. <a href="/docs/masking">Masking</a> explains each one.</p>
 <h2 id="slack">slack<a class="anchor" href="#slack" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">channel</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">C0123ABCD</span>
 <span class="t-w">  </span><span class="t-nt">approvers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">U0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">U0456EFGH</span><span class="t-p t-p-Indicator">]</span>
 </code></pre></div>
@@ -363,7 +365,7 @@
 </table>
 <p>Both are required by <code>lokra slack</code> and ignored by every other command. See <a href="/docs/slack">approve in Slack</a>.</p>
 <h2 id="a-complete-example">A complete example<a class="anchor" href="#a-complete-example" title="Permanent link">#</a></h2>
-<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<div class="hl" data-lang="yaml"><div class="code-head"><span>policies.yaml</span></div><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
 <span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
 <span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
 <span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>

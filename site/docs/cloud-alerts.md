@@ -34,7 +34,7 @@ Turn alerts on separately on each device where you want them.
 2. Allow notifications when your browser asks.
 3. Cloud sends a test alert to this device:
 
-```text
+```text Lokra Cloud
 Alerts are on
 Lokra will tell you here when an agent's write needs you.
 ```
@@ -56,7 +56,7 @@ The bell, or the item under **More**, always shows where things stand:
 
 When a write starts waiting, the alert names the agent, the statement and the tables. Below that come the agent's reason, the gate, the number of rows the dry run says would change, and **needs two people** if the write needs a second approver:
 
-```text
+```text Notification
 support-bot wants to UPDATE orders
 Customer asked for a refund · production-db · 3 rows · needs two people
 ```
@@ -118,7 +118,7 @@ If the gate runs `lokra cloud` with `--admin-dsn`, a pause also blocks the agent
 
 After you decide, the buttons give way to three steps:
 
-```text
+```text Lokra Cloud
 Sent ── Gate received ── Approved
 ```
 

@@ -63,7 +63,7 @@ Use `--strict` in CI. Without it, the unmasked `phone` column above is only a wa
 
 This workflow starts Postgres as a service container, applies your migrations, installs Lokra and checks the policy on every pull request and every push to `main`:
 
-```yaml
+```yaml GitHub Actions
 name: Lokra policy
 
 on:
@@ -138,7 +138,7 @@ Most of these read the connection from an environment variable such as `DATABASE
 
 If the policy is not at the repository root, pass `--config` before the command:
 
-```yaml
+```yaml GitHub Actions
       - name: Check the policy against the schema
         run: lokra --config infra/lokra/policies.yaml check --dsn "$DATABASE_URL" --strict
 ```
@@ -147,7 +147,7 @@ If the policy is not at the repository root, pass `--config` before the command:
 
 The check takes a few seconds, so running it on every pull request is simplest. If you would rather run it only when the schema or policy changes, add path filters:
 
-```yaml
+```yaml GitHub Actions
 on:
   pull_request:
     paths:

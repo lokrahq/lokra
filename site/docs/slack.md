@@ -20,7 +20,7 @@ You need:
 
 At [api.slack.com/apps](https://api.slack.com/apps), choose to create an app from a manifest, pick your workspace, and paste this YAML:
 
-```yaml
+```yaml Slack app manifest
 display_information: {name: Lokra}
 features: {bot_user: {display_name: Lokra}}
 oauth_config: {scopes: {bot: [chat:write]}}
@@ -84,7 +84,7 @@ Keep it running for as long as you want approvals in Slack. It checks for new an
 
 When an agent proposes a write that needs a person, Lokra posts a message like this:
 
-```text
+```text Slack
 ops-bot wants to DELETE orders
 w_28cbd037 · on behalf of dana
 
@@ -112,7 +112,7 @@ Writes that the policy approves on its own, under `auto_max_rows`, never need a 
 
 Press **Approve** or **Deny**. Lokra records the decision, then updates the message: the buttons go and a line shows the outcome, such as:
 
-```text
+```text Slack
 Approved by dana (slack)
 ```
 
@@ -124,13 +124,13 @@ The same happens when someone decides elsewhere. If a write is approved with `lo
 
 When a write needs two people (the agent's `approval` block lists its statement under `two_people`), the message says **Needs two people**. After the first approval it stays open and updates:
 
-```text
+```text Slack
 Needs two people: approved by dana (slack), one more to go
 ```
 
 A second, different approver must press **Approve** before the write is approved. If the same person presses it again, only they see a private note:
 
-```text
+```text Slack
 dana (slack) has already approved w_28cbd037; it needs a different person
 ```
 
@@ -144,7 +144,7 @@ Every approval message has a **Pause** button for the agent that proposed the wr
 
 Whenever an agent is paused, from Slack or anywhere else, Lokra posts a notice with a **Resume** button:
 
-```text
+```text Slack
 ops-bot is paused by dana (slack): paused from Slack. Lokra refuses its requests.
 
 [Resume]
@@ -156,7 +156,7 @@ When the agent is resumed, from Slack or anywhere else, the notice changes to sa
 
 Only the member IDs in `slack.approvers` can use the buttons: Approve, Deny, Pause and Resume. Anyone else in the channel who presses one gets a private note and nothing changes:
 
-```text
+```text Slack
 You're not on Lokra's approver list for this database.
 ```
 

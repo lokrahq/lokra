@@ -95,7 +95,7 @@ lokra connect
 
 Open Claude Code in that folder, allow the `lokra-app-reader` server when asked, and try:
 
-```text
+```text Prompt
 What tables can you see?
 ```
 
