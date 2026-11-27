@@ -26,7 +26,13 @@ RECENT_SECONDS = 86400
 
 
 class CloudError(Exception):
-    pass
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
+
+
+BAD_TOKEN = ("Lokra Cloud does not recognise this gate token. It may be mistyped or only partly copied, or its "
+             "gate was removed. Create a new token under Gates in Lokra Cloud and run lokra cloud again.")
 
 
 def http_post(url: str, token: str, payload: dict, timeout: float = 15) -> dict:
@@ -41,7 +47,7 @@ def http_post(url: str, token: str, payload: dict, timeout: float = 15) -> dict:
             message = json.loads(e.read()).get("error") or e.reason
         except ValueError:
             message = e.reason
-        raise CloudError(f"Lokra Cloud refused the sync ({e.code}): {message}") from None
+        raise CloudError(f"Lokra Cloud refused the sync ({e.code}): {message}", e.code) from None
     except (urllib.error.URLError, TimeoutError) as e:
         raise CloudError(f"could not reach Lokra Cloud: {getattr(e, 'reason', e)}") from None
 
@@ -86,6 +92,8 @@ class CloudSync:
         try:
             if kind in ("approve", "deny"):
                 record = decide(self.cfg, target, kind == "approve", by)
+                if record["status"] == "pending":
+                    return True, f"{target} approved by {by}; waiting for a second person"
                 return True, f"{target} {record['status']}"
             if kind == "pause":
                 return True, controls.pause_agent(self.cfg, self.cfg.agent(target), by, cmd.get("reason") or "",
@@ -109,11 +117,12 @@ class CloudSync:
         return log
 
 
-def run(cfg: Config, url: str, admin_dsn: str | None, once: bool = False, interval: float = 3) -> None:
+def run(cfg: Config, url: str, admin_dsn: str | None, once: bool = False, interval: float = 3,
+        post=http_post) -> None:
     token = os.environ.get("LOKRA_CLOUD_TOKEN", "")
     if not token:
         raise ConfigError("set LOKRA_CLOUD_TOKEN to a gate token from Lokra Cloud (Gates → Create gate token)")
-    sync = CloudSync(cfg, url, token, admin_dsn)
+    sync = CloudSync(cfg, url, token, admin_dsn, post)
     print(f"lokra: connected to {url} (Ctrl+C to stop)" if not once else f"lokra: syncing with {url}")
     delay = interval
     while True:
@@ -125,6 +134,8 @@ def run(cfg: Config, url: str, admin_dsn: str | None, once: bool = False, interv
                 sync.sync_once()
             delay = interval
         except CloudError as e:
+            if e.status == 401:
+                raise ConfigError(BAD_TOKEN) from None
             if once:
                 raise ConfigError(str(e)) from None
             print(f"lokra: {e}; retrying in {delay:.0f}s")

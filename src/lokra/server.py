@@ -13,7 +13,9 @@ INSTRUCTIONS = (
     "You are connected to a database through Lokra, a policy proxy. "
     "Call list_tables first to see what you may read. Use query for one SELECT at a time. "
     "Rows outside your scope are invisible, and sensitive values are masked. "
-    "To change data, call propose_write; a human must approve it before execute_write will run."
+    "To change data, call propose_write. It returns status approved when the policy allows small writes "
+    "to run without a person; otherwise a human (or two, for some statements) must approve it before "
+    "execute_write will run. Check write_status, then call execute_write."
 )
 
 
@@ -58,7 +60,8 @@ def build_server(cfg: Config, token: str | None = None, http: bool = False) -> M
 
     @server.tool()
     def propose_write(sql: str, reason: str, ctx: Context) -> dict:
-        """Propose ONE INSERT, UPDATE or DELETE. It is dry-run and queued for human approval, not executed."""
+        """Propose ONE INSERT, UPDATE or DELETE. It is dry-run, not executed. Small writes may be approved by
+        policy at once (status approved); others wait for one or two people to approve."""
         return call(ctx, "propose_write", sql, reason)
 
     @server.tool()
@@ -68,7 +71,8 @@ def build_server(cfg: Config, token: str | None = None, http: bool = False) -> M
 
     @server.tool()
     def execute_write(write_id: str, ctx: Context) -> dict:
-        """Execute a write that a human has approved."""
+        """Execute an approved write. It is refused, and nothing changes, if it would now change more rows
+        than were approved."""
         return call(ctx, "execute_write", write_id)
 
     return server

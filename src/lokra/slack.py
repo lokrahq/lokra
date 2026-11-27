@@ -34,6 +34,10 @@ def _detail_blocks(w: dict) -> list[dict]:
     lines = [f">{w['reason']}" if w.get("reason") else "_No reason given._",
              f"```{sql}```",
              f"Dry run: *{rows if rows is not None else '?'} row{'' if rows == 1 else 's'}* would change"]
+    if w.get("approvals_needed", 1) > 1 and w.get("status") == "pending":
+        done = w.get("approvals") or []
+        lines.append(f":busts_in_silhouette: Needs two people" +
+                     (f": approved by {', '.join(done)}, one more to go" if done else ""))
     lines += [f":warning: {warning}" for warning in w.get("warnings") or []]
     return [
         {"type": "section", "text": {"type": "mrkdwn", "text": _summary(w)}},
@@ -107,7 +111,13 @@ class SlackApprovals:
                 if w["status"] == "pending" and msg is None:
                     res = self.client.chat_postMessage(channel=self.cfg.slack_channel, text=_summary(w),
                                                        blocks=pending_blocks(w))
-                    self.posted[wid] = {"channel": res["channel"], "ts": res["ts"], "open": True}
+                    self.posted[wid] = {"channel": res["channel"], "ts": res["ts"], "open": True,
+                                        "approvals": len(w["approvals"])}
+                    changed = True
+                elif w["status"] == "pending" and msg and msg["open"] and msg.get("approvals", 0) != len(w["approvals"]):
+                    self.client.chat_update(channel=msg["channel"], ts=msg["ts"], text=_summary(w),
+                                            blocks=pending_blocks(w))
+                    msg["approvals"] = len(w["approvals"])
                     changed = True
                 elif w["status"] != "pending" and msg and msg["open"]:
                     self.client.chat_update(channel=msg["channel"], ts=msg["ts"], text=_summary(w),

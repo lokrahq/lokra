@@ -29,7 +29,9 @@ locked-down identity instead, and puts these controls on every request:
    through a function, an alias or `row_to_json`. Cards, IBANs and health identifiers are
    checksum-validated, so ordinary numbers are left alone.
 3. **Human approval for writes.** INSERT, UPDATE and DELETE are dry-run, shown with the
-   number of rows they would change, and only run after a person approves them.
+   number of rows they would change, and only run after a person approves them. Rules can let
+   small writes through on their own or require two people, and a write that would change more
+   rows than were approved is rolled back.
 4. **Tamper-evident audit ledger, with reporting.** Every request is written to a hash-chained,
    signed log, and `lokra report` turns it into a per-agent activity and risk summary.
 5. **Purpose of use.** An agent's token can carry a declared purpose. The policy can require one
@@ -156,6 +158,28 @@ For any other MCP client, `lokra connect --print` prints the entry to paste.
 
 Tools the agent sees: `whoami`, `list_tables`, `query`, `propose_write`, `write_status`, `execute_write`.
 
+## Approval rules
+
+By default every write waits for one person. An agent's `approval` block changes that:
+
+```yaml
+agents:
+  ops-bot:
+    write: {orders: [update, delete]}
+    approval:
+      auto_max_rows: 5          # writes the dry run shows changing 5 rows or fewer run without a person
+      auto_statements: [update] # which statements may skip a person (default: insert and update)
+      two_people: [delete]      # these need two different people, and are never automatic
+```
+
+A write the policy approves comes back from `propose_write` already approved, and the ledger
+records it as approved by `policy (up to 5 rows)`. A write that needs two people stays pending
+after the first approval, from any channel, until a different person approves it too.
+
+Whoever approved it, a write runs only if it changes no more rows than its dry run showed. If the
+data changed in the meantime and it would now touch more, it is rolled back and the agent is told
+to propose it again.
+
 ## Stop an agent
 
 Always-on agents need brakes that work in seconds, not a policy rewrite:
@@ -247,6 +271,20 @@ claude mcp add --transport http lokra https://lokra.internal.example/mcp \
 ```
 
 A request without a valid token is refused and recorded in the ledger.
+
+### In a container
+
+Each release is also published as an image for amd64 and arm64. It runs `lokra serve --http` on
+port 8787 with the `policies.yaml` in `/work`, and keeps its state (signing key, agent passwords,
+pending writes, ledger) in `/work/.lokra`, so mount a directory that persists:
+
+```bash
+docker run -d --name lokra -p 8787:8787 --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.0
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.0 mint-token support-bot
+```
+
+The database host in the policy has to be reachable from the container, so not `127.0.0.1`. Any
+other command works the same way, such as `provision`, `report` or `cloud`.
 
 ## Website
 

@@ -49,8 +49,9 @@ def build(cfg: Config, entries: list[dict], chain_ok: bool) -> dict:
             t = k.split(":")[-1]
             by_type[t] = by_type.get(t, 0) + v
 
-    approvers = sorted({e.get("decided_by") for e in entries
-                        if e.get("event") == "write_approved" and e.get("decided_by")})
+    approvals = [e.get("decided_by") or "" for e in entries if e.get("event") in ("write_approved", "write_partly_approved")]
+    approvers = sorted({a for a in approvals if a and not a.startswith("policy")})
+    by_policy = sum(1 for a in approvals if a.startswith("policy"))
     purposes = sorted({e.get("purpose") for e in entries if e.get("purpose")})
     ev = rep["events_by_type"]
     blocked = sum(ev.get(k, 0) for k in ("rejected", "db_refused"))
@@ -90,7 +91,7 @@ def build(cfg: Config, entries: list[dict], chain_ok: bool) -> dict:
         },
         "agents": agents,
         "masking": {"columns": cfg.masking_columns, "detectors": cfg.masking_detectors, "by_type": by_type},
-        "change_control": {"approvers": approvers,
+        "change_control": {"approvers": approvers, "approved_by_policy": by_policy,
                            "proposed": ev.get("write_proposed", 0),
                            "approved": ev.get("write_approved", 0),
                            "denied": ev.get("write_denied", 0),
@@ -167,10 +168,12 @@ def format_markdown(ev: dict) -> str:
         "### 3. Human approval for changes",
         "",
         "INSERT, UPDATE and DELETE are dry-run, shown with the number of rows they would "
-        "change, and run only after a person approves them.",
+        "change, and run only after a person approves them, or the policy approves a write "
+        "within an agent's row limit. A write is rolled back if it would change more rows than "
+        "were approved.",
         "",
-        f"This period: {cc['proposed']} proposed, {cc['approved']} approved, "
-        f"{cc['denied']} denied, {cc['executed']} executed. "
+        f"This period: {cc['proposed']} proposed, {cc['approved']} approved "
+        f"({cc['approved_by_policy']} by policy), {cc['denied']} denied, {cc['executed']} executed. "
         f"Approvers: {', '.join(cc['approvers']) or 'none recorded'}.",
         "",
         "### 4. Tamper-evident audit log",

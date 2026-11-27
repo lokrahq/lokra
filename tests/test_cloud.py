@@ -4,7 +4,7 @@ import time
 import pytest
 
 from lokra import controls
-from lokra.cloud import CloudSync
+from lokra.cloud import CloudError, CloudSync, run
 from lokra.config import ConfigError, load_config
 from lokra.gateway import _save_pending
 from lokra.ledger import Ledger
@@ -91,3 +91,17 @@ def test_a_new_gate_or_cloud_starts_from_the_first_ledger_entry(cfg):
     assert first.sent[1]["events"] == []
     CloudSync(cfg, "https://cloud.lokra.dev", "lkg_b", post=second).sync_once()
     assert [e["seq"] for e in second.sent[0]["events"]] == [1, 2]
+
+
+def test_a_token_cloud_does_not_know_stops_the_gate_instead_of_retrying(cfg, monkeypatch):
+    calls = []
+
+    def refuse(url, token, payload):
+        calls.append(token)
+        raise CloudError("Lokra Cloud refused the sync (401): unknown or revoked gate token", 401)
+
+    monkeypatch.setenv("LOKRA_CLOUD_TOKEN", "lkg_partial")
+    with pytest.raises(ConfigError, match="Create a new token under Gates"):
+        run(cfg, "https://cloud.test", None, post=refuse)
+    assert calls == ["lkg_partial"]
+

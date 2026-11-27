@@ -101,6 +101,11 @@ def cmd_pending(args):
         age = int(time.time() - r["created_at"])
         print(f"{r['id']}  [{r['status']}]  agent={r['agent']}  for={r.get('on_behalf_of')}  "
               f"rows={r['would_affect_rows']}  {age}s ago")
+        if r.get("approvals_needed", 1) > 1 and r["status"] == "pending":
+            done = [a["by"] for a in r.get("approvals") or []]
+            print(f"    needs two people" + (f"; approved by {', '.join(done)}" if done else ""))
+        if r.get("approved_by"):
+            print(f"    approved by: {r['approved_by']}")
         print(f"    reason: {r['reason']}")
         print(f"    sql:    {r['sql']}")
         for w in r.get("warnings", []):
@@ -120,8 +125,11 @@ def _decide(args, approve: bool):
         if input("approve? [y/N] ").strip().lower() != "y":
             print("not approved")
             return 1
-    decide(cfg, args.write_id, approve, by)
-    print(("approved" if approve else "denied") + f" by {by}")
+    record = decide(cfg, args.write_id, approve, by)
+    if record["status"] == "pending":
+        print(f"approved by {by}; it needs one more person to approve")
+    else:
+        print(("approved" if approve else "denied") + f" by {by}")
 
 
 def cmd_evidence(args):

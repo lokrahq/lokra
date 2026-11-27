@@ -163,18 +163,33 @@ class Gateway:
         if would_affect == 0:
             checked.warnings.append("changes no rows: they may not exist, or be outside this agent's scope")
         write_id = "w_" + secrets.token_hex(4)
+        rule = agent.approval
+        needed = rule.needed(checked.statement)
         record = {"id": write_id, "status": "pending", "agent": agent.name, "on_behalf_of": claims.get("sub"),
                   "sql": sql_text, "reason": reason, "statement": checked.statement, "tables": checked.tables,
-                  "would_affect_rows": would_affect, "warnings": checked.warnings,
-                  "created_at": time.time(), "token_id": claims.get("jti")}
+                  "would_affect_rows": would_affect, "warnings": checked.warnings, "approvals_needed": needed,
+                  "approvals": [], "created_at": time.time(), "token_id": claims.get("jti")}
+        auto = rule.automatic(checked.statement, would_affect)
+        if auto:
+            limit = f"{rule.auto_max_rows} row" + ("" if rule.auto_max_rows == 1 else "s")
+            record.update(status="approved", approved_by=f"policy (up to {limit})", approved_at=time.time())
         _save_pending(self.cfg, record)
         self.ledger.append({**base, "event": "write_proposed", "write_id": write_id,
                             "sql": self.masker.scrub_text(sql_text), "reason": reason,
                             "would_affect_rows": would_affect, "warnings": checked.warnings})
-        return {"write_id": write_id, "status": "pending", "would_affect_rows": would_affect,
-                "warnings": checked.warnings,
-                "next_step": f"A human must approve this with `lokra approve {write_id}`. "
-                             f"Then call execute_write with this write_id."}
+        if auto:
+            self.ledger.append({**base, "event": "write_approved", "write_id": write_id,
+                                "decided_by": record["approved_by"]})
+            next_step = (f"Approved by policy: it changes {would_affect} row(s), within this agent's limit of "
+                         f"{rule.auto_max_rows}. Call execute_write with this write_id now.")
+        elif needed > 1:
+            next_step = (f"Two different people must approve this, for example with `lokra approve {write_id}`. "
+                         f"Then call execute_write with this write_id.")
+        else:
+            next_step = (f"A human must approve this with `lokra approve {write_id}`. "
+                         f"Then call execute_write with this write_id.")
+        return {"write_id": write_id, "status": record["status"], "would_affect_rows": would_affect,
+                "approvals_needed": 0 if auto else needed, "warnings": checked.warnings, "next_step": next_step}
 
     def write_status(self, write_id: str) -> dict:
         claims, agent = self._identity("write_status")
@@ -186,7 +201,9 @@ class Gateway:
     def _describe(self, record: dict) -> dict:
         out = {k: record[k] for k in ("id", "status", "statement", "tables", "reason", "on_behalf_of",
                                       "approved_by", "denied_by", "would_affect_rows", "affected_rows",
-                                      "warnings") if record.get(k) is not None}
+                                      "warnings", "approvals_needed", "failure") if record.get(k) is not None}
+        if record.get("approvals"):
+            out["approvals"] = [a["by"] for a in record["approvals"]]
         out["sql"] = self.masker.scrub_text(record["sql"])
         return out
 
@@ -203,15 +220,28 @@ class Gateway:
             _save_pending(self.cfg, record)
             raise GatewayError(f"approval for {write_id} expired; propose it again")
         sqlcheck.check_write(record["sql"])
+        approved_rows = record.get("would_affect_rows")
         try:
             with self._connect(agent, read_only=False) as conn:
                 cur = conn.execute(record["sql"], prepare=True)
                 affected = cur.rowcount
-                conn.commit()
+                grew = approved_rows is not None and affected > approved_rows
+                if grew:
+                    conn.rollback()
+                else:
+                    conn.commit()
         except psycopg.Error as e:
             record["status"] = "failed"
             _save_pending(self.cfg, record)
             raise self._db_error(base, record["sql"], e) from None
+        if grew:
+            failure = (f"it would now change {affected} rows, more than the {approved_rows} that were approved, "
+                       f"so nothing was changed")
+            record.update(status="failed", failure=failure)
+            _save_pending(self.cfg, record)
+            self.ledger.append({**base, "event": "write_rolled_back", "write_id": write_id,
+                                "approved_rows": approved_rows, "would_change": affected})
+            raise GatewayError(f"{failure}. Propose it again for a fresh approval.")
         record.update(status="executed", executed_at=time.time(), affected_rows=affected)
         _save_pending(self.cfg, record)
         self.ledger.append({**base, "event": "write_executed", "write_id": write_id,
@@ -247,14 +277,27 @@ def list_pending(cfg: Config) -> list[dict]:
 
 
 def decide(cfg: Config, write_id: str, approve: bool, by: str) -> dict:
+    """Record one person's decision. A write that needs two people stays pending after the first approval."""
     record = _load_pending(cfg, write_id)
     if record["status"] != "pending":
         raise GatewayError(f"write {write_id} is already '{record['status']}'")
-    record["status"] = "approved" if approve else "denied"
-    record["approved_by" if approve else "denied_by"] = by
-    record["approved_at" if approve else "denied_at"] = time.time()
+    entry = {"write_id": write_id, "agent": record["agent"], "on_behalf_of": record.get("on_behalf_of"),
+             "decided_by": by}
+    if approve:
+        approvals = record.setdefault("approvals", [])
+        if any(a["by"] == by for a in approvals):
+            raise GatewayError(f"{by} has already approved {write_id}; it needs a different person")
+        approvals.append({"by": by, "at": time.time()})
+        needed = record.get("approvals_needed", 1)
+        if len(approvals) < needed:
+            _save_pending(cfg, record)
+            Ledger(cfg.ledger_path, cfg.signing_key()).append(
+                {"event": "write_partly_approved", **entry, "approvals": len(approvals), "needed": needed})
+            return record
+        record.update(status="approved", approved_by=", ".join(a["by"] for a in approvals), approved_at=time.time())
+    else:
+        record.update(status="denied", denied_by=by, denied_at=time.time())
     _save_pending(cfg, record)
-    Ledger(cfg.ledger_path, cfg.signing_key()).append({
-        "event": "write_approved" if approve else "write_denied", "write_id": write_id,
-        "agent": record["agent"], "on_behalf_of": record.get("on_behalf_of"), "decided_by": by})
+    Ledger(cfg.ledger_path, cfg.signing_key()).append(
+        {"event": "write_approved" if approve else "write_denied", **entry})
     return record

@@ -682,3 +682,54 @@ def test_views_cannot_carry_rows_past_a_row_lock(tmp_path, admin):
         assert not [f for f in check(c, LAB_ADMIN_DSN) if f[0] == "error"]
     finally:
         reset()
+
+
+def test_approval_rules_on_the_database(tmp_path, admin):
+    def reset():
+        admin.execute("DROP SCHEMA IF EXISTS lokra_a CASCADE")
+        if admin.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_a_bot'").fetchone():
+            admin.execute("DROP OWNED BY lokra_a_bot CASCADE")
+            admin.execute("DROP ROLE lokra_a_bot")
+
+    reset()
+    admin.execute("CREATE SCHEMA lokra_a")
+    admin.execute("CREATE TABLE lokra_a.items (id int PRIMARY KEY, org int, status text)")
+    admin.execute("INSERT INTO lokra_a.items VALUES (1, 1, 'new'), (2, 1, 'new'), (3, 1, 'done'), (4, 2, 'new')")
+    policy = tmp_path / "policies.yaml"
+    policy.write_text("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+                      "agents:\n  a-bot:\n    rows: {column: org, values: [1]}\n"
+                      "    read: {lokra_a.items: '*'}\n    write: {lokra_a.items: [update, delete]}\n"
+                      "    approval: {auto_max_rows: 2, auto_statements: [update, delete], two_people: [delete]}\n")
+    c = load_config(policy)
+    status = lambda i: admin.execute("SELECT status FROM lokra_a.items WHERE id = %s", (i,)).fetchone()
+    try:
+        provision(c, LAB_ADMIN_DSN)
+        small = gw(c, "a-bot").propose_write("UPDATE lokra_a.items SET status = 'open' WHERE id = 1", "small fix")
+        assert small["status"] == "approved" and small["approvals_needed"] == 0
+        assert gw(c, "a-bot").execute_write(small["write_id"])["approved_by"] == "policy (up to 2 rows)"
+        assert status(1) == ("open",)
+
+        wide = gw(c, "a-bot").propose_write("UPDATE lokra_a.items SET status = 'open'", "everything")
+        assert (wide["status"], wide["would_affect_rows"], wide["approvals_needed"]) == ("pending", 3, 1)
+
+        delete = gw(c, "a-bot").propose_write("DELETE FROM lokra_a.items WHERE id = 3", "duplicate")
+        assert (delete["status"], delete["approvals_needed"]) == ("pending", 2)
+        decide(c, delete["write_id"], True, "alice")
+        with pytest.raises(GatewayError, match="not approved"):
+            gw(c, "a-bot").execute_write(delete["write_id"])
+        decide(c, delete["write_id"], True, "bob")
+        assert gw(c, "a-bot").execute_write(delete["write_id"])["affected_rows"] == 1
+        assert status(3) is None
+
+        late = gw(c, "a-bot").propose_write("UPDATE lokra_a.items SET status = 'late' WHERE status = 'new'", "chase")
+        assert (late["status"], late["would_affect_rows"]) == ("approved", 1)
+        admin.execute("INSERT INTO lokra_a.items VALUES (5, 1, 'new')")
+        with pytest.raises(GatewayError, match="would now change 2 rows, more than the 1 that were approved"):
+            gw(c, "a-bot").execute_write(late["write_id"])
+        assert status(2) == ("new",) and status(5) == ("new",)
+        assert gw(c, "a-bot").write_status(late["write_id"])["status"] == "failed"
+        events = [e["event"] for e in Ledger(c.ledger_path, c.signing_key()).entries()]
+        assert events.count("write_approved") == 3 and "write_partly_approved" in events
+        assert events[-1] == "write_rolled_back"
+    finally:
+        reset()

@@ -50,6 +50,10 @@ def _detail(e: dict) -> str:
         return f"{e.get('affected_rows', 0)} rows changed"
     if ev in ("write_approved", "write_denied"):
         return f"by {e.get('decided_by', '-')}"
+    if ev == "write_partly_approved":
+        return f"by {e.get('decided_by', '-')}, {e.get('approvals', 1)} of {e.get('needed', 2)}"
+    if ev == "write_rolled_back":
+        return f"would have changed {e.get('would_change')} rows, {e.get('approved_rows')} approved"
     if ev in ("denied", "stopped"):
         return e.get("reason", "")
     if ev == "agent_paused":
@@ -94,6 +98,9 @@ def write_view(record: dict, masker: Masker, ttl: int) -> dict:
         "sql": masker.scrub_text(record["sql"]), "warnings": record.get("warnings") or [],
         "would_affect_rows": record.get("would_affect_rows"), "affected_rows": record.get("affected_rows"),
         "decided_by": record.get("approved_by") or record.get("denied_by"),
+        "approvals": [a["by"] for a in record.get("approvals") or []],
+        "approvals_needed": record.get("approvals_needed", 1),
+        "failure": record.get("failure"),
         "created_at": record.get("created_at"),
     }
 

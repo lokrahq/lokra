@@ -354,7 +354,8 @@ async function loadWrites(){
     c.innerHTML=`<div class="wt"><b>${esc(w.agent)} wants to ${esc((w.statement||"write").toUpperCase())} ${esc(w.tables.join(", "))}</b><small>${esc(w.id)} · ${ago(w.created_at)}</small></div>`+
       `<p class="why">${w.reason?"“"+esc(w.reason)+"”":"No reason given."}${w.on_behalf_of?" On behalf of <b>"+esc(w.on_behalf_of)+"</b>.":""}</p>`+
       `<pre>${esc(w.sql)}</pre>`+
-      `<div class="meta"><span>Dry run: <b>${w.would_affect_rows??"?"} row${w.would_affect_rows===1?"":"s"}</b> would change</span></div>`+
+      `<div class="meta"><span>Dry run: <b>${w.would_affect_rows??"?"} row${w.would_affect_rows===1?"":"s"}</b> would change</span>`+
+      (w.approvals_needed>1?`<span>Needs two people${w.approvals.length?": approved by <b>"+w.approvals.map(esc).join(", ")+"</b>, one more to go":""}</span>`:"")+`</div>`+
       (w.warnings.length?`<div class="warn">${w.warnings.map(esc).join("<br>")}</div>`:"");
     const acts=el("div","acts");
     const ok=el("button","btn primary","Approve"),no=el("button","btn deny","Deny");

@@ -50,6 +50,24 @@ class RowLock:
         return text
 
 
+STATEMENTS = ("insert", "update", "delete")
+
+
+@dataclass
+class Approval:
+    """Which writes can run without a person, and which need two."""
+    auto_max_rows: int | None = None
+    auto_statements: tuple[str, ...] = ("insert", "update")
+    two_people: tuple[str, ...] = ()
+
+    def automatic(self, statement: str, rows: int) -> bool:
+        return (self.auto_max_rows is not None and statement in self.auto_statements
+                and statement not in self.two_people and 0 <= rows <= self.auto_max_rows)
+
+    def needed(self, statement: str) -> int:
+        return 2 if statement in self.two_people else 1
+
+
 @dataclass
 class AgentPolicy:
     name: str
@@ -60,6 +78,7 @@ class AgentPolicy:
     max_rows: int = 200
     purposes: list[str] = field(default_factory=list)
     rate_limit: int = 0
+    approval: Approval = field(default_factory=Approval)
 
     @property
     def role(self) -> str:
@@ -148,6 +167,29 @@ def dump_policy(doc: dict) -> str:
     return yaml.dump(doc, Dumper=Dumper, sort_keys=False, default_flow_style=False, allow_unicode=True)
 
 
+def _approval(agent: str, raw) -> Approval:
+    if raw is None:
+        return Approval()
+    shape = "approval: {auto_max_rows: 5, auto_statements: [insert, update], two_people: [delete]}"
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{agent}: approval should look like {shape}")
+    unknown = sorted(set(raw) - {"auto_max_rows", "auto_statements", "two_people"})
+    if unknown:
+        raise ConfigError(f"{agent}: unknown approval setting {', '.join(unknown)}; it should look like {shape}")
+    rows = raw.get("auto_max_rows")
+    if rows is not None and (isinstance(rows, bool) or not isinstance(rows, int) or rows < 0):
+        raise ConfigError(f"{agent}: approval auto_max_rows should be a whole number of rows, 0 or more")
+
+    def statements(key: str, default: list[str]) -> tuple[str, ...]:
+        value = raw.get(key, default)
+        names = [str(s).lower() for s in (value if isinstance(value, list) else [value])]
+        if set(names) - set(STATEMENTS):
+            raise ConfigError(f"{agent}: approval {key} can only list insert, update and delete")
+        return tuple(names)
+
+    return Approval(rows, statements("auto_statements", ["insert", "update"]), statements("two_people", []))
+
+
 def _row_lock(agent: str, raw) -> RowLock | None:
     if not raw:
         return None
@@ -184,6 +226,7 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
             max_rows=int(a.get("max_rows", 200)),
             purposes=[str(p) for p in (a.get("purposes") or [])],
             rate_limit=int(a.get("rate_limit") or 0),
+            approval=_approval(name, a.get("approval")),
         )
     masking = raw.get("masking", {}) or {}
     slack = raw.get("slack") or {}

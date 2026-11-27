@@ -23,11 +23,12 @@ agents:
     max_rows: 200
 
   ops-bot:
-    description: Updates order status. Writes go through human approval.
+    description: Updates order status. One-row updates run on their own; bigger ones wait for a person.
     read:
       orders: "*"
     write:
       orders: [update]
+    approval: {auto_max_rows: 1}
     purposes: [order-fulfilment]
     max_rows: 200
     rate_limit: 60

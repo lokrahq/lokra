@@ -469,3 +469,42 @@ def test_masking_walks_json_and_arrays():
     assert meta == {"email": "[REDACTED]", "profile": {"dob": "1990", "note": "card [CARD]"}, "[EMAIL]": 1}
     assert tags == ["ok", "mail me at [EMAIL]"]
     assert counts == {"column:redact": 1, "column:year_only": 1, "card": 1, "email": 2}
+
+
+def test_approval_rules_parse_and_decide(tmp_path):
+    from lokra.config import ConfigError, load_config
+
+    def agent(block):
+        (tmp_path / "policies.yaml").write_text(
+            "agents:\n  bot:\n    read: {orders: '*'}\n    write: {orders: [insert, update, delete]}\n" + block)
+        return load_config(tmp_path / "policies.yaml").agent("bot").approval
+
+    plain = agent("")
+    assert not plain.automatic("update", 0) and plain.needed("delete") == 1
+    rule = agent("    approval: {auto_max_rows: 5, auto_statements: [update, delete], two_people: [delete]}\n")
+    assert rule.automatic("update", 5) and not rule.automatic("update", 6)
+    assert not rule.automatic("insert", 1)
+    assert not rule.automatic("delete", 1) and rule.needed("delete") == 2
+    assert agent("    approval: {auto_max_rows: 2}\n").auto_statements == ("insert", "update")
+    for bad, message in (("{auto_max_rows: -1}", "whole number"), ("{auto_max_rows: yes}", "whole number"),
+                         ("{two_people: [drop]}", "insert, update and delete"), ("{auto: 5}", "unknown approval"),
+                         ("[delete]", "should look like")):
+        with pytest.raises(ConfigError, match=message):
+            agent(f"    approval: {bad}\n")
+
+
+def test_two_people_must_be_different_people(tmp_path):
+    from lokra.config import load_config
+    from lokra.gateway import GatewayError, _save_pending, decide
+
+    (tmp_path / "policies.yaml").write_text("agents:\n  bot:\n    read: {orders: '*'}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    _save_pending(cfg, {"id": "w_0001", "status": "pending", "agent": "bot", "sql": "DELETE FROM orders",
+                        "approvals_needed": 2, "approvals": [], "created_at": time.time()})
+    assert decide(cfg, "w_0001", True, "alice")["status"] == "pending"
+    with pytest.raises(GatewayError, match="needs a different person"):
+        decide(cfg, "w_0001", True, "alice")
+    record = decide(cfg, "w_0001", True, "bob")
+    assert record["status"] == "approved" and record["approved_by"] == "alice, bob"
+    events = [e["event"] for e in Ledger(cfg.ledger_path, cfg.signing_key()).entries()]
+    assert events == ["write_partly_approved", "write_approved"]
