@@ -1,11 +1,15 @@
 """Build lokra.dev/docs: Markdown in site/docs becomes static pages in site/public/docs.
 
 The CLI reference is generated from the real argument parser, so it cannot drift from the code.
-`--check` rebuilds into a temporary folder and fails if the committed pages are stale or a link is broken.
+It also fingerprints the stylesheet, script and demo that the hand-written site pages load, so browsers
+fetch a changed file at once instead of keeping a cached copy for hours.
+`--check` rebuilds into a temporary folder and fails if the committed pages are stale, a fingerprint is out
+of date or a link is broken.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import re
@@ -18,7 +22,10 @@ import markdown
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "site" / "docs"
-OUT = ROOT / "site" / "public" / "docs"
+PUBLIC = ROOT / "site" / "public"
+OUT = PUBLIC / "docs"
+SITE_PAGES = ("index", "privacy", "joined", "404", "llm-context")
+STAMPED = re.compile(r'(href|src)="(/(?:styles\.css|site\.js|demo\.svg))(?:\?v=[0-9a-f]+)?"')
 SITE = "https://lokra.dev"
 REPO = "https://github.com/lokrahq/lokra"
 sys.path.insert(0, str(ROOT / "src"))
@@ -48,6 +55,25 @@ GITHUB = ('<svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path
           '-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92'
           '.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8'
           '.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>')
+
+
+def versioned(url: str, source: Path) -> str:
+    """The URL with a fingerprint of the file, so browsers fetch a changed stylesheet or script at once."""
+    return f"{url}?v={hashlib.sha256(source.read_bytes()).hexdigest()[:10]}"
+
+
+def stamp_site(write: bool) -> list[str]:
+    """Bring the fingerprints in the site pages up to date; returns the pages that were out of date."""
+    stale = []
+    for name in SITE_PAGES:
+        path = PUBLIC / f"{name}.html"
+        text = path.read_text()
+        fresh = STAMPED.sub(lambda m: f'{m.group(1)}="{versioned(m.group(2), PUBLIC / m.group(2)[1:])}"', text)
+        if fresh != text:
+            stale.append(name)
+            if write:
+                path.write_text(fresh)
+    return stale
 
 
 def front_matter(text: str) -> tuple[dict, str]:
@@ -165,8 +191,8 @@ def page(slug: str, meta: dict, content: str, tokens: list, titles: dict) -> str
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/styles.css">
-<link rel="stylesheet" href="/docs/docs.css">
+<link rel="stylesheet" href="{versioned("/styles.css", PUBLIC / "styles.css")}">
+<link rel="stylesheet" href="{versioned("/docs/docs.css", SRC / "assets" / "docs.css")}">
 <meta name="theme-color" content="#ffffff">
 <title>{title} · Lokra docs</title>
 <meta name="description" content="{desc}">
@@ -220,7 +246,7 @@ def page(slug: str, meta: dict, content: str, tokens: list, titles: dict) -> str
     </nav>
   </div>
 </footer>
-<script src="/docs/docs.js" defer></script>
+<script src="{versioned("/docs/docs.js", SRC / "assets" / "docs.js")}" defer></script>
 </body>
 </html>
 """
@@ -269,7 +295,7 @@ def broken_links(out: Path) -> list[str]:
     for slug, body in pages.items():
         for href in re.findall(r'href="(/docs/[^"]*)"', body):
             path, _, anchor = href.partition("#")
-            target = path.removeprefix("/docs/").strip("/") or "index"
+            target = path.partition("?")[0].removeprefix("/docs/").strip("/") or "index"
             if target in ("docs.css", "docs.js"):
                 continue
             if target not in pages:
@@ -291,10 +317,15 @@ def main() -> int:
                 committed = OUT / p.name
                 if not committed.exists() or committed.read_bytes() != p.read_bytes():
                     problems.append(f"stale: site/public/docs/{p.name} (run python scripts/build_docs.py)")
+        problems += [f"stale fingerprint: site/public/{name}.html (run python scripts/build_docs.py)"
+                     for name in stamp_site(write=False)]
         for problem in problems:
             print(problem, file=sys.stderr)
         return 1 if problems else 0
     missing = build(OUT)
+    stamped = stamp_site(write=True)
+    if stamped:
+        print(f"updated fingerprints in {', '.join(f'{name}.html' for name in stamped)}")
     for problem in broken_links(OUT):
         print(f"warning: {problem}", file=sys.stderr)
     print(f"built {len(ORDER) - len(missing)} pages into {OUT.relative_to(ROOT)}" +

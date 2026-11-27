@@ -12,7 +12,9 @@
     };
     const centre = () => {
       const here = side.querySelector("a.on");
-      if (here && side.scrollHeight > side.clientHeight) side.scrollTop = here.offsetTop - side.clientHeight / 2;
+      if (here && here.offsetTop + here.offsetHeight > side.scrollTop + side.clientHeight) {
+        side.scrollTop = here.offsetTop - side.clientHeight / 2;
+      }
     };
     menu.addEventListener("click", () => setMenu(!side.classList.contains("open")));
     side.addEventListener("click", (event) => { if (event.target.closest("a")) setMenu(false); });
