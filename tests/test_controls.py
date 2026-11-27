@@ -118,3 +118,17 @@ def test_dashboard_pauses_and_resumes_agents(cfg):
         assert Gateway(cfg, _token(cfg, "ops-bot")).whoami()["agent"] == "ops-bot"
     finally:
         server.shutdown()
+
+
+def test_admin_connection_is_never_guessed_for_a_real_database(tmp_path, capsys, monkeypatch):
+    from lokra.cli import main
+    monkeypatch.delenv("LOKRA_ADMIN_DSN", raising=False)
+    (tmp_path / "policies.yaml").write_text("database: {host: db.example, port: 5432, dbname: shop}\n" + POLICY)
+    conf = str(tmp_path / "policies.yaml")
+    assert main(["--config", conf, "provision"]) == 1
+    assert 'pass --admin-dsn "postgresql://…", an admin login to shop on db.example:5432' in capsys.readouterr().err
+    assert main(["--config", conf, "check"]) == 1
+    assert "pass --dsn" in capsys.readouterr().err
+    assert main(["--config", conf, "pause", "ops-bot"]) == 0
+    assert "database login unchanged (no admin connection" in capsys.readouterr().out
+    assert main(["--config", conf, "resume", "ops-bot"]) == 0

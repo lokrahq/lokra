@@ -17,7 +17,8 @@ FORBIDDEN_NODES = (
 READ_ROOTS = (exp.Select, exp.SetOperation)
 
 # Functions that read files, run programs, reach other systems, change the
-# session, write sequences or stall the connection. Refused at the policy layer
+# session, write sequences, stall the connection, or run a query given as text
+# (the *_to_xml family), which masking could not see. Refused at the policy layer
 # so an over-privileged agent role cannot reach them even by mistake; the
 # database role and read-only transaction remain the backstop.
 DANGEROUS_FUNCTIONS = {
@@ -30,6 +31,11 @@ DANGEROUS_FUNCTIONS = {
     "pg_terminate_backend", "pg_cancel_backend", "pg_reload_conf",
     "pg_rotate_logfile", "pg_create_restore_point", "pg_switch_wal",
     "pg_read_server_files", "pg_execute_server_program",
+    "query_to_xml", "query_to_xmlschema", "query_to_xml_and_xmlschema",
+    "table_to_xml", "table_to_xmlschema", "table_to_xml_and_xmlschema",
+    "cursor_to_xml", "cursor_to_xmlschema", "schema_to_xml", "schema_to_xmlschema",
+    "schema_to_xml_and_xmlschema", "database_to_xml", "database_to_xmlschema",
+    "database_to_xml_and_xmlschema",
 }
 
 
@@ -77,7 +83,70 @@ def _dangerous_function(tree: exp.Expression) -> str | None:
     return None
 
 
-def check_read(sql: str) -> Checked:
+FILTER_ARGS = ("where", "having", "group", "order", "qualify")
+
+
+def _in_filter(node: exp.Expression) -> bool:
+    """True when the node only decides which rows come back (WHERE, JOIN ON, GROUP BY, ...), never their values."""
+    while node.parent is not None:
+        if isinstance(node.parent, exp.Select) and node.arg_key in FILTER_ARGS:
+            return True
+        if isinstance(node.parent, exp.Join) and node.arg_key in ("on", "using"):
+            return True
+        node = node.parent
+    return False
+
+
+def _keeps_names(select: exp.Select) -> bool:
+    """True when the select's output columns reach the result, or an outer query, under their own names."""
+    parent = select.parent
+    if parent is None:
+        return True
+    if isinstance(parent, exp.Subquery) and isinstance(parent.parent, (exp.From, exp.Join)):
+        alias = parent.args.get("alias")
+    elif isinstance(parent, exp.CTE):
+        alias = parent.args.get("alias")
+    else:
+        return False
+    return not (alias and alias.columns)
+
+
+def _row_names(tree: exp.Expression) -> set[str]:
+    names = set()
+    for t in tree.find_all(exp.Table):
+        names.update(n.lower() for n in (t.name, t.alias) if n)
+    for node in tree.find_all(exp.Subquery, exp.CTE):
+        if node.alias:
+            names.add(node.alias.lower())
+    return names
+
+
+def _masked_leak(tree: exp.Expression, masked: set[str]) -> str | None:
+    """Masking works on result column names, so a masked column may only reach the result under its own name."""
+    rows = _row_names(tree)
+    for col in tree.find_all(exp.Column):
+        if _in_filter(col):
+            continue
+        if isinstance(col.this, exp.Star):
+            if isinstance(col.parent, exp.Select) and col.arg_key == "expressions" and _keeps_names(col.parent):
+                continue
+            return f"{col.sql(dialect='postgres')} inside an expression would carry masked columns; select the columns you need"
+        name = col.name.lower()
+        if name in masked:
+            item, select = col, col.parent
+            if isinstance(select, exp.Alias) and select.alias.lower() == name:
+                item, select = select, select.parent
+            if isinstance(select, exp.Select) and item.arg_key == "expressions" and _keeps_names(select):
+                continue
+            return (f"the masked column {col.name} can only be selected as itself, or used in WHERE, JOIN, "
+                    f"GROUP BY or ORDER BY; it cannot go inside a function, alias, UNION or subquery result")
+        if not col.table and name in rows:
+            return (f"{col.name} refers to a whole row, which would carry masked columns; "
+                    f"select the columns you need")
+    return None
+
+
+def check_read(sql: str, masked: set[str] | frozenset[str] = frozenset()) -> Checked:
     tree = _single(sql)
     if isinstance(tree, WRITE_NODES):
         raise SqlRejected("this is a write; use propose_write so a human can approve it")
@@ -93,6 +162,10 @@ def check_read(sql: str) -> Checked:
     bad = _dangerous_function(tree)
     if bad:
         raise SqlRejected(f"the function {bad}() is not allowed")
+    if masked:
+        leak = _masked_leak(tree, {m.lower() for m in masked})
+        if leak:
+            raise SqlRejected(leak)
     return Checked("read", "select", _tables(tree), [])
 
 

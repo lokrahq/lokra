@@ -8,7 +8,7 @@ import sys
 import time
 
 from . import __version__, tokens
-from .config import ConfigError, LAB_ADMIN_DSN, load_config
+from .config import ConfigError, lab_admin_dsn, load_config
 from .connect import CLIENTS
 from .gateway import Gateway, GatewayError, decide, list_pending
 from .ledger import Ledger
@@ -50,8 +50,7 @@ def cmd_init(args):
 def cmd_check(args):
     from .check import check
     cfg = _cfg(args)
-    dsn = args.dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
-    findings = check(cfg, dsn)
+    findings = check(cfg, _need_dsn(cfg, args.dsn, "--dsn"))
     errors = sum(1 for lvl, _ in findings if lvl == "error")
     warns = sum(1 for lvl, _ in findings if lvl == "warn")
     label = {"error": "ERROR", "warn": "WARN ", "info": "INFO "}
@@ -66,8 +65,7 @@ def cmd_check(args):
 def cmd_provision(args):
     from .provision import provision
     cfg = _cfg(args)
-    dsn = args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
-    for line in provision(cfg, dsn):
+    for line in provision(cfg, _need_dsn(cfg, args.admin_dsn)):
         print(line)
     print(f"secrets saved to {cfg.secrets_path}")
 
@@ -177,8 +175,8 @@ def cmd_report(args):
 
 def cmd_dashboard(args):
     from .dashboard import serve
-    dsn = args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
-    serve(_cfg(args), args.port, dsn)
+    cfg = _cfg(args)
+    serve(cfg, args.port, _admin_dsn(cfg, args.admin_dsn))
     return 0
 
 
@@ -211,15 +209,23 @@ def cmd_serve(args):
     main()
 
 
-def _admin_dsn(args) -> str:
-    return args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN") or LAB_ADMIN_DSN
+def _admin_dsn(cfg, given: str | None) -> str | None:
+    return given or os.environ.get("LOKRA_ADMIN_DSN") or lab_admin_dsn(cfg)
+
+
+def _need_dsn(cfg, given: str | None, flag: str = "--admin-dsn") -> str:
+    dsn = _admin_dsn(cfg, given)
+    if not dsn:
+        raise ConfigError(f'pass {flag} "postgresql://…", an admin login to {cfg.db_name} on '
+                          f"{cfg.db_host}:{cfg.db_port} (or set LOKRA_ADMIN_DSN)")
+    return dsn
 
 
 def cmd_pause(args):
     from . import controls
     cfg = _cfg(args)
     agent = cfg.agent(args.agent)
-    db = controls.pause_agent(cfg, agent, getpass.getuser(), args.reason or "", _admin_dsn(args))
+    db = controls.pause_agent(cfg, agent, getpass.getuser(), args.reason or "", _admin_dsn(cfg, args.admin_dsn))
     print(f"{agent.name} is paused: Lokra refuses its requests from now on; {db}")
 
 
@@ -227,7 +233,7 @@ def cmd_resume(args):
     from . import controls
     cfg = _cfg(args)
     agent = cfg.agent(args.agent)
-    was_paused, db = controls.resume_agent(cfg, agent, getpass.getuser(), _admin_dsn(args))
+    was_paused, db = controls.resume_agent(cfg, agent, getpass.getuser(), _admin_dsn(cfg, args.admin_dsn))
     print(f"{agent.name} is running again; {db}" if was_paused else f"{agent.name} was not paused; {db}")
 
 
@@ -314,11 +320,11 @@ def main(argv=None):
     s.set_defaults(fn=cmd_init)
 
     s = sub.add_parser("check", help="validate the policy against the database (read-only)")
-    s.add_argument("--dsn", help="connection string to check against (default: lab database)")
+    s.add_argument("--dsn", help="connection string to check against (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_check)
 
     s = sub.add_parser("provision", help="create or update one DB role per agent")
-    s.add_argument("--admin-dsn", help="admin connection string (default: lab database)")
+    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_provision)
 
     s = sub.add_parser("mint-token", help="issue a short-lived token for an agent")
@@ -367,7 +373,7 @@ def main(argv=None):
 
     s = sub.add_parser("dashboard", help="serve a local web dashboard of the ledger and policy")
     s.add_argument("--port", type=int, default=8900)
-    s.add_argument("--admin-dsn", help="admin connection string used when applying policy (default: lab database)")
+    s.add_argument("--admin-dsn", help="admin connection string, needed to apply policy changes (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_dashboard)
 
     s = sub.add_parser("cloud", help="connect this Lokra to Lokra Cloud (token in $LOKRA_CLOUD_TOKEN)")
@@ -397,12 +403,12 @@ def main(argv=None):
     s = sub.add_parser("pause", help="stop an agent now: refuse its requests and block its database login")
     s.add_argument("agent")
     s.add_argument("--reason", help="recorded in the ledger and shown to the agent")
-    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN or the lab database)")
+    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_pause)
 
     s = sub.add_parser("resume", help="let a paused agent run again")
     s.add_argument("agent")
-    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN or the lab database)")
+    s.add_argument("--admin-dsn", help="admin connection string (default: $LOKRA_ADMIN_DSN)")
     s.set_defaults(fn=cmd_resume)
 
     s = sub.add_parser("revoke-token", help="revoke one token, by the token itself or its id")

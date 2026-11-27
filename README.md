@@ -24,9 +24,10 @@ locked-down identity instead, and puts these controls on every request:
 1. **Scoped identity.** Each agent logs in as its own Postgres role with only the tables,
    columns and rows its policy allows. Agents receive a short-lived signed token, never a password.
 2. **Masking.** Emails, phone numbers, payment cards, IBANs, US Social Security numbers and
-   Australian Medicare and IHI numbers are masked in results, including inside free-text notes
-   and renamed columns. Cards, IBANs and health identifiers are checksum-validated, so ordinary
-   numbers are left alone.
+   Australian Medicare and IHI numbers are masked in results, including inside free-text notes,
+   JSON and arrays. A masked column can only be read as itself, so a query cannot slip it out
+   through a function, an alias or `row_to_json`. Cards, IBANs and health identifiers are
+   checksum-validated, so ordinary numbers are left alone.
 3. **Human approval for writes.** INSERT, UPDATE and DELETE are dry-run, shown with the
    number of rows they would change, and only run after a person approves them.
 4. **Tamper-evident audit ledger, with reporting.** Every request is written to a hash-chained,
@@ -92,7 +93,8 @@ agent ever connects.
 
 For **Supabase**, use the connection string from Project Settings → Database (the
 direct connection, not the pooler). `init` only reads; `provision` needs a role that
-can create roles, such as `postgres`. Try it on a development project first.
+can create roles, such as `postgres`. It does not need a superuser, so the RDS master user
+works too. Try it on a development project first.
 
 `policies.example.yaml` is a non-healthcare starting point you can copy instead.
 
@@ -158,6 +160,10 @@ lokra pause support-bot --reason "deleting too much"   # refuse its requests, bl
 lokra resume support-bot
 lokra revoke-token <token or token id>                 # kill one leaked token, keep the agent's others
 ```
+
+Set `LOKRA_ADMIN_DSN` (or pass `--admin-dsn`) so a pause also blocks the agent's database login
+and ends its sessions. Without it, Lokra still refuses every request and says the login is
+unchanged.
 
 The dashboard lists every agent with a Pause and Resume button, and `lokra slack` adds a
 Pause button to each approval message and posts a notice with a Resume button whenever an agent
@@ -315,7 +321,7 @@ enforces access, and each layer still holds if the one before it fails:
 | Row lock | Rows outside the agent's scope, reads and writes | Postgres RLS policies per agent role |
 | Read-only transaction | Writes hidden in CTEs or functions | Postgres |
 | Statement timeout | Runaway queries | Postgres role setting |
-| Masking | Identifiers in results, aliases, free text | Proxy, checksum-validated detectors |
+| Masking | Identifiers in results, free text and JSON; masked columns leaving under another name | Proxy: SQL check and checksum-validated detectors |
 | Ledger | Silent edits or deletions of history | SHA-256 chain + HMAC |
 
 The tests in `tests/test_integration.py` disable the SQL check on purpose and confirm the

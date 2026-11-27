@@ -22,7 +22,7 @@ from .config import Config, ConfigError, dump_policy, load_config
 from .gateway import GatewayError, decide, list_pending
 from .ledger import Ledger
 from .masking import DETECTORS, Masker
-from .provision import WRITE_OPS, provision
+from .provision import WRITE_OPS, ensure_same_database, provision
 from .report import build_report, to_dict
 
 try:
@@ -289,6 +289,7 @@ def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:
         return []
     out: list[str] = []
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        ensure_same_database(conn, new_cfg)
         for role in stale:
             exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone()
             if exists:
@@ -301,7 +302,9 @@ def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:
     return out
 
 
-def apply_policy(cfg: Config, admin_dsn: str, data: dict) -> dict:
+def apply_policy(cfg: Config, admin_dsn: str | None, data: dict) -> dict:
+    if not admin_dsn:
+        raise ValueError("start the dashboard with --admin-dsn (or LOKRA_ADMIN_DSN) to apply policy changes")
     doc = _build_doc(cfg, data)
     cfg.path.write_text(dump_policy(doc))
     new_cfg = load_config(cfg.path, cfg.home)

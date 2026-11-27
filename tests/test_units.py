@@ -208,6 +208,10 @@ def test_introspect_matcher_and_build_policy():
     assert _match("medicare_number") == ("last4", "medicare")
     assert _match("full_name") is None
     assert _match("cardiology_notes") is None  # short keyword 'card' must not substring-match
+    assert _match("phoneNumber") == ("last3", "phone") and _match("patientDob") == ("year_only", None)
+    assert _match("IHINumber") == ("last4", "ihi") and _match("userSsn") == ("last4", "us_ssn")
+    assert _match("accountId") is None and _match("account_id") is None
+    assert _match("accountNumber") == ("redact", None) and _match("bank_account_no") == ("redact", None)
 
     tables = {
         "customers": [("id", "integer"), ("email", "text"), ("mobile", "text"), ("full_name", "text")],
@@ -218,7 +222,7 @@ def test_introspect_matcher_and_build_policy():
     assert set(doc["agents"]["app-reader"]["read"]) == {"customers", "orders"}
     assert "rows" not in doc["agents"]["app-reader"]
     assert doc["masking"]["columns"] == {"email": "redact", "mobile": "last3"}
-    assert doc["masking"]["detectors"] == ["email", "phone"]
+    assert doc["masking"]["detectors"] == ["au_phone", "card", "email", "phone"]
     assert yaml.safe_load(dump_policy(doc))["agents"]["app-reader"]["max_rows"] == 500
 
 
@@ -392,3 +396,55 @@ def test_ihi_is_not_read_as_a_card():
     counts = Counter()
     assert Masker({}, list(DETECTORS)).scrub_text("IHI 8003 6000 1338 9082", counts) == "IHI [IHI]"
     assert counts == {"ihi": 1}
+
+
+MASKED = {"email", "phonenumber", "dob"}
+
+
+@pytest.mark.parametrize("sql", [
+    'SELECT * FROM "User"',
+    'SELECT u.email AS email, u.* FROM "User" u',
+    'SELECT id FROM "User" WHERE email = \'ana@acme.example\' ORDER BY lower(email)',
+    'SELECT count(*) FROM "User" GROUP BY email',
+    'SELECT x.email FROM (SELECT email FROM "User") x',
+    'WITH x AS (SELECT email FROM "User") SELECT email FROM x',
+    'SELECT id FROM "User" WHERE id IN (SELECT id FROM "User" WHERE lower(email) LIKE \'a%\')',
+    'SELECT name FROM "Organization" UNION SELECT subject FROM "SupportTicket"',
+])
+def test_masked_columns_allowed_as_themselves(sql):
+    sqlcheck.check_read(sql, MASKED)
+
+
+@pytest.mark.parametrize("sql", [
+    'SELECT row_to_json(u) FROM "User" u',
+    'SELECT to_jsonb(u.*) FROM "User" u',
+    'SELECT u FROM "User" u',
+    'SELECT array_agg(email) FROM "User"',
+    'SELECT email AS contact FROM "User"',
+    'SELECT email::text FROM "User"',
+    'SELECT (SELECT email FROM "User" LIMIT 1) AS x',
+    'SELECT name FROM "Organization" UNION SELECT email FROM "User"',
+    'SELECT e FROM (SELECT email FROM "User") AS t(e)',
+    'WITH x(e) AS (SELECT email FROM "User") SELECT e FROM x',
+    'SELECT x FROM "User", unnest(ARRAY[email]) AS x',
+    'SELECT j.value FROM "User" u, LATERAL jsonb_each_text(to_jsonb(u)) j',
+    'SELECT json_build_object(\'e\', "phoneNumber") FROM "User"',
+    'SELECT row_number() OVER (ORDER BY dob) FROM "User"',
+    'SELECT table_to_xml(\'"User"\', true, false, \'\')',
+    'SELECT query_to_xml(\'select email from "User"\', true, false, \'\')',
+])
+def test_masked_columns_cannot_leave_under_another_name(sql):
+    with pytest.raises(sqlcheck.SqlRejected):
+        sqlcheck.check_read(sql, MASKED)
+
+
+def test_masking_walks_json_and_arrays():
+    m = Masker({"email": "redact", "dob": "year_only"}, ["email", "card"])
+    rows, counts = m.mask_rows(["metadata", "tags"], [(
+        {"email": "a@b.example", "profile": {"dob": "1990-04-02", "note": "card 4111 1111 1111 1111"},
+         "ana@acme.example": 1},
+        ["ok", "mail me at c@d.example"])])
+    meta, tags = rows[0]
+    assert meta == {"email": "[REDACTED]", "profile": {"dob": "1990", "note": "card [CARD]"}, "[EMAIL]": 1}
+    assert tags == ["ok", "mail me at [EMAIL]"]
+    assert counts == {"column:redact": 1, "column:year_only": 1, "card": 1, "email": 2}

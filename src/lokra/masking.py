@@ -110,18 +110,22 @@ class Masker:
             text = pattern.sub(repl, text)
         return text
 
+    def _value(self, value: Any, rule: str | None, counts: Counter) -> Any:
+        """Mask one value; JSON objects and arrays are walked, and their keys count as column names."""
+        if rule and rule != "none" and value is not None:
+            counts[f"column:{rule}"] += 1
+            return _strategy(value, rule)
+        if isinstance(value, str):
+            return self.scrub_text(value, counts)
+        if isinstance(value, dict):
+            return {self.scrub_text(k, counts) if isinstance(k, str) else k:
+                    self._value(v, self.column_rules.get(str(k).lower()), counts) for k, v in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [self._value(v, None, counts) for v in value]
+        return value
+
     def mask_rows(self, columns: list[str], rows: list[tuple]) -> tuple[list[list], dict[str, int]]:
         counts: Counter = Counter()
         rules = [self.column_rules.get(c.lower()) for c in columns]
-        out = []
-        for row in rows:
-            new = []
-            for value, rule in zip(row, rules):
-                if rule and rule != "none" and value is not None:
-                    counts[f"column:{rule}"] += 1
-                    value = _strategy(value, rule)
-                elif isinstance(value, str):
-                    value = self.scrub_text(value, counts)
-                new.append(value)
-            out.append(new)
+        out = [[self._value(value, rule, counts) for value, rule in zip(row, rules)] for row in rows]
         return out, dict(counts)

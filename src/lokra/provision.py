@@ -18,15 +18,15 @@ def _ident(table: str) -> sql.Identifier:
     return sql.Identifier(*split_table(table))
 
 
-def _grant_statements(agent: AgentPolicy, db_name: str, prior_schemas: set[str]) -> list[sql.Composed]:
+def _grant_statements(agent: AgentPolicy, db_name: str, prior_schemas: set[str],
+                      granted: list[tuple[str, str, str]]) -> list[sql.Composed]:
     r = sql.Identifier(agent.role)
     stmts = []
-    for schema in sorted(set(agent.schemas) | prior_schemas):
-        s = sql.Identifier(schema)
-        stmts.append(sql.SQL("REVOKE ALL ON ALL TABLES IN SCHEMA {} FROM {}").format(s, r))
-        stmts.append(sql.SQL("REVOKE ALL ON ALL SEQUENCES IN SCHEMA {} FROM {}").format(s, r))
-        if schema not in agent.schemas:
-            stmts.append(sql.SQL("REVOKE USAGE ON SCHEMA {} FROM {}").format(s, r))
+    for schema, name, kind in granted:
+        what = "SEQUENCE" if kind == "S" else "TABLE"
+        stmts.append(sql.SQL("REVOKE ALL ON " + what + " {} FROM {}").format(sql.Identifier(schema, name), r))
+    for schema in sorted(prior_schemas - set(agent.schemas)):
+        stmts.append(sql.SQL("REVOKE USAGE ON SCHEMA {} FROM {}").format(sql.Identifier(schema), r))
     stmts.append(sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(sql.Identifier(db_name), r))
     for schema in agent.schemas:
         stmts.append(sql.SQL("GRANT USAGE ON SCHEMA {} TO {}").format(sql.Identifier(schema), r))
@@ -54,6 +54,17 @@ def _prior_schemas(conn: psycopg.Connection, role: str) -> set[str]:
                         "AND nspname <> ALL(%s) AND nspname NOT LIKE 'pg\\_%%'",
                         (role, role, list(SYSTEM_SCHEMAS))).fetchall()
     return {s for (s,) in rows}
+
+
+def _granted(conn: psycopg.Connection, role: str) -> list[tuple[str, str, str]]:
+    """Tables, views and sequences the role holds any privilege on, down to single columns. Revoking
+    only these, not ALL TABLES IN SCHEMA, leaves alone tables the admin has no rights on."""
+    return conn.execute(
+        "SELECT n.nspname, c.relname, c.relkind FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace, "
+        "(SELECT oid FROM pg_roles WHERE rolname = %s) r "
+        "WHERE EXISTS (SELECT 1 FROM aclexplode(c.relacl) a WHERE a.grantee = r.oid) "
+        "OR EXISTS (SELECT 1 FROM pg_attribute att, aclexplode(att.attacl) a "
+        "WHERE att.attrelid = c.oid AND a.grantee = r.oid) ORDER BY 1, 2", (role,)).fetchall()
 
 
 def _columns(conn: psycopg.Connection, schemas: list[str]) -> dict[str, set[str]]:
@@ -130,9 +141,16 @@ def _release_unlocked_tables(conn: psycopg.Connection) -> None:
         conn.execute(sql.SQL("ALTER TABLE {} DISABLE ROW LEVEL SECURITY").format(t))
 
 
+def ensure_same_database(conn: psycopg.Connection, cfg: Config) -> None:
+    db = conn.execute("SELECT current_database()").fetchone()[0]
+    if db != cfg.db_name:
+        raise ValueError(f"the admin connection is to database '{db}', but the policy is for '{cfg.db_name}'")
+
+
 def set_login(cfg: Config, admin_dsn: str, agent: AgentPolicy, allowed: bool) -> int:
     """Allow or block the agent's database login. Blocking also ends its open sessions."""
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        ensure_same_database(conn, cfg)
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (agent.role,)).fetchone():
             return 0
         conn.execute(sql.SQL("ALTER ROLE {} " + ("LOGIN" if allowed else "NOLOGIN")).format(sql.Identifier(agent.role)))
@@ -142,11 +160,33 @@ def set_login(cfg: Config, admin_dsn: str, agent: AgentPolicy, allowed: bool) ->
                                 (agent.role,)).fetchall())
 
 
+FULL_ATTRS = "NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 10"
+ELEVATED = ("SUPERUSER", "CREATEDB", "CREATEROLE", "REPLICATION", "BYPASSRLS")
+
+
+def _role_attrs(conn: psycopg.Connection, exists: bool, admin_is_super: bool) -> str:
+    """Postgres 16 refuses NOSUPERUSER, NOCREATEDB, NOREPLICATION and NOBYPASSRLS in ALTER ROLE from a
+    non-superuser (the admin on Supabase and RDS), even when nothing changes, so they are set only when
+    the role is created, or by a superuser."""
+    return FULL_ATTRS if admin_is_super or not exists else "NOINHERIT NOCREATEROLE CONNECTION LIMIT 10"
+
+
+def _refuse_elevated(conn: psycopg.Connection, role: str) -> None:
+    row = conn.execute("SELECT rolsuper, rolcreatedb, rolcreaterole, rolreplication, rolbypassrls "
+                       "FROM pg_roles WHERE rolname = %s", (role,)).fetchone()
+    held = [name for name, on in zip(ELEVATED, row) if on]
+    if held:
+        raise ValueError(f"role {role} has {', '.join(held)}; Lokra will not run an agent with that. "
+                         f"Remove it as a superuser: ALTER ROLE {role} NO{held[0]}")
+
+
 def provision(cfg: Config, admin_dsn: str) -> list[str]:
     log: list[str] = []
     saved = cfg.db_secrets()
     paused = controls.snapshot(cfg)["paused"]
     with psycopg.connect(admin_dsn, autocommit=True) as conn:
+        ensure_same_database(conn, cfg)
+        admin_is_super = conn.execute("SELECT rolsuper FROM pg_roles WHERE rolname = current_user").fetchone()[0]
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone():
             conn.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(AGENT_GROUP)))
         columns = _columns(conn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
@@ -162,25 +202,33 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
             r = sql.Identifier(agent.role)
             exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (agent.role,)).fetchone()
             prior = _prior_schemas(conn, agent.role) if exists else set()
+            granted = _granted(conn, agent.role) if exists else []
             password = saved.get(agent.role) or secrets.token_urlsafe(24)
             verb, past = ("ALTER", "altered") if exists else ("CREATE", "created")
             login = "NOLOGIN" if agent.name in paused else "LOGIN"
-            conn.execute(sql.SQL(
-                verb + " ROLE {} WITH " + login + " NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT "
-                "NOREPLICATION NOBYPASSRLS CONNECTION LIMIT 10 PASSWORD {}"
-            ).format(r, sql.Literal(password)))
+            attrs = _role_attrs(conn, bool(exists), admin_is_super)
+            conn.execute(sql.SQL(verb + " ROLE {} WITH " + login + " " + attrs + " PASSWORD {}")
+                         .format(r, sql.Literal(password)))
+            _refuse_elevated(conn, agent.role)
+            saved[agent.role] = password
+            cfg.save_db_secrets(saved)
             for setting, value in (("statement_timeout", "5s"),
                                    ("idle_in_transaction_session_timeout", "10s"),
                                    ("search_path", "public")):
                 conn.execute(sql.SQL("ALTER ROLE {} SET {} = {}").format(
                     r, sql.Identifier(setting), sql.Literal(value)))
-            conn.execute(sql.SQL("GRANT {} TO {}").format(sql.Identifier(AGENT_GROUP), r))
+            try:
+                conn.execute(sql.SQL("GRANT {} TO {}").format(sql.Identifier(AGENT_GROUP), r))
+            except psycopg.errors.InsufficientPrivilege:
+                admin = conn.execute("SELECT current_user").fetchone()[0]
+                raise ValueError(f"{admin} cannot add agents to the {AGENT_GROUP} role, which another role "
+                                 f"created; as a superuser or that role, run: GRANT {AGENT_GROUP} TO "
+                                 f"{admin} WITH ADMIN OPTION") from None
             with conn.transaction():
-                for stmt in _grant_statements(agent, cfg.db_name, prior):
+                for stmt in _grant_statements(agent, cfg.db_name, prior, granted):
                     conn.execute(stmt)
                 _drop_agent_policies(conn, agent)
                 _apply_row_policies(conn, agent, locks[agent.name])
-            saved[agent.role] = password
             locked = locks[agent.name]
             if locked:
                 scope = f"{agent.rows.describe()} on {sorted(locked)}"

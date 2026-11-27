@@ -78,7 +78,7 @@ def pause_agent(cfg: Config, agent: AgentPolicy, by: str, reason: str = "", admi
     Ledger(cfg.ledger_path, cfg.signing_key()).append(
         {"event": "agent_paused", "agent": agent.name, "decided_by": by, "reason": reason})
     if not admin_dsn:
-        return "database login unchanged (no admin connection)"
+        return "database login unchanged (no admin connection; pass --admin-dsn to change it too)"
     try:
         ended = set_login(cfg, admin_dsn, agent, allowed=False)
     except Exception as e:
@@ -93,7 +93,7 @@ def resume_agent(cfg: Config, agent: AgentPolicy, by: str, admin_dsn: str | None
     Ledger(cfg.ledger_path, cfg.signing_key()).append(
         {"event": "agent_resumed", "agent": agent.name, "decided_by": by})
     if not admin_dsn:
-        return was_paused, "database login unchanged (no admin connection)"
+        return was_paused, "database login unchanged (no admin connection; pass --admin-dsn to change it too)"
     try:
         set_login(cfg, admin_dsn, agent, allowed=True)
     except Exception as e:

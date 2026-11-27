@@ -41,6 +41,7 @@ class Gateway:
         self.token = token
         self.ledger = Ledger(cfg.ledger_path, self.key)
         self.masker = Masker(cfg.masking_columns, cfg.masking_detectors)
+        self.masked_columns = {c for c, rule in cfg.masking_columns.items() if rule != "none"}
 
     def _identity(self, tool: str) -> tuple[dict, AgentPolicy]:
         try:
@@ -119,7 +120,7 @@ class Gateway:
         claims, agent = self._identity("query")
         base = self._base(claims, agent, "query")
         try:
-            checked = sqlcheck.check_read(sql_text)
+            checked = sqlcheck.check_read(sql_text, self.masked_columns)
         except sqlcheck.SqlRejected as e:
             self.ledger.append({**base, "event": "rejected", "sql": self.masker.scrub_text(sql_text),
                                 "reason": str(e)})
@@ -159,6 +160,8 @@ class Gateway:
                 conn.rollback()
         except psycopg.Error as e:
             raise self._db_error(base, sql_text, e) from None
+        if would_affect == 0:
+            checked.warnings.append("changes no rows: they may not exist, or be outside this agent's scope")
         write_id = "w_" + secrets.token_hex(4)
         record = {"id": write_id, "status": "pending", "agent": agent.name, "on_behalf_of": claims.get("sub"),
                   "sql": sql_text, "reason": reason, "statement": checked.statement, "tables": checked.tables,

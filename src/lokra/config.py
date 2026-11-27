@@ -130,6 +130,12 @@ class Config:
             raise ConfigError(f"unknown agent '{name}'") from None
 
 
+def lab_admin_dsn(cfg: Config) -> str | None:
+    """The lab's admin connection, offered as a default only when the policy points at the lab."""
+    lab = cfg.db_host in ("127.0.0.1", "localhost") and cfg.db_port == 55432 and cfg.db_name == "clinic"
+    return LAB_ADMIN_DSN if lab else None
+
+
 def dump_policy(doc: dict) -> str:
     class Dumper(yaml.SafeDumper):
         pass

@@ -102,11 +102,25 @@ def test_list_tables_reflects_grants(cfg):
 
 
 def test_masking_columns_and_aliases(cfg):
+    g = gw(cfg, "test-scheduler")
+    medicare, phone, dob = g.query("SELECT medicare_number, phone, dob FROM patients LIMIT 1")["rows"][0]
+    assert medicare.startswith("******") and phone.startswith("*") and len(dob) == 4
+    for sql in ("SELECT medicare_number AS m2 FROM patients",
+                "SELECT row_to_json(p) FROM patients p",
+                "SELECT array_agg(dob) FROM patients",
+                "SELECT x FROM patients, unnest(ARRAY[phone]) AS x"):
+        with pytest.raises(GatewayError, match="masked|whole row"):
+            g.query(sql)
+    assert g.query("SELECT count(*) FROM patients WHERE dob < '1990-01-01'")["rows"][0][0] >= 0
+
+
+def test_masking_reaches_into_json(cfg):
     out = gw(cfg, "test-scheduler").query(
-        "SELECT medicare_number, medicare_number AS m2, phone, dob FROM patients LIMIT 1")
-    medicare, alias, phone, dob = out["rows"][0]
-    assert medicare.startswith("******") and alias == "[MEDICARE]"
-    assert phone.startswith("*") and len(dob) == 4
+        "SELECT json_build_object('note', 'mail ana@example.com', 'medicare_number', '2123 45670 1') AS j, "
+        "ARRAY['call 0412 345 678'] AS a")
+    j, a = out["rows"][0]
+    assert j == {"note": "mail [EMAIL]", "medicare_number": "******6701"}
+    assert a == ["call [PHONE]"]
 
 
 def test_masking_free_text(cfg):
@@ -117,13 +131,13 @@ def test_masking_free_text(cfg):
 
 
 def test_stacked_statements_blocked_even_without_parser(cfg, monkeypatch):
-    monkeypatch.setattr(sqlcheck, "check_read", lambda s: sqlcheck.Checked("read", "select", [], []))
+    monkeypatch.setattr(sqlcheck, "check_read", lambda s, masked=(): sqlcheck.Checked("read", "select", [], []))
     with pytest.raises(GatewayError, match="multiple commands"):
         gw(cfg, "test-scheduler").query("SELECT 1; DROP TABLE patients")
 
 
 def test_cte_write_blocked_by_read_only_txn_even_without_parser(cfg, monkeypatch):
-    monkeypatch.setattr(sqlcheck, "check_read", lambda s: sqlcheck.Checked("read", "select", [], []))
+    monkeypatch.setattr(sqlcheck, "check_read", lambda s, masked=(): sqlcheck.Checked("read", "select", [], []))
     with pytest.raises(GatewayError, match="read-only transaction"):
         gw(cfg, "test-scheduler").query(
             "WITH d AS (UPDATE appointments SET status='x' WHERE id=1 RETURNING id) SELECT * FROM d")
@@ -574,3 +588,60 @@ def test_connect_logs_in_as_the_agent(cfg):
     from lokra.connect import readable_tables
     assert readable_tables(cfg, cfg.agent("test-scheduler")) == 3
     assert readable_tables(cfg, cfg.agent("test-researcher")) == 2
+
+
+def test_admin_connection_must_be_the_policy_database(cfg):
+    from lokra.provision import set_login
+    other = LAB_ADMIN_DSN.rsplit("/", 1)[0] + "/postgres"
+    with pytest.raises(ValueError, match="is to database 'postgres', but the policy is for 'clinic'"):
+        provision(cfg, other)
+    with pytest.raises(ValueError, match="but the policy is for 'clinic'"):
+        set_login(cfg, other, cfg.agent("test-scheduler"), allowed=False)
+    with raw(cfg, "test-scheduler") as conn:
+        assert conn.execute("SELECT 1").fetchone() == (1,)
+
+
+def test_write_that_changes_nothing_says_so(cfg):
+    out = gw(cfg, "test-scheduler").propose_write(
+        "UPDATE appointments SET status = 'cancelled' WHERE id = -1", "nothing to change")
+    assert out["would_affect_rows"] == 0 and any("changes no rows" in w for w in out["warnings"])
+
+
+def test_non_superuser_admin_can_provision_again(tmp_path, admin):
+    """The Supabase and RDS shape: the admin has CREATEROLE but is not a superuser."""
+    def reset():
+        admin.execute("DROP SCHEMA IF EXISTS lokra_t CASCADE")
+        for role in ("lokra_t_bot", "lokra_t_admin"):
+            if admin.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
+                admin.execute(f"DROP OWNED BY {role} CASCADE")
+                admin.execute(f"DROP ROLE {role}")
+
+    reset()
+    if not admin.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_agents'").fetchone():
+        admin.execute("CREATE ROLE lokra_agents NOLOGIN")
+    admin.execute("CREATE ROLE lokra_t_admin LOGIN CREATEROLE PASSWORD 'lokra_t_admin'")
+    admin.execute("GRANT lokra_agents TO lokra_t_admin WITH ADMIN OPTION")
+    admin.execute("GRANT CREATE ON DATABASE clinic TO lokra_t_admin")
+    dsn = "postgresql://lokra_t_admin:lokra_t_admin@127.0.0.1:55432/clinic"
+    try:
+        with psycopg.connect(dsn, autocommit=True) as owner:
+            owner.execute("CREATE SCHEMA lokra_t")
+            owner.execute("CREATE TABLE lokra_t.items (id int, org int)")
+            owner.execute("INSERT INTO lokra_t.items VALUES (1, 1), (2, 2)")
+            owner.execute("CREATE TABLE lokra_t.secrets (id int)")
+        policy = tmp_path / "policies.yaml"
+        head = ("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+                "agents:\n  t-bot:\n    rows: {column: org, values: [1]}\n")
+        policy.write_text(head + "    read: {lokra_t.items: '*', lokra_t.secrets: '*'}\n")
+        provision(load_config(policy), dsn)
+        policy.write_text(head + "    read: {lokra_t.items: '*'}\n")
+        c = load_config(policy)
+        provision(c, dsn)
+        assert gw(c, "t-bot").query("SELECT id FROM lokra_t.items")["rows"] == [[1]]
+        with pytest.raises(GatewayError, match="permission denied for table secrets"):
+            gw(c, "t-bot").query("SELECT id FROM lokra_t.secrets")
+        admin.execute("ALTER ROLE lokra_t_bot BYPASSRLS")
+        with pytest.raises(ValueError, match="has BYPASSRLS"):
+            provision(c, dsn)
+    finally:
+        reset()

@@ -6,12 +6,17 @@ masking them, writes without a matching read, and masking rules that never match
 """
 from __future__ import annotations
 
+import psycopg
+
 from .config import Config
 from .introspect import _match, introspect
+from .provision import ensure_same_database
 
 
 def check(cfg: Config, dsn: str) -> list[tuple[str, str]]:
     """Introspect the database (read-only) and validate the policy against it."""
+    with psycopg.connect(dsn, connect_timeout=10) as conn:
+        ensure_same_database(conn, cfg)
     tables = introspect(dsn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
     return analyze(cfg, {t: {c for c, _ in cols} for t, cols in tables.items()})
 

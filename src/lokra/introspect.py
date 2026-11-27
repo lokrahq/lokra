@@ -26,8 +26,18 @@ _PII = [
     ("national", "last4", None),
     ("card", "redact", "card"),
     ("iban", "redact", "iban"),
-    ("account", "redact", None),
+    ("bsb", "redact", None),
 ]
+# Columns that are sensitive only as a pair of words: an account number is, an account id is not.
+_PII_PAIRS = [
+    ({"account", "number"}, "redact"),
+    ({"account", "no"}, "redact"),
+    ({"account", "num"}, "redact"),
+    ({"acct", "number"}, "redact"),
+    ({"acct", "no"}, "redact"),
+]
+# Free text can hold anything, so these run on every policy init writes.
+BASE_DETECTORS = ("card", "email", "phone", "au_phone")
 
 _TABLES_QUERY = """
 SELECT c.table_schema, c.table_name, c.column_name, c.data_type
@@ -39,12 +49,21 @@ ORDER BY c.table_schema, c.table_name, c.ordinal_position
 """
 
 
+def _words(column: str) -> set[str]:
+    spaced = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", column)
+    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", spaced)
+    return set(re.split(r"[^a-z0-9]+", spaced.lower())) - {""}
+
+
 def _match(column: str):
-    toks = set(re.split(r"[^a-z0-9]+", column.lower()))
+    toks = _words(column)
     low = column.lower()
     for kw, strategy, detector in _PII:
         if kw in toks or (len(kw) >= 5 and kw in low):
             return strategy, detector
+    for pair, strategy in _PII_PAIRS:
+        if pair <= toks:
+            return strategy, None
     return None
 
 
@@ -65,7 +84,7 @@ def introspect(dsn: str, schemas: list[str] | tuple[str, ...] = ("public",)) -> 
 def build_policy(dsn: str, tables: dict[str, list[tuple[str, str]]]) -> dict:
     info = conninfo.conninfo_to_dict(dsn)
     columns: dict[str, str] = {}
-    detectors: set[str] = set()
+    detectors: set[str] = set(BASE_DETECTORS)
     for cols in tables.values():
         for column, _ in cols:
             m = _match(column)
