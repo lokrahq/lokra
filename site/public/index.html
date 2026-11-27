@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <script src="/site.js" defer></script>
 <link rel="alternate" type="text/markdown" href="/llms.txt">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lokra","description":"Open-source MCP server between AI agents and Postgres: per-agent database roles, masking of sensitive identifiers, human approval for writes and a signed audit ledger.","url":"https://lokra.dev","applicationCategory":"SecurityApplication","operatingSystem":"Linux, macOS","softwareVersion":"0.8.0","license":"https://www.apache.org/licenses/LICENSE-2.0","codeRepository":"https://github.com/lokrahq/lokra","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Lokra","url":"https://lokra.dev","email":"hello@lokra.dev"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lokra","description":"Open-source MCP server between AI agents and Postgres: per-agent database roles, masking of sensitive identifiers, human approval for writes and a signed audit ledger.","url":"https://lokra.dev","applicationCategory":"SecurityApplication","operatingSystem":"Linux, macOS","softwareVersion":"0.8.1","license":"https://www.apache.org/licenses/LICENSE-2.0","codeRepository":"https://github.com/lokrahq/lokra","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"Lokra","url":"https://lokra.dev","email":"hello@lokra.dev"}}</script>
 </head>
 <body>
 <div class="announce" data-announce>
@@ -41,7 +41,7 @@
   <section class="hero">
     <a class="pill" href="https://github.com/lokrahq/lokra"><b>Open-source MCP server for Postgres</b><span>Star on GitHub &rsaquo;</span></a>
     <h1>Lock rows for <mark>AI&nbsp;agents</mark>.</h1>
-    <p class="sub">It sits between your AI agents and Postgres. The database decides which rows and columns each agent can see, sensitive values are masked, and every write waits for a human.</p>
+    <p class="sub">It sits between your AI agents and Postgres. The database decides which rows and columns each agent can see, sensitive values are masked, and writes wait for a human to approve them.</p>
     <div class="actions">
       <a class="btn primary" href="https://github.com/lokrahq/lokra#quick-start"><span class="chev"></span>Get started</a>
       <a class="btn" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> View on GitHub</a>
@@ -101,7 +101,8 @@
     <h2>Two agents, one real Postgres, 25&nbsp;seconds.</h2>
     <p class="lede">This is <code>lokra demo</code>, recorded as it runs. Rows are locked, values are masked, attacks are blocked, a write waits for you, and every step is signed.</p>
     <figure class="rec">
-      <img src="/demo.svg" width="850" height="608" alt="lokra demo in a terminal: row locks, masking, blocked prompt injection, an approved write, a rate limit and pause, and the signed ledger." loading="lazy">
+      <div class="rec-scroll"><img src="/demo.svg" width="850" height="608" alt="lokra demo in a terminal: row locks, masking, blocked prompt injection, an approved write, a rate limit and pause, and the signed ledger." loading="lazy"></div>
+      <p class="rec-hint">Swipe to see the whole terminal</p>
       <figcaption><span>$</span> pipx install lokra &amp;&amp; lokra demo</figcaption>
     </figure>
   </section>
@@ -124,7 +125,7 @@
     <span class="compat-div" aria-hidden="true"></span>
     <div class="compat-g">
       <span class="compat-k">Data</span>
-      <span class="compat-list">PostgreSQL<span class="sep">/</span>Supabase <em>soon</em></span>
+      <span class="compat-list">PostgreSQL<span class="sep">/</span>Supabase<span class="sep">/</span>Amazon RDS</span>
     </div>
   </div>
 

@@ -91,7 +91,8 @@ lokra connect                                             # add the agent to Cla
 `lokra check` reads the database and flags grants on tables or columns that do
 not exist, any sensitive-looking column an agent can read with nothing masking
 it, and writes without a matching read, so you catch policy mistakes before an
-agent ever connects.
+agent ever connects. In CI, `lokra check --strict` also fails on warnings, so a new
+`phone` column that nothing masks cannot slip into production unnoticed.
 
 For **Supabase**, use the connection string from Project Settings → Database (the
 direct connection, not the pooler). `init` only reads; `provision` needs a role that

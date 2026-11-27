@@ -105,3 +105,13 @@ def test_a_token_cloud_does_not_know_stops_the_gate_instead_of_retrying(cfg, mon
         run(cfg, "https://cloud.test", None, post=refuse)
     assert calls == ["lkg_partial"]
 
+
+def test_the_gate_says_what_it_serves_and_its_cloud_name(cfg, capsys, monkeypatch):
+    replies = iter([{"cursor": 0, "commands": [], "gate": "prod-db"}])
+    monkeypatch.setenv("LOKRA_CLOUD_TOKEN", "lkg_test")
+    run(cfg, "https://cloud.test", None, once=True, post=lambda url, token, payload: next(replies))
+    out = capsys.readouterr().out
+    assert f"serving ops-bot from {cfg.path}" in out
+    assert "leaves its database login on" in out
+    assert 'connected as gate "prod-db"' in out
+

@@ -30,7 +30,7 @@ text{font-family:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospa
 <g class="a k9"></g>
 <g class="a k10"></g>
 <g class="a k11"></g>
-<g class="a k12"><text x="16.8" y="193.0" fill="#0a0a0a" font-weight="700" textLength="201.6" lengthAdjust="spacingAndGlyphs">Lock rows for AI agents.</text><text x="235.2" y="193.0" fill="#9b9b96" textLength="50.4" lengthAdjust="spacingAndGlyphs">v0.8.0</text></g>
+<g class="a k12"><text x="16.8" y="193.0" fill="#0a0a0a" font-weight="700" textLength="201.6" lengthAdjust="spacingAndGlyphs">Lock rows for AI agents.</text><text x="235.2" y="193.0" fill="#9b9b96" textLength="50.4" lengthAdjust="spacingAndGlyphs">v0.8.1</text></g>
 <g class="a k13"></g>
 <g class="a k14"><text x="16.8" y="229.0" fill="#0a0a0a" font-weight="700" textLength="75.6" lengthAdjust="spacingAndGlyphs">The demo:</text><text x="92.4" y="229.0" fill="#0a0a0a" textLength="394.8" lengthAdjust="spacingAndGlyphs"> two AI agents meet a production-like Postgres.</text></g>
 <g class="a k15"></g>

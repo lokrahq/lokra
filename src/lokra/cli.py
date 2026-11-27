@@ -59,7 +59,7 @@ def cmd_check(args):
     if not findings:
         print("  OK     policy matches the database, nothing sensitive left unmasked")
     print(f"\n{errors} error(s), {warns} warning(s)")
-    return 1 if errors else 0
+    return 1 if errors or (args.strict and warns) else 0
 
 
 def cmd_provision(args):
@@ -329,6 +329,7 @@ def main(argv=None):
 
     s = sub.add_parser("check", help="validate the policy against the database (read-only)")
     s.add_argument("--dsn", help="connection string to check against (default: $LOKRA_ADMIN_DSN)")
+    s.add_argument("--strict", action="store_true", help="fail on warnings too, such as an unmasked sensitive column (for CI)")
     s.set_defaults(fn=cmd_check)
 
     s = sub.add_parser("provision", help="create or update one DB role per agent")

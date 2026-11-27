@@ -508,3 +508,15 @@ def test_two_people_must_be_different_people(tmp_path):
     assert record["status"] == "approved" and record["approved_by"] == "alice, bob"
     events = [e["event"] for e in Ledger(cfg.ledger_path, cfg.signing_key()).entries()]
     assert events == ["write_partly_approved", "write_approved"]
+
+
+def test_check_strict_fails_on_warnings(tmp_path, monkeypatch):
+    import lokra.check
+    from lokra.cli import main
+
+    (tmp_path / "policies.yaml").write_text("agents:\n  bot:\n    read: {orders: '*'}\n")
+    monkeypatch.setattr(lokra.check, "check", lambda cfg, dsn: [("warn", "bot: can read 'orders.phone' unmasked")])
+    args = ["--config", str(tmp_path / "policies.yaml"), "check", "--dsn", "postgresql://db/shop"]
+    assert main(args) == 0
+    assert main(args + ["--strict"]) == 1
+

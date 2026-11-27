@@ -54,6 +54,7 @@ def http_post(url: str, token: str, payload: dict, timeout: float = 15) -> dict:
 
 class CloudSync:
     def __init__(self, cfg: Config, url: str, token: str, admin_dsn: str | None = None, post=http_post):
+        self.gate_name = None
         if not token.startswith("lkg_"):
             raise ConfigError("LOKRA_CLOUD_TOKEN should start with lkg_; create one under Gates in Lokra Cloud")
         self.cfg = cfg
@@ -106,6 +107,7 @@ class CloudSync:
 
     def sync_once(self) -> list[str]:
         response = self.post(self.url, self.token, self.payload())
+        self.gate_name = response.get("gate") or self.gate_name
         self.state["results"] = []
         self.state["cursor"] = int(response.get("cursor") or 0)
         log = []
@@ -123,11 +125,19 @@ def run(cfg: Config, url: str, admin_dsn: str | None, once: bool = False, interv
     if not token:
         raise ConfigError("set LOKRA_CLOUD_TOKEN to a gate token from Lokra Cloud (Gates → Create gate token)")
     sync = CloudSync(cfg, url, token, admin_dsn, post)
-    print(f"lokra: connected to {url} (Ctrl+C to stop)" if not once else f"lokra: syncing with {url}")
+    print(f"lokra: connecting to {url}")
+    print(f"lokra: serving {', '.join(cfg.agents) or 'no agents'} from {cfg.path}")
+    print("lokra: a pause from Cloud also blocks the agent's database login" if admin_dsn else
+          "lokra: no --admin-dsn, so a pause from Cloud refuses the agent's requests but leaves its database login on")
     delay = interval
+    connected = False
     while True:
         try:
             applied = sync.sync_once()
+            if not connected:
+                connected = True
+                named = f' as gate "{sync.gate_name}"' if sync.gate_name else ""
+                print(f"lokra: connected{named}" + ("" if once else " (Ctrl+C to stop)"))
             for line in applied:
                 print(f"lokra: {line}")
             if applied:
