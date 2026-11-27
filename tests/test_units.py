@@ -502,10 +502,11 @@ def test_two_people_must_be_different_people(tmp_path):
     _save_pending(cfg, {"id": "w_0001", "status": "pending", "agent": "bot", "sql": "DELETE FROM orders",
                         "approvals_needed": 2, "approvals": [], "created_at": time.time()})
     assert decide(cfg, "w_0001", True, "alice")["status"] == "pending"
-    with pytest.raises(GatewayError, match="needs a different person"):
-        decide(cfg, "w_0001", True, "alice")
-    record = decide(cfg, "w_0001", True, "bob")
-    assert record["status"] == "approved" and record["approved_by"] == "alice, bob"
+    for same in ("alice", "Alice (cloud)", "alice (slack)"):
+        with pytest.raises(GatewayError, match="needs a different person"):
+            decide(cfg, "w_0001", True, same)
+    record = decide(cfg, "w_0001", True, "bob (slack)")
+    assert record["status"] == "approved" and record["approved_by"] == "alice, bob (slack)"
     events = [e["event"] for e in Ledger(cfg.ledger_path, cfg.signing_key()).entries()]
     assert events == ["write_partly_approved", "write_approved"]
 
@@ -520,3 +521,73 @@ def test_check_strict_fails_on_warnings(tmp_path, monkeypatch):
     assert main(args) == 0
     assert main(args + ["--strict"]) == 1
 
+
+
+def test_a_write_that_only_changes_no_rows_is_not_flagged_unscoped():
+    from lokra.report import build_report
+    entries = [{"event": "write_proposed", "agent": "bot", "would_affect_rows": 0,
+                "warnings": ["changes no rows: they may not exist, or be outside this agent's scope"]}]
+    assert "unscoped_write" not in {k for k, _ in build_report(entries)["agents"]["bot"].flags}
+
+
+def test_policy_editor_keeps_settings_it_does_not_show(tmp_path):
+    from lokra.config import load_config
+    from lokra.dashboard import _build_doc, policy_payload
+
+    (tmp_path / "policies.yaml").write_text(
+        "agents:\n  bot:\n    read: {orders: '*'}\n    write: {orders: [update]}\n"
+        "    rate_limit: 30\n    approval: {auto_max_rows: 2, two_people: [delete]}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    doc = _build_doc(cfg, policy_payload(cfg))
+    assert doc["agents"]["bot"]["rate_limit"] == 30
+    assert doc["agents"]["bot"]["approval"] == {"auto_max_rows": 2, "two_people": ["delete"]}
+
+
+def test_an_unapproved_or_expired_write_is_refused_on_the_record(tmp_path):
+    from lokra.config import load_config
+    from lokra.gateway import Gateway, GatewayError, _save_pending
+
+    (tmp_path / "policies.yaml").write_text("agents:\n  bot:\n    read: {orders: '*'}\n    write: {orders: [update]}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    gw = Gateway(cfg, tokens.mint(cfg.signing_key(), "bot", "sam", 300))
+    base = {"agent": "bot", "sql": "UPDATE orders SET x = 1 WHERE id = 1", "statement": "update",
+            "tables": ["orders"], "created_at": time.time()}
+    _save_pending(cfg, {**base, "id": "w_0002", "status": "pending"})
+    _save_pending(cfg, {**base, "id": "w_0003", "status": "approved", "approved_at": time.time() - 7200})
+    assert gw.write_status("w_0003")["status"] == "expired"
+    for write_id, message in (("w_0002", "not approved"), ("w_0003", "expired")):
+        with pytest.raises(GatewayError, match=message):
+            gw.execute_write(write_id)
+    refused = [e for e in Ledger(cfg.ledger_path, cfg.signing_key()).entries() if e["event"] == "write_refused"]
+    assert [e["write_id"] for e in refused] == ["w_0002", "w_0003"]
+
+
+@pytest.mark.parametrize("policy, message", [
+    ("agents:\n  bot:\n    read: {orders: '*'}\n    max_row: 10\n", "unknown setting max_row"),
+    ("agents:\n  bot:\n    read: {orders: 'id, name'}\n", "should be \"\\*\" or a list of columns"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\n    write: {orders: update}\n", "should list operations"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\n    write: {orders: [drop]}\n", "should list operations"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\n    max_rows: 0\n", "max_rows should be a whole number, 1 or more"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\n    rate_limit: -5\n", "rate_limit should be a whole number, 0 or more"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\nmasking: {columns: {card: last0}}\n", "unknown strategy 'last0'"),
+    ("agents:\n  bot:\n    read: {orders: '*'}\nmasking: {columns: {card: lastx}}\n", "unknown strategy 'lastx'"),
+    ("agents:\n  ops-bot:\n    read: {orders: '*'}\n  ops_bot:\n    read: {orders: '*'}\n", "would share the database role lokra_ops_bot"),
+])
+def test_policy_mistakes_are_refused_with_a_fix(tmp_path, policy, message):
+    from lokra.config import ConfigError, load_config
+    (tmp_path / "policies.yaml").write_text(policy)
+    with pytest.raises(ConfigError, match=message):
+        load_config(tmp_path / "policies.yaml")
+
+
+def test_the_dashboard_counts_as_the_same_person_too(tmp_path):
+    from lokra.config import load_config
+    from lokra.gateway import GatewayError, _save_pending, decide
+
+    (tmp_path / "policies.yaml").write_text("agents:\n  bot:\n    read: {orders: '*'}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    _save_pending(cfg, {"id": "w_0004", "status": "pending", "agent": "bot", "sql": "DELETE FROM orders",
+                        "approvals_needed": 2, "approvals": [], "created_at": time.time()})
+    decide(cfg, "w_0004", True, "dana (dashboard)")
+    with pytest.raises(GatewayError, match="needs a different person"):
+        decide(cfg, "w_0004", True, "dana (cloud)")

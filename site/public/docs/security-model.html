@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Security model · Lokra docs</title>
+<meta name="description" content="Each layer between an agent and your data, what it stops, what enforces it, and what Lokra does not protect against.">
+<link rel="canonical" href="https://lokra.dev/docs/security-model">
+<meta property="og:title" content="Security model · Lokra docs">
+<meta property="og:description" content="Each layer between an agent and your data, what it stops, what enforces it, and what Lokra does not protect against.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model" class="on" aria-current="page">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Reference</p>
+    <h1>Security model</h1>
+    <p class="docs-lede">Each layer between an agent and your data, what it stops, what enforces it, and what Lokra does not protect against.</p>
+    <div class="docs-body">
+<p>The SQL parser is not the security boundary. Several "read-only" database MCP servers were bypassed in 2025 and 2026 because they relied on parsing SQL text. In Lokra the database itself enforces access, and each layer still holds if the one before it fails.</p>
+<h2 id="layers">Layers<a class="anchor" href="#layers" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Stops</th>
+<th>Enforced by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signed short-lived token</td>
+<td>Unknown, forged, expired or revoked agents</td>
+<td>Lokra (HMAC-SHA256)</td>
+</tr>
+<tr>
+<td>SQL check</td>
+<td>Writes in the read tool, stacked statements, DDL, <code>SET ROLE</code>, file, network and session functions</td>
+<td>Lokra (sqlglot), fails closed</td>
+</tr>
+<tr>
+<td>Prepared statements only</td>
+<td><code>COMMIT; DROP ...</code> style stacking</td>
+<td>Postgres protocol</td>
+</tr>
+<tr>
+<td>Per-agent login role</td>
+<td>Tables and columns outside the policy</td>
+<td>Postgres grants</td>
+</tr>
+<tr>
+<td>Row lock</td>
+<td>Rows outside the agent's scope, for reads and writes</td>
+<td>Postgres row-level security policies on the agent's role</td>
+</tr>
+<tr>
+<td>Read-only transaction</td>
+<td>Writes hidden in CTEs or functions</td>
+<td>Postgres</td>
+</tr>
+<tr>
+<td>Statement timeout</td>
+<td>Runaway queries</td>
+<td>Postgres role setting</td>
+</tr>
+<tr>
+<td>Masking</td>
+<td>Identifiers in results, free text, JSON and arrays; masked columns leaving under another name</td>
+<td>Lokra: SQL check and checksum-validated detectors</td>
+</tr>
+<tr>
+<td>Write approval</td>
+<td>Changes nobody agreed to, and approved writes that grow before they run</td>
+<td>Lokra: dry run, approval, row-count check at execution</td>
+</tr>
+<tr>
+<td>Ledger</td>
+<td>Silent edits or deletions of history</td>
+<td>SHA-256 hash chain with an HMAC signature per entry</td>
+</tr>
+</tbody>
+</table>
+<p>The integration tests turn the SQL check off on purpose and confirm the database still blocks the attacks.</p>
+<h2 id="identity">Identity<a class="anchor" href="#identity" title="Permanent link">#</a></h2>
+<p>An agent never holds a database password. It holds a token signed with a key in <code>.lokra/signing.key</code>, naming the agent, the person it acts for and, if the policy requires one, its declared purpose. Tokens last at most 8 hours. <code>lokra revoke-token</code> kills one token; <code>lokra pause</code> stops every request from an agent at once. See <a href="/docs/stop-agents">stop an agent</a>.</p>
+<h2 id="the-agents-database-role">The agent's database role<a class="anchor" href="#the-agents-database-role" title="Permanent link">#</a></h2>
+<p><code>lokra provision</code> creates one login role per agent, named <code>lokra_&lt;agent&gt;</code>. Each role:</p>
+<ul>
+<li>can log in and nothing else: it is created with <code>NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS</code>, and Lokra refuses to run an agent whose role has gained any of those powers;</li>
+<li>has at most 10 connections, a 5-second <code>statement_timeout</code> and a 10-second <code>idle_in_transaction_session_timeout</code>;</li>
+<li>is granted only the tables, columns and write operations in its policy, and loses grants that leave the policy;</li>
+<li>belongs to the <code>lokra_agents</code> group, which Lokra uses to tell agent sessions apart from your app's.</li>
+</ul>
+<p>Row locks are permissive and restrictive row-level security policies on the agent's role. When a table had row-level security off, Lokra turns it on with a pass-through policy for every role that is not an agent, so your app sees no change. See <a href="/docs/row-locks">row locks</a>.</p>
+<h2 id="reads">Reads<a class="anchor" href="#reads" title="Permanent link">#</a></h2>
+<p>A read must be one <code>SELECT</code>. It runs as a prepared statement in a read-only transaction, so it cannot end the transaction or write through a function. Lokra refuses row locks (<code>FOR UPDATE</code>), <code>SELECT INTO</code>, and functions that read files, run programs, reach other servers, change session settings, write sequences or run a query given as text. Results are capped at the agent's <code>max_rows</code>.</p>
+<h2 id="masking">Masking<a class="anchor" href="#masking" title="Permanent link">#</a></h2>
+<p>Masking runs in Lokra, not in the database, so Lokra also stops queries that would carry a masked column out under another name: through a function, an alias, a <code>UNION</code>, a subquery result, a whole-row reference or <code>row_to_json</code>. Filtering by a masked column in <code>WHERE</code>, <code>JOIN</code>, <code>GROUP BY</code> or <code>ORDER BY</code> still works. Value detectors check card numbers, IBANs and Australian health identifiers with their checksums, so ordinary numbers are left alone. See <a href="/docs/masking">masking</a>.</p>
+<h2 id="writes">Writes<a class="anchor" href="#writes" title="Permanent link">#</a></h2>
+<p><code>propose_write</code> dry-runs the statement in a transaction that is rolled back, records how many rows it would change, and holds it. It runs only after approval: by a person, by two different people for statements that require it, or by an approval rule for small writes. When the agent calls <code>execute_write</code>, Lokra rolls the write back if it would now change more rows than were approved. Approvals expire after <code>approval_ttl_seconds</code>, one hour by default. See <a href="/docs/approvals">approve writes</a>.</p>
+<h2 id="the-ledger">The ledger<a class="anchor" href="#the-ledger" title="Permanent link">#</a></h2>
+<p>Every request, refusal, approval, pause and execution is appended to <code>.lokra/ledger.jsonl</code>. Each entry includes the hash of the previous one and an HMAC signature, so editing or deleting history breaks the chain. SQL is masked before it is written. <code>lokra verify-ledger</code> checks the whole chain. See <a href="/docs/audit">audit ledger and reports</a>.</p>
+<h2 id="local-state">Local state<a class="anchor" href="#local-state" title="Permanent link">#</a></h2>
+<p>The <code>.lokra</code> folder holds the signing key, the agent passwords, pending writes and the ledger. Lokra creates it readable only by your user. Treat it like any credential store: add <code>.lokra/</code> to your <code>.gitignore</code>, back it up, and restrict who can read it on servers.</p>
+<h2 id="lokra-cloud">Lokra Cloud<a class="anchor" href="#lokra-cloud" title="Permanent link">#</a></h2>
+<p>A gate connects out to Lokra Cloud over HTTPS, so it needs no public address. Cloud receives agents, pending and recent writes with masked SQL and row counts, and ledger entries without their signatures. It never receives query results. Gate tokens are stored hashed, and phone alerts are encrypted end to end. See <a href="/docs/cloud">Lokra Cloud</a>.</p>
+<h2 id="what-lokra-does-not-protect-against">What Lokra does not protect against<a class="anchor" href="#what-lokra-does-not-protect-against" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Misuse of data an agent may read.</strong> Lokra narrows what that is, masks what it can and records everything, but an agent can still summarise or repeat what it was allowed to see.</li>
+<li><strong>A compromised gate host.</strong> Anyone who can read <code>.lokra</code> can mint tokens and log in as agent roles. Protect the host and the folder.</li>
+<li><strong>Columns masking does not know about.</strong> Masking matches column names in your policy and the detectors you turn on. <code>lokra check</code> warns about sensitive-looking columns with no masking, but it cannot recognise everything.</li>
+<li><strong>Access outside Lokra.</strong> If an agent also has your app's database password, or a script with its own connection string, Lokra does not see those requests.</li>
+</ul>
+<h2 id="reporting-a-vulnerability">Reporting a vulnerability<a class="anchor" href="#reporting-a-vulnerability" title="Permanent link">#</a></h2>
+<p>Please report security issues privately, as described in <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/environment"><span>Previous</span>Environment variables</a><a class="next" href="/docs/troubleshooting"><span>Next</span>Troubleshooting</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/security-model.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#layers">Layers</a></li><li><a href="#identity">Identity</a></li><li><a href="#the-agents-database-role">The agent's database role</a></li><li><a href="#reads">Reads</a></li><li><a href="#masking">Masking</a></li><li><a href="#writes">Writes</a></li><li><a href="#the-ledger">The ledger</a></li><li><a href="#local-state">Local state</a></li><li><a href="#lokra-cloud">Lokra Cloud</a></li><li><a href="#what-lokra-does-not-protect-against">What Lokra does not protect against</a></li><li><a href="#reporting-a-vulnerability">Reporting a vulnerability</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

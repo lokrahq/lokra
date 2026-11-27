@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Approve writes · Lokra docs</title>
+<meta name="description" content="How a write moves from propose_write through a dry run and approval to execute_write, where people approve it, and the rules that let small writes through or require two people.">
+<link rel="canonical" href="https://lokra.dev/docs/approvals">
+<meta property="og:title" content="Approve writes · Lokra docs">
+<meta property="og:description" content="How a write moves from propose_write through a dry run and approval to execute_write, where people approve it, and the rules that let small writes through or require two people.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals" class="on" aria-current="page">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Self-hosting</p>
+    <h1>Approve writes</h1>
+    <p class="docs-lede">How a write moves from propose_write through a dry run and approval to execute_write, where people approve it, and the rules that let small writes through or require two people.</p>
+    <div class="docs-body">
+<p>Agents never change data in one step. Every <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> is proposed, dry-run to count the rows it would change, approved by a person (or by a rule you wrote), and only then executed. This page follows a write through that flow and covers where to approve, approval rules, two-person approval and the checks that run at the end.</p>
+<h2 id="how-a-write-flows">How a write flows<a class="anchor" href="#how-a-write-flows" title="Permanent link">#</a></h2>
+<ol>
+<li><strong>Propose.</strong> The agent calls <code>propose_write</code> with one statement and a reason. Lokra accepts a single <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> and refuses anything else.</li>
+<li><strong>Dry run.</strong> Lokra runs the statement as the agent's own role inside a transaction, records how many rows it changed, and rolls it back. Grants and <a href="/docs/row-locks">row locks</a> apply, so if Postgres refuses the statement, nothing is proposed.</li>
+<li><strong>Wait.</strong> Lokra stores the write under an ID such as <code>w_377e8285</code>. It waits for a person, unless an <a href="#approval-rules">approval rule</a> approves it straight away.</li>
+<li><strong>Decide.</strong> Someone approves or denies it in the terminal, the dashboard, Slack or Lokra Cloud.</li>
+<li><strong>Execute.</strong> The agent calls <code>execute_write</code> with the ID. Lokra runs the statement again as the agent and commits it, unless it would now change more rows than were approved.</li>
+</ol>
+<p>The agent can call <code>write_status</code> at any time to see where a write is. This is what <code>propose_write</code> returns for a delete that needs two people:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_377e8285"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span>
+<span class="t-w">  </span><span class="t-nt">"next_step"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Two different people must approve this, for example with `lokra approve w_377e8285`. Then call execute_write with this write_id."</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>A write is always in one of these states:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pending</code></td>
+<td>Waiting for a person, or for a second person.</td>
+</tr>
+<tr>
+<td><code>approved</code></td>
+<td>Approved by people or by policy. The agent can execute it until the approval expires.</td>
+</tr>
+<tr>
+<td><code>denied</code></td>
+<td>Someone denied it. It can never run.</td>
+</tr>
+<tr>
+<td><code>executed</code></td>
+<td>It ran and was committed. <code>affected_rows</code> says how many rows it changed.</td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>It was rolled back because it would have changed more rows than were approved, or the database refused it.</td>
+</tr>
+<tr>
+<td><code>expired</code></td>
+<td>The approval ran out before the agent executed it.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-the-dry-run-tells-you">What the dry run tells you<a class="anchor" href="#what-the-dry-run-tells-you" title="Permanent link">#</a></h3>
+<p><code>would_affect_rows</code> is the number of rows Postgres reports the statement changed during the dry run. That is the number people approve, and the number the final check holds the write to.</p>
+<p>The dry run really executes the statement, then rolls it back. Triggers fire and their changes are rolled back too. Sequence values are not: Postgres never rolls back a sequence, so an insert's dry run uses up an identity or serial value, and the real insert gets the next one.</p>
+<h3 id="warnings">Warnings<a class="anchor" href="#warnings" title="Permanent link">#</a></h3>
+<p>Lokra adds warnings to a write so the person approving it notices. They do not block it:</p>
+<table>
+<thead>
+<tr>
+<th>Warning</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>no WHERE clause: this changes every row the agent can see</code></td>
+<td>An <code>UPDATE</code> or <code>DELETE</code> with no <code>WHERE</code>.</td>
+</tr>
+<tr>
+<td><code>changes no rows: they may not exist, or be outside this agent's scope</code></td>
+<td>The dry run changed 0 rows. The rows may not exist, or a row lock hides them.</td>
+</tr>
+</tbody>
+</table>
+<p>Warnings show in <code>lokra pending</code>, the dashboard, Slack and Lokra Cloud. A write that changes no rows still counts as within any <code>auto_max_rows</code>, so a policy can approve it.</p>
+<h2 id="where-to-approve">Where to approve<a class="anchor" href="#where-to-approve" title="Permanent link">#</a></h2>
+<p>Every channel reads and writes the same pending writes, kept in the Lokra home folder (<code>.lokra/pending</code> next to your policy). Run them with the same policy and home as the MCP server. A write decided in one channel is closed everywhere else, and every decision is written to the <a href="/docs/audit">audit ledger</a> with the name of the person who made it.</p>
+<h3 id="in-the-terminal">In the terminal<a class="anchor" href="#in-the-terminal" title="Permanent link">#</a></h3>
+<p>List writes waiting for a decision:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>pending
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>w_377e8285  [pending]  agent=ops-bot  for=dana  rows=1  12s ago
+    needs two people
+    reason: duplicate order
+    sql:    DELETE FROM orders WHERE id = 4
+</code></pre></div>
+
+<p>Add <code>--all</code> to include writes that were already decided. Approve one:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>approve<span class="t-w"> </span>w_377e8285
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>agent:  ops-bot (for dana)
+reason: duplicate order
+sql:    DELETE FROM orders WHERE id = 4
+would affect 1 row(s)
+approve? [y/N] y
+approved by alice; it needs one more person to approve
+</code></pre></div>
+
+<p><code>approve</code> asks for confirmation; <code>--yes</code> skips it. <code>deny</code> does not ask:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>deny<span class="t-w"> </span>w_377e8285<span class="t-w"> </span>--by<span class="t-w"> </span>alice
+</code></pre></div>
+
+<p>Both record your operating system user name unless you pass <code>--by</code>.</p>
+<h3 id="in-the-dashboard">In the dashboard<a class="anchor" href="#in-the-dashboard" title="Permanent link">#</a></h3>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>dashboard
+</code></pre></div>
+
+<p>This serves a local page at <code>http://127.0.0.1:8900</code> (<code>--port</code> changes it) with an approvals queue. Each write shows its agent, the person it acts for, the reason, the masked SQL, the dry-run row count and any warnings, with Approve and Deny buttons. Decisions are recorded as your user name followed by <code>(dashboard)</code>.</p>
+<h3 id="in-slack">In Slack<a class="anchor" href="#in-slack" title="Permanent link">#</a></h3>
+<p><code>lokra slack</code> posts each pending write to a channel with Approve, Deny and Pause buttons. Only the Slack members listed in the policy's <code>slack.approvers</code> can decide, and decisions are recorded as their Slack name followed by <code>(slack)</code>. Writes approved by policy never wait, so they are not posted. <a href="/docs/slack">Approve in Slack</a> covers setup.</p>
+<h3 id="in-lokra-cloud">In Lokra Cloud<a class="anchor" href="#in-lokra-cloud" title="Permanent link">#</a></h3>
+<p><code>lokra cloud</code> connects the gate to <a href="/docs/cloud">Lokra Cloud</a>, so your team can approve or deny from a browser or phone. Decisions come back to the gate, which applies them and records who made them, such as <code>dana (cloud)</code>.</p>
+<h2 id="approval-rules">Approval rules<a class="anchor" href="#approval-rules" title="Permanent link">#</a></h2>
+<p>By default every write waits for one person. An agent's <code>approval</code> block changes that:</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">ops-bot</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">delete</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">auto_max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5</span>
+<span class="t-w">      </span><span class="t-nt">auto_statements</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">two_people</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">delete</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auto_max_rows</code></td>
+<td>whole number, 0 or more</td>
+<td>not set</td>
+<td>Writes whose dry run changes this many rows or fewer are approved by policy. Not set means every write needs a person.</td>
+</tr>
+<tr>
+<td><code>auto_statements</code></td>
+<td>list of <code>insert</code>, <code>update</code>, <code>delete</code></td>
+<td><code>[insert, update]</code></td>
+<td>The statements <code>auto_max_rows</code> applies to.</td>
+</tr>
+<tr>
+<td><code>two_people</code></td>
+<td>list of <code>insert</code>, <code>update</code>, <code>delete</code></td>
+<td><code>[]</code></td>
+<td>Statements that need two different people. They are never approved by policy.</td>
+</tr>
+</tbody>
+</table>
+<p>A write is approved by policy only when all of these hold:</p>
+<ul>
+<li><code>auto_max_rows</code> is set,</li>
+<li>its statement is in <code>auto_statements</code> and not in <code>two_people</code>,</li>
+<li>its dry run changed no more than <code>auto_max_rows</code> rows.</li>
+</ul>
+<p>With the rules above, an update of 2 orders is approved at once, an update of 40 waits for one person, and any delete waits for two. A policy approval comes back from <code>propose_write</code> with <code>"status": "approved"</code> and <code>"approvals_needed": 0</code>, and the ledger records it as approved by <code>policy (up to 5 rows)</code>. The agent can call <code>execute_write</code> straight away.</p>
+<p>Note that <code>delete</code> is not in the default <code>auto_statements</code>. A rule like <code>approval: {auto_max_rows: 1}</code> lets small inserts and updates through, but every delete still waits for a person.</p>
+<h3 id="two-person-approval">Two-person approval<a class="anchor" href="#two-person-approval" title="Permanent link">#</a></h3>
+<p>A statement listed in <code>two_people</code> stays <code>pending</code> after the first approval, from any channel, until a different person approves it too:</p>
+<div class="hl"><pre><span></span><code>approved by alice; it needs one more person to approve
+</code></pre></div>
+
+<p>The same person approving again is refused:</p>
+<div class="hl"><pre><span></span><code>error: alice has already approved w_377e8285; it needs a different person
+</code></pre></div>
+
+<p>When the second person approves, the write becomes <code>approved</code>, with both names in <code>approved_by</code> (<code>alice, bob</code>). The two approvals can come from different channels, for example one in Slack and one in the terminal. If the agent tries <code>execute_write</code> after only one approval, it gets <code>write w_377e8285 is 'pending', not approved</code>.</p>
+<p>Lokra compares the names it records, ignoring case and a <code>(slack)</code> or <code>(cloud)</code> suffix. So <code>dana</code> approving in the terminal and <code>dana (cloud)</code> approving in Lokra Cloud count as one person, and the second approval is refused.</p>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> Lokra tells approvers apart by name. It ignores where the approval came from, so <code>dana</code>, <code>dana (dashboard)</code>, <code>dana (slack)</code> and <code>dana (cloud)</code> all count as one person. But in the terminal <code>--by</code> accepts any name, and a terminal username need not match a Slack or GitHub username, so anyone with a shell on the machine running Lokra could approve twice under two names. Slack checks each click against the approver list, and Lokra Cloud records the signed-in user. For a real two-person control, approve in Slack or Lokra Cloud and limit who can log in to the gate's machine.</p>
+</blockquote>
+<h2 id="the-row-count-check-at-execute">The row-count check at execute<a class="anchor" href="#the-row-count-check-at-execute" title="Permanent link">#</a></h2>
+<p>Whoever approved a write, including a rule, it runs only if it changes no more rows than its dry run showed. When the agent calls <code>execute_write</code>, Lokra runs the statement again inside a transaction and compares the rows it changed with the approved count:</p>
+<ul>
+<li><strong>The same or fewer rows:</strong> Lokra commits and the write is <code>executed</code>.</li>
+<li><strong>More rows:</strong> Lokra rolls it back, marks the write <code>failed</code>, writes a <code>write_rolled_back</code> entry to the ledger, and tells the agent:</li>
+</ul>
+<div class="hl"><pre><span></span><code>it would now change 3 rows, more than the 2 that were approved, so nothing was changed. Propose it again for a fresh approval.
+</code></pre></div>
+
+<p>This catches data that changed between the dry run and the execute. For example, an <code>UPDATE orders SET status = 'shipped' WHERE status = 'pending'</code> approved for 2 rows is rolled back if a third pending order arrives in the meantime. The check compares counts, not which rows, so a statement that matches the same number of different rows still runs. Write precise <code>WHERE</code> clauses, such as a list of IDs, when it matters which rows change.</p>
+<h2 id="approval-expiry">Approval expiry<a class="anchor" href="#approval-expiry" title="Permanent link">#</a></h2>
+<p>An approval lasts <code>approval_ttl_seconds</code> (default 3600, one hour), counted from the moment the write was finally approved. If the agent calls <code>execute_write</code> after that, it is refused and the write is marked <code>expired</code>:</p>
+<div class="hl"><pre><span></span><code>approval for w_377e8285 expired; propose it again
+</code></pre></div>
+
+<p>A shorter window keeps an approval from being used long after the data it was based on has changed. Set it at the top of the policy:</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">approval_ttl_seconds</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">900</span>
+</code></pre></div>
+
+<p>Pending writes do not expire. They wait until someone approves or denies them.</p>
+<h2 id="errors-the-agent-sees">Errors the agent sees<a class="anchor" href="#errors-the-agent-sees" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Message from <code>execute_write</code></th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write w_377e8285 is 'pending', not approved</code></td>
+<td>It still needs a decision, or a second person. The status in quotes can also be <code>denied</code>, <code>executed</code>, <code>failed</code> or <code>expired</code>.</td>
+</tr>
+<tr>
+<td><code>approval for w_377e8285 expired; propose it again</code></td>
+<td>The approval ran out.</td>
+</tr>
+<tr>
+<td><code>it would now change 3 rows, more than the 2 that were approved, so nothing was changed. Propose it again for a fresh approval.</code></td>
+<td>The row-count check rolled it back.</td>
+</tr>
+<tr>
+<td><code>unknown write_id</code></td>
+<td>No such write, or it belongs to another agent. An agent can only see and run its own writes.</td>
+</tr>
+</tbody>
+</table>
+<p><a href="/docs/troubleshooting#writes-and-approvals">Troubleshooting</a> covers these and the errors people hit when deciding.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/row-locks"><span>Previous</span>Row locks</a><a class="next" href="/docs/connect-clients"><span>Next</span>Connect AI clients</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/approvals.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#how-a-write-flows">How a write flows</a></li><li><a href="#where-to-approve">Where to approve</a></li><li><a href="#approval-rules">Approval rules</a></li><li><a href="#the-row-count-check-at-execute">The row-count check at execute</a></li><li><a href="#approval-expiry">Approval expiry</a></li><li><a href="#errors-the-agent-sees">Errors the agent sees</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

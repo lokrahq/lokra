@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Policy file reference · Lokra docs</title>
+<meta name="description" content="Every key in policies.yaml, with its type, default and meaning, and the validation errors Lokra reports.">
+<link rel="canonical" href="https://lokra.dev/docs/policy-reference">
+<meta property="og:title" content="Policy file reference · Lokra docs">
+<meta property="og:description" content="Every key in policies.yaml, with its type, default and meaning, and the validation errors Lokra reports.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference" class="on" aria-current="page">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Reference</p>
+    <h1>Policy file reference</h1>
+    <p class="docs-lede">Every key in policies.yaml, with its type, default and meaning, and the validation errors Lokra reports.</p>
+    <div class="docs-body">
+<p>This page lists every key Lokra reads from <code>policies.yaml</code>. For a guided walkthrough that builds a policy step by step, see <a href="/docs/policies">write a policy</a>.</p>
+<h2 id="where-the-file-lives">Where the file lives<a class="anchor" href="#where-the-file-lives" title="Permanent link">#</a></h2>
+<p>Lokra looks for the policy in this order:</p>
+<ol>
+<li><code>--config /path/to/policies.yaml</code> (a global option, so it goes before the command: <code>lokra --config ./policies.yaml check</code>),</li>
+<li>the <code>LOKRA_CONFIG</code> environment variable,</li>
+<li><code>policies.yaml</code> in the current folder.</li>
+</ol>
+<p>Lokra keeps its state in a folder next to the policy called <code>.lokra</code>, unless you set <code>--home</code> or <code>LOKRA_HOME</code>. It holds the signing key for agent tokens (<code>signing.key</code>), agent database passwords (<code>secrets.json</code>), pending writes (<code>pending/</code>), the audit ledger (<code>ledger.jsonl</code>) and pause and rate-limit state (<code>controls.json</code>). Keep it private and keep it with the policy: every Lokra process that serves the same agents must use the same home. See <a href="/docs/environment">environment variables</a>.</p>
+<h2 id="top-level-keys">Top-level keys<a class="anchor" href="#top-level-keys" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>database</code></td>
+<td>mapping</td>
+<td>see <a href="#database">database</a></td>
+<td>Where agents log in.</td>
+</tr>
+<tr>
+<td><code>agents</code></td>
+<td>mapping of agent name to <a href="#agent-keys">agent settings</a></td>
+<td>none</td>
+<td>The agents Lokra serves.</td>
+</tr>
+<tr>
+<td><code>masking</code></td>
+<td>mapping</td>
+<td>no masking</td>
+<td>Column rules and value detectors, applied to every agent. See <a href="#masking">masking</a>.</td>
+</tr>
+<tr>
+<td><code>approval_ttl_seconds</code></td>
+<td>whole number</td>
+<td><code>3600</code></td>
+<td>Seconds an approved write stays executable, counted from its final approval. After that it expires.</td>
+</tr>
+<tr>
+<td><code>require_purpose</code></td>
+<td>true or false</td>
+<td><code>false</code></td>
+<td>When true, every request's token must carry a declared purpose of use, or it is refused.</td>
+</tr>
+<tr>
+<td><code>slack</code></td>
+<td>mapping</td>
+<td>none</td>
+<td>Channel and approvers for <code>lokra slack</code>. See <a href="#slack">slack</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>An agent setting Lokra does not recognise, such as a typo like <code>max_row</code>, is an error, and so is a masking strategy it does not know. Unknown top-level keys are ignored. See <a href="#validation-errors">validation errors</a>.</p>
+<h2 id="database">database<a class="anchor" href="#database" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
+<span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
+<span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td>string</td>
+<td><code>127.0.0.1</code></td>
+<td>Host agents connect to. It must be reachable from where Lokra runs.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>whole number</td>
+<td><code>55432</code></td>
+<td>Port agents connect to.</td>
+</tr>
+<tr>
+<td><code>dbname</code></td>
+<td>string</td>
+<td><code>clinic</code></td>
+<td>Database agents connect to. The admin connection for <code>provision</code>, <code>check</code> and <code>pause</code> must be to this same database.</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> The defaults point at Lokra's development lab (<code>127.0.0.1:55432/clinic</code>), not at a standard Postgres. Always set all three. When the policy does point at the lab, commands that need an admin connection fall back to the lab's admin login.</p>
+</blockquote>
+<p>There is no user name or password here. Agent passwords are created by <code>lokra provision</code> and stored in <code>.lokra/secrets.json</code>; the admin login is passed with <code>--admin-dsn</code> or <code>LOKRA_ADMIN_DSN</code>. TLS follows libpq's settings, such as <code>PGSSLMODE</code>. See <a href="/docs/connect-database#encrypted-connections">encrypted connections</a>.</p>
+<h2 id="agent-keys">Agent keys<a class="anchor" href="#agent-keys" title="Permanent link">#</a></h2>
+<p>Each key under <code>agents</code> is an agent's name. The agent's Postgres role is <code>lokra_</code> followed by the name in lower case, with every run of characters other than letters and digits replaced by <code>_</code>. <code>support-bot</code> becomes <code>lokra_support_bot</code>.</p>
+<blockquote class="callout note">
+<p><strong>Note:</strong> Names that differ only in case or punctuation, such as <code>support-bot</code> and <code>Support_Bot</code>, map to the same role. Give each agent a distinct name.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>empty</td>
+<td>What the agent is for. Shown by its <code>whoami</code> tool, in the dashboard and in Lokra Cloud.</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td>mapping of table to <code>"*"</code> or a list of columns</td>
+<td>none</td>
+<td>Tables and columns the agent may <code>SELECT</code>. <code>"*"</code> grants the whole table, including columns added later.</td>
+</tr>
+<tr>
+<td><code>write</code></td>
+<td>mapping of table to a list of <code>insert</code>, <code>update</code>, <code>delete</code></td>
+<td>none</td>
+<td>Statements the agent may propose on each table. Every write goes through <a href="/docs/approvals">approval</a>.</td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>mapping</td>
+<td>none (all rows)</td>
+<td>A <a href="#rows">row lock</a>.</td>
+</tr>
+<tr>
+<td><code>max_rows</code></td>
+<td>whole number</td>
+<td><code>200</code></td>
+<td>Most rows one query returns. Extra rows are cut off and the result says <code>"truncated": true</code>.</td>
+</tr>
+<tr>
+<td><code>rate_limit</code></td>
+<td>whole number</td>
+<td><code>0</code> (no limit)</td>
+<td>Most requests the agent may make in any 60 seconds, across all its tokens and every Lokra process sharing the same home. Every tool call counts.</td>
+</tr>
+<tr>
+<td><code>purposes</code></td>
+<td>list of strings</td>
+<td>none (any purpose)</td>
+<td>Purposes of use the agent's tokens may declare. A token with any other purpose is refused. Matching is exact.</td>
+</tr>
+<tr>
+<td><code>approval</code></td>
+<td>mapping</td>
+<td>every write waits for one person</td>
+<td><a href="#approval">Approval rules</a>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="table-names">Table names<a class="anchor" href="#table-names" title="Permanent link">#</a></h3>
+<p>Write a table in the <code>public</code> schema by its name (<code>customers</code>) and any other table as <code>schema.table</code> (<code>billing.invoices</code>). <code>public.customers</code> is the same as <code>customers</code>. The same form is used in <code>read</code>, <code>write</code> and <code>rows.tables</code>.</p>
+<p>Columns in <code>read</code> must be a YAML list, such as <code>[id, name, email]</code>. A comma-separated string such as <code>"id, name"</code> is not split into columns. Column names are matched exactly as Postgres stores them, so a camelCase column is written <code>phoneNumber</code>.</p>
+<h3 id="rows">rows<a class="anchor" href="#rows" title="Permanent link">#</a></h3>
+<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">account_id</span>
+<span class="t-w">      </span><span class="t-nt">values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">tables</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">id</span><span class="t-p t-p-Indicator">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>column</code></td>
+<td>string</td>
+<td>required</td>
+<td>The column that holds each row's scope.</td>
+</tr>
+<tr>
+<td><code>values</code></td>
+<td>list of numbers or strings, or a single value</td>
+<td>required, at least one</td>
+<td>The agent sees only rows whose column holds one of these.</td>
+</tr>
+<tr>
+<td><code>tables</code></td>
+<td>mapping of table to column</td>
+<td>none</td>
+<td>Tables that name the scope column differently.</td>
+</tr>
+</tbody>
+</table>
+<p>The lock applies to every table in the agent's <code>read</code> or <code>write</code> that has the column. See <a href="/docs/row-locks">row locks</a>.</p>
+<h3 id="approval">approval<a class="anchor" href="#approval" title="Permanent link">#</a></h3>
+<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">auto_max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5</span>
+<span class="t-w">      </span><span class="t-nt">auto_statements</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">update</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">two_people</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">delete</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auto_max_rows</code></td>
+<td>whole number, 0 or more</td>
+<td>not set</td>
+<td>Writes whose dry run changes this many rows or fewer are approved by policy. Not set means every write needs a person.</td>
+</tr>
+<tr>
+<td><code>auto_statements</code></td>
+<td>list of <code>insert</code>, <code>update</code>, <code>delete</code>, or a single one</td>
+<td><code>[insert, update]</code></td>
+<td>Statements <code>auto_max_rows</code> applies to.</td>
+</tr>
+<tr>
+<td><code>two_people</code></td>
+<td>list of <code>insert</code>, <code>update</code>, <code>delete</code>, or a single one</td>
+<td>none</td>
+<td>Statements that need two different people. They are never approved by policy.</td>
+</tr>
+</tbody>
+</table>
+<p>Statement names are not case-sensitive. See <a href="/docs/approvals#approval-rules">approval rules</a>.</p>
+<h2 id="masking">masking<a class="anchor" href="#masking" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code><span class="t-nt">masking</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">columns</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">email</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">redact</span>
+<span class="t-w">    </span><span class="t-nt">phone</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">last3</span>
+<span class="t-w">  </span><span class="t-nt">detectors</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">card</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">email</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">phone</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">au_phone</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>columns</code></td>
+<td>mapping of column name to strategy</td>
+<td>none</td>
+<td>Masks any result column with that name, in any table, and any JSON key with that name. Names are not case-sensitive.</td>
+</tr>
+<tr>
+<td><code>detectors</code></td>
+<td>list of detector names</td>
+<td>none</td>
+<td>Detectors that scan every text value in every result.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Strategies</th>
+<th>Detectors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>redact</code>, <code>last4</code>, <code>last3</code>, <code>last2</code> (any <code>lastN</code> with N of 1 or more), <code>year_only</code>, <code>hash</code>, <code>none</code></td>
+<td><code>ihi</code>, <code>medicare</code>, <code>card</code>, <code>iban</code>, <code>us_ssn</code>, <code>email</code>, <code>au_phone</code>, <code>phone</code></td>
+</tr>
+</tbody>
+</table>
+<p>An unknown strategy name stops the policy loading with an error, and so does <code>last0</code>, which would show the whole value. An unknown detector name is an error when an agent next makes a request. <a href="/docs/masking">Masking</a> explains each one.</p>
+<h2 id="slack">slack<a class="anchor" href="#slack" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">channel</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">C0123ABCD</span>
+<span class="t-w">  </span><span class="t-nt">approvers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">U0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">U0456EFGH</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>channel</code></td>
+<td>string</td>
+<td>none</td>
+<td>Slack channel ID that <code>lokra slack</code> posts pending writes to.</td>
+</tr>
+<tr>
+<td><code>approvers</code></td>
+<td>list of strings</td>
+<td>none</td>
+<td>Slack member IDs allowed to approve, deny, pause and resume.</td>
+</tr>
+</tbody>
+</table>
+<p>Both are required by <code>lokra slack</code> and ignored by every other command. See <a href="/docs/slack">approve in Slack</a>.</p>
+<h2 id="a-complete-example">A complete example<a class="anchor" href="#a-complete-example" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code><span class="t-nt">database</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">host</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">db.example.com</span>
+<span class="t-w">  </span><span class="t-nt">port</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">5432</span>
+<span class="t-w">  </span><span class="t-nt">dbname</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">app</span>
+
+<span class="t-nt">require_purpose</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">true</span>
+
+<span class="t-nt">agents</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">support-bot</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">description</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Answers customer questions for the Acme account. Can add notes.</span>
+<span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">account_id</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">],</span><span class="t-nt"> tables</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">id</span><span class="t-p t-p-Indicator">}}</span>
+<span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">name</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">plan</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">customers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">account_id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">name</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">email</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">phone</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">created_at</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">      </span><span class="t-nt">notes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">notes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">insert</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">    </span><span class="t-nt">max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">200</span>
+<span class="t-w">    </span><span class="t-nt">rate_limit</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">60</span>
+<span class="t-w">    </span><span class="t-nt">purposes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">customer-support</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">    </span><span class="t-nt">approval</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">auto_max_rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">1</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> auto_statements</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">insert</span><span class="t-p t-p-Indicator">]}</span>
+
+<span class="t-nt">masking</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">columns</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">email</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">redact</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> phone</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">last3</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> card_number</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">last4</span><span class="t-p t-p-Indicator">}</span>
+<span class="t-w">  </span><span class="t-nt">detectors</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">card</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">email</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">phone</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">au_phone</span><span class="t-p t-p-Indicator">]</span>
+
+<span class="t-nt">approval_ttl_seconds</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">900</span>
+
+<span class="t-nt">slack</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">channel</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">C0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> approvers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">U0123ABCD</span><span class="t-p t-p-Indicator">]}</span>
+</code></pre></div>
+
+<blockquote class="callout note">
+<p><strong>Note:</strong> The dashboard's policy editor rewrites <code>policies.yaml</code> when you save. It keeps settings it does not show, such as <code>approval</code> and <code>rate_limit</code>, but not YAML comments.</p>
+</blockquote>
+<h2 id="validation-errors">Validation errors<a class="anchor" href="#validation-errors" title="Permanent link">#</a></h2>
+<p>Lokra checks the file each time a command loads it, and prints the first problem it finds after <code>error:</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config not found: /path/to/policies.yaml</code></td>
+<td>No policy at that path. Run the command from the folder that holds it, or pass <code>--config</code>.</td>
+</tr>
+<tr>
+<td><code>table name 'a.b.c' should be 'table' or 'schema.table'</code></td>
+<td>A table name with more than one dot, or an empty part.</td>
+</tr>
+<tr>
+<td><code>support-bot: rows needs a column and at least one value, e.g. rows: {column: org_id, values: [42]}</code></td>
+<td><code>rows</code> is missing <code>column</code> or <code>values</code>, has an empty list, or is not a mapping.</td>
+</tr>
+<tr>
+<td><code>support-bot: row values must be numbers or strings</code></td>
+<td>A value in <code>rows.values</code> is <code>true</code>, <code>false</code>, a decimal or a nested list.</td>
+</tr>
+<tr>
+<td><code>support-bot: rows.tables maps a table to the column that holds its scope</code></td>
+<td><code>rows.tables</code> is a list instead of a mapping.</td>
+</tr>
+<tr>
+<td><code>support-bot: clinic_ids was replaced by rows, e.g. rows: {column: clinic_id, values: [1, 2], tables: {clinics: id}}</code></td>
+<td>A policy from an early version of Lokra. Replace <code>clinic_ids</code> with the <code>rows</code> rule shown.</td>
+</tr>
+<tr>
+<td><code>support-bot: unknown setting max_row; an agent can have description, rows, read, write, max_rows, purposes, rate_limit, approval</code></td>
+<td>A key under an agent that Lokra does not know, usually a typo.</td>
+</tr>
+<tr>
+<td><code>support-bot: an agent should be a set of settings, e.g. read: {orders: '*'}</code></td>
+<td>The agent's value is a list or a string instead of a mapping.</td>
+</tr>
+<tr>
+<td><code>support-bot: read orders should be "*" or a list of columns, e.g. [id, name]</code></td>
+<td>A <code>read</code> value that is a comma-separated string, an empty list or something else. Write <code>[id, name]</code>, not <code>"id, name"</code>.</td>
+</tr>
+<tr>
+<td><code>support-bot: write orders should list operations from insert, update and delete, e.g. [update]</code></td>
+<td>A <code>write</code> value that is a single word, an empty list or an unknown operation.</td>
+</tr>
+<tr>
+<td><code>support-bot: read and write should map tables to columns or operations, e.g. read: {orders: '*'}</code></td>
+<td><code>read</code> or <code>write</code> is a list instead of a mapping.</td>
+</tr>
+<tr>
+<td><code>support-bot: max_rows should be a whole number, 1 or more</code></td>
+<td><code>max_rows</code> is 0, negative, a decimal or text. <code>rate_limit</code> has the same check, with 0 meaning no limit.</td>
+</tr>
+<tr>
+<td><code>masking rule for card: unknown strategy 'last0'; use redact, last4 (any last1 or more), year_only, hash or none</code></td>
+<td>A masking strategy Lokra does not know. <code>last0</code> is refused because it would show the whole value.</td>
+</tr>
+<tr>
+<td><code>agents ops-bot and ops_bot would share the database role lokra_ops_bot; rename one</code></td>
+<td>Two agent names that differ only in case or punctuation.</td>
+</tr>
+<tr>
+<td><code>support-bot: approval should look like approval: {auto_max_rows: 5, auto_statements: [insert, update], two_people: [delete]}</code></td>
+<td><code>approval</code> is not a mapping.</td>
+</tr>
+<tr>
+<td><code>support-bot: unknown approval setting auto; it should look like approval: {…}</code></td>
+<td>A key under <code>approval</code> other than the three above.</td>
+</tr>
+<tr>
+<td><code>support-bot: approval auto_max_rows should be a whole number of rows, 0 or more</code></td>
+<td><code>auto_max_rows</code> is negative, a decimal, text or <code>true</code>.</td>
+</tr>
+<tr>
+<td><code>support-bot: approval two_people can only list insert, update and delete</code></td>
+<td>Another statement name in <code>auto_statements</code> or <code>two_people</code>. The message names the key.</td>
+</tr>
+<tr>
+<td><code>slack should look like: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}</code></td>
+<td><code>slack</code> is not a mapping.</td>
+</tr>
+<tr>
+<td><code>invalid literal for int() with base 10: 'lots'</code></td>
+<td><code>port</code> or <code>approval_ttl_seconds</code> holds text.</td>
+</tr>
+</tbody>
+</table>
+<p>Some problems only show up when a command uses that part of the policy:</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unknown agent 'support-bot'</code></td>
+<td>A command or token names an agent that is not in the policy.</td>
+</tr>
+<tr>
+<td><code>tables in the policy that do not exist: billing.invoice</code></td>
+<td><code>lokra provision</code>, before it changes anything. <code>lokra check</code> reports each one separately.</td>
+</tr>
+<tr>
+<td><code>unknown detectors: ['phone_au']</code></td>
+<td>Any agent request, and <code>lokra slack</code> and <code>lokra cloud</code>, when <code>masking.detectors</code> has a name that does not exist.</td>
+</tr>
+<tr>
+<td><code>add the channel to policies.yaml: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}</code></td>
+<td><code>lokra slack</code> with no <code>slack.channel</code>.</td>
+</tr>
+<tr>
+<td><code>list who may approve: slack: {approvers: [U0123ABCD]} (Slack member IDs)</code></td>
+<td><code>lokra slack</code> with no <code>slack.approvers</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Views that would read past a row lock are refused by <code>provision</code> and reported by <code>check</code>; see <a href="/docs/row-locks#views">row locks</a>. For errors from the database itself, see <a href="/docs/troubleshooting">troubleshooting</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/cli"><span>Previous</span>CLI reference</a><a class="next" href="/docs/mcp-tools"><span>Next</span>MCP tools reference</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/policy-reference.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#where-the-file-lives">Where the file lives</a></li><li><a href="#top-level-keys">Top-level keys</a></li><li><a href="#database">database</a></li><li><a href="#agent-keys">Agent keys</a></li><li><a href="#masking">masking</a></li><li><a href="#slack">slack</a></li><li><a href="#a-complete-example">A complete example</a></li><li><a href="#validation-errors">Validation errors</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

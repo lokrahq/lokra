@@ -123,7 +123,7 @@ def run(cfg: Config, url: str, admin_dsn: str | None, once: bool = False, interv
         post=http_post) -> None:
     token = os.environ.get("LOKRA_CLOUD_TOKEN", "")
     if not token:
-        raise ConfigError("set LOKRA_CLOUD_TOKEN to a gate token from Lokra Cloud (Gates → Create gate token)")
+        raise ConfigError("set LOKRA_CLOUD_TOKEN to a gate token from Lokra Cloud (Gates → Create token)")
     sync = CloudSync(cfg, url, token, admin_dsn, post)
     print(f"lokra: connecting to {url}")
     print(f"lokra: serving {', '.join(cfg.agents) or 'no agents'} from {cfg.path}")

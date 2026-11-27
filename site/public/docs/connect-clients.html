@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Connect AI clients · Lokra docs</title>
+<meta name="description" content="Add a Lokra agent to Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or any other MCP client, over stdio or HTTP.">
+<link rel="canonical" href="https://lokra.dev/docs/connect-clients">
+<meta property="og:title" content="Connect AI clients · Lokra docs">
+<meta property="og:description" content="Add a Lokra agent to Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or any other MCP client, over stdio or HTTP.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients" class="on" aria-current="page">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Running agents</p>
+    <h1>Connect AI clients</h1>
+    <p class="docs-lede">Add a Lokra agent to Claude Code, Claude Desktop, Cursor, VS Code, Windsurf or any other MCP client, over stdio or HTTP.</p>
+    <div class="docs-body">
+<p>An AI client talks to Lokra through MCP. On your own machine, the client starts <code>lokra serve</code> as a local process and the agent's tools appear in the chat. <code>lokra connect</code> writes that client config for you, after checking that the agent can log in to the database.</p>
+<p>Before you start, you need a policy with at least one agent, and that agent provisioned with <code>lokra provision</code>. See <a href="/docs/connect-database">connect your database</a> and <a href="/docs/quickstart">quickstart</a> if you have not done that yet.</p>
+<h2 id="connect-in-one-command">Connect in one command<a class="anchor" href="#connect-in-one-command" title="Permanent link">#</a></h2>
+<p>Run <code>lokra connect</code> in the folder that holds <code>policies.yaml</code>:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  ✓ support-bot logs in to app and can read 3 tables
+  ✓ Added lokra-support-bot to .mcp.json for Claude Code
+
+  Next: Start Claude Code in this folder and allow lokra-support-bot when it asks.
+  Then ask it: "What tables can you see?"
+</code></pre></div>
+
+<p>With no flags, Lokra connects the only agent in the policy to Claude Code. When the policy has more than one agent, name the one you want:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot
+</code></pre></div>
+
+<p>If you leave the name out, Lokra stops and lists the agents it found:</p>
+<div class="hl"><pre><span></span><code>error: say which agent to connect, one of: support-bot, ops-bot
+</code></pre></div>
+
+<h2 id="supported-clients">Supported clients<a class="anchor" href="#supported-clients" title="Permanent link">#</a></h2>
+<p>Pick a client with <code>--client</code>. The default is <code>claude-code</code>.</p>
+<table>
+<thead>
+<tr>
+<th><code>--client</code></th>
+<th>Client</th>
+<th>File Lokra writes</th>
+<th>Top-level key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-code</code></td>
+<td>Claude Code</td>
+<td><code>.mcp.json</code> in the current folder</td>
+<td><code>mcpServers</code></td>
+</tr>
+<tr>
+<td><code>claude-desktop</code></td>
+<td>Claude Desktop</td>
+<td>per-OS path, see below</td>
+<td><code>mcpServers</code></td>
+</tr>
+<tr>
+<td><code>cursor</code></td>
+<td>Cursor</td>
+<td><code>.cursor/mcp.json</code> in the current folder</td>
+<td><code>mcpServers</code></td>
+</tr>
+<tr>
+<td><code>vscode</code></td>
+<td>VS Code (Copilot Chat agent mode)</td>
+<td><code>.vscode/mcp.json</code> in the current folder</td>
+<td><code>servers</code></td>
+</tr>
+<tr>
+<td><code>windsurf</code></td>
+<td>Windsurf</td>
+<td><code>~/.codeium/windsurf/mcp_config.json</code></td>
+<td><code>mcpServers</code></td>
+</tr>
+</tbody>
+</table>
+<p>Claude Code, Cursor and VS Code read a config file from the project folder, so run <code>lokra connect</code> from the folder you will open in the client. Claude Desktop and Windsurf read one file in your home folder, so the server is available everywhere.</p>
+<p>Claude Desktop keeps its config here:</p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+</tr>
+<tr>
+<td>Linux</td>
+<td><code>~/.config/Claude/claude_desktop_config.json</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout note">
+<p><strong>Note:</strong> Lokra runs on macOS and Linux. It uses POSIX file locks for its ledger and controls, so it does not run natively on Windows.</p>
+</blockquote>
+<p>After writing the file, Lokra tells you the next step for that client:</p>
+<table>
+<thead>
+<tr>
+<th>Client</th>
+<th>Next step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td>Start Claude Code in this folder and allow the server when it asks.</td>
+</tr>
+<tr>
+<td>Claude Desktop</td>
+<td>Quit and reopen Claude Desktop.</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>Open this folder in Cursor and switch the server on in its MCP settings.</td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td>Open this folder in VS Code; the server appears in Copilot Chat's agent tools.</td>
+</tr>
+<tr>
+<td>Windsurf</td>
+<td>Refresh the MCP servers in Windsurf.</td>
+</tr>
+</tbody>
+</table>
+<p>Then ask the agent something like "What tables can you see?". It should call <code>list_tables</code> and answer with the tables in its policy.</p>
+<h2 id="what-lokra-writes">What Lokra writes<a class="anchor" href="#what-lokra-writes" title="Permanent link">#</a></h2>
+<p>For Claude Code, Claude Desktop, Cursor and Windsurf, the entry looks like this:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"mcpServers"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">    </span><span class="t-nt">"lokra-support-bot"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">      </span><span class="t-nt">"command"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"/Users/dana/.local/bin/lokra"</span><span class="t-p">,</span>
+<span class="t-w">      </span><span class="t-nt">"args"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span>
+<span class="t-w">        </span><span class="t-s2">"--config"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"/Users/dana/projects/shop/policies.yaml"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"serve"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"--dev-agent"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"support-bot"</span>
+<span class="t-w">      </span><span class="t-p">]</span>
+<span class="t-w">    </span><span class="t-p">}</span>
+<span class="t-w">  </span><span class="t-p">}</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>VS Code uses a <code>servers</code> key and needs a <code>type</code>, so its entry is:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"servers"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">    </span><span class="t-nt">"lokra-support-bot"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">      </span><span class="t-nt">"type"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"stdio"</span><span class="t-p">,</span>
+<span class="t-w">      </span><span class="t-nt">"command"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"/Users/dana/.local/bin/lokra"</span><span class="t-p">,</span>
+<span class="t-w">      </span><span class="t-nt">"args"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span>
+<span class="t-w">        </span><span class="t-s2">"--config"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"/Users/dana/projects/shop/policies.yaml"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"serve"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"--dev-agent"</span><span class="t-p">,</span>
+<span class="t-w">        </span><span class="t-s2">"support-bot"</span>
+<span class="t-w">      </span><span class="t-p">]</span>
+<span class="t-w">    </span><span class="t-p">}</span>
+<span class="t-w">  </span><span class="t-p">}</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>Two more arguments appear when they apply:</p>
+<ul>
+<li><code>--home &lt;path&gt;</code> goes before <code>serve</code> when you keep Lokra's state somewhere other than <code>.lokra</code> next to the policy (you passed <code>--home</code> or set <code>LOKRA_HOME</code>).</li>
+<li><code>--purpose &lt;purpose&gt;</code> goes after the agent name when you pass <code>--purpose</code> to <code>lokra connect</code>.</li>
+</ul>
+<h3 id="why-the-paths-are-absolute">Why the paths are absolute<a class="anchor" href="#why-the-paths-are-absolute" title="Permanent link">#</a></h3>
+<p>Desktop apps such as Claude Desktop and Cursor do not start with your shell's <code>PATH</code>, so a bare <code>lokra</code> command often fails with "command not found". Lokra writes the full path of the <code>lokra</code> you ran instead. If you ran it as <code>python -m lokra</code>, the entry uses the full path of that Python with <code>-m lokra</code>.</p>
+<p>The policy path is absolute too, because the client may start the server from a different working folder. If you move the project or reinstall Lokra somewhere else, run <code>lokra connect</code> again to update the entry.</p>
+<h3 id="what-the-server-does-when-the-client-starts-it">What the server does when the client starts it<a class="anchor" href="#what-the-server-does-when-the-client-starts-it" title="Permanent link">#</a></h3>
+<p><code>serve --dev-agent support-bot</code> issues the agent an 8-hour token each time the client starts it, on behalf of your username, and serves MCP over stdio. Lokra logs in to the database as the agent's role on its behalf, so the agent never sees a database password. If a session runs past 8 hours, the agent's calls start failing with <code>token has expired, mint a new one</code>; restart the server from the client to get a fresh token.</p>
+<p>If <code>LOKRA_TOKEN</code> is set in the server's environment, Lokra uses that token and does not issue one.</p>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> <code>--dev-agent</code> suits an agent on your own machine. Anyone who can start that command can act as the agent, so do not use it on shared or production hosts. See <a href="/docs/production">run in production</a>.</p>
+</blockquote>
+<h2 id="the-login-check">The login check<a class="anchor" href="#the-login-check" title="Permanent link">#</a></h2>
+<p>Before it writes anything, <code>lokra connect</code> logs in to the database as the agent's own role (for <code>support-bot</code>, the role <code>lokra_support_bot</code>) with the password <code>lokra provision</code> saved in <code>.lokra/secrets.json</code>. It connects read-only with a five-second timeout, counts the tables the role may select from, and prints the result:</p>
+<div class="hl"><pre><span></span><code>  ✓ support-bot logs in to app and can read 3 tables
+</code></pre></div>
+
+<p>This catches the common problems before you switch to the client. The check connects to the host and port in the policy, from the machine where you run <code>lokra connect</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What you see</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent not provisioned</td>
+<td><code>error: support-bot is not provisioned yet; run lokra provision --admin-dsn "&lt;admin connection string&gt;" first</code></td>
+</tr>
+<tr>
+<td>Login refused or database unreachable</td>
+<td><code>error: support-bot could not log in to app at db.internal:5432: &lt;reason from Postgres&gt; (--no-check writes the config anyway)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Pass <code>--no-check</code> to skip the login and write the config anyway, for example when the database is only reachable from another network.</p>
+<h2 id="existing-entries-and-other-servers">Existing entries and other servers<a class="anchor" href="#existing-entries-and-other-servers" title="Permanent link">#</a></h2>
+<p>Lokra adds or updates one server and keeps everything else in the file, including other MCP servers. It writes to a temporary file and renames it into place, keeping the file's permissions. The file is rewritten with two-space indentation.</p>
+<table>
+<thead>
+<tr>
+<th>What is already there</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No file, or an empty file</td>
+<td>Lokra creates it, and its folder if needed. Prints <code>Added</code>.</td>
+</tr>
+<tr>
+<td>The same entry</td>
+<td>Nothing changes. Prints <code>is already in</code>.</td>
+</tr>
+<tr>
+<td>A Lokra entry with the same name but different arguments</td>
+<td>Lokra replaces it. Prints <code>Updated</code>.</td>
+</tr>
+<tr>
+<td>A different server with the same name</td>
+<td>Lokra stops: <code>already has a server called lokra-support-bot that is not Lokra; choose another --name, or --force to replace it</code>.</td>
+</tr>
+<tr>
+<td>A file that is not plain JSON, such as JSON with comments</td>
+<td>Lokra stops and changes nothing: <code>is not plain JSON (...); add the entry by hand from lokra connect --print</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Lokra recognises its own entry by its arguments: a server whose <code>args</code> contain both <code>serve</code> and <code>--config</code>.</p>
+<h2 id="flags">Flags<a class="anchor" href="#flags" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td>The agent from the policy. Optional when the policy has only one.</td>
+</tr>
+<tr>
+<td><code>--client</code></td>
+<td>Where to add it: <code>claude-code</code> (default), <code>claude-desktop</code>, <code>cursor</code>, <code>vscode</code> or <code>windsurf</code>.</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>The server name in the client. Default: <code>lokra-&lt;agent&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>A declared purpose-of-use, added to the agent's session token and recorded on every request.</td>
+</tr>
+<tr>
+<td><code>--print</code></td>
+<td>Print the config entry instead of writing it. Skips the login check.</td>
+</tr>
+<tr>
+<td><code>--no-check</code></td>
+<td>Skip logging in as the agent.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Replace a server of the same name that is not Lokra.</td>
+</tr>
+</tbody>
+</table>
+<p>The global <code>--config</code> and <code>--home</code> options go before the command, for example <code>lokra --config ./policies.yaml connect</code>. The <a href="/docs/cli#lokra-connect">CLI reference</a> lists them all.</p>
+<h3 id="purpose-of-use">Purpose of use<a class="anchor" href="#purpose-of-use" title="Permanent link">#</a></h3>
+<p>If the policy sets <code>require_purpose: true</code>, <code>lokra connect</code> refuses to write an entry without <code>--purpose</code>. If the agent lists <code>purposes</code>, the purpose must be one of them:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot<span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
+</code></pre></div>
+
+<p>See <a href="/docs/policies">policies</a> for how purposes work.</p>
+<h3 id="two-agents-in-one-client">Two agents in one client<a class="anchor" href="#two-agents-in-one-client" title="Permanent link">#</a></h3>
+<p>Connect each agent separately. Each gets its own server entry, so the client sees two sets of tools:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot
+lokra<span class="t-w"> </span>connect<span class="t-w"> </span>ops-bot
+</code></pre></div>
+
+<h2 id="any-other-mcp-client">Any other MCP client<a class="anchor" href="#any-other-mcp-client" title="Permanent link">#</a></h2>
+<p>For a client Lokra does not know, print the entry and paste it into that client's config:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>connect<span class="t-w"> </span>support-bot<span class="t-w"> </span>--print
+</code></pre></div>
+
+<p>The output is the same JSON shown above, under <code>mcpServers</code>. Most stdio clients want the same <code>command</code> and <code>args</code>; adapt the outer key to what your client expects. <code>--print --client vscode</code> prints the <code>servers</code> form with <code>"type": "stdio"</code>.</p>
+<p>You can also wire Claude Code by hand with a token you mint yourself, instead of <code>--dev-agent</code>:</p>
+<div class="hl"><pre><span></span><code>claude<span class="t-w"> </span>mcp<span class="t-w"> </span>add<span class="t-w"> </span>shop-db<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>-e<span class="t-w"> </span><span class="t-nv">LOKRA_TOKEN</span><span class="t-o">=</span><span class="t-s2">"</span><span class="t-k">$(</span>lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">28800</span><span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>--<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span><span class="t-nb">command</span><span class="t-w"> </span>-v<span class="t-w"> </span>lokra<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>--config<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">/policies.yaml"</span><span class="t-w"> </span>serve
+</code></pre></div>
+
+<p>The token lasts at most 8 hours (28800 seconds), so you will need to mint a new one and update the server after that.</p>
+<h2 id="connect-over-http">Connect over HTTP<a class="anchor" href="#connect-over-http" title="Permanent link">#</a></h2>
+<p>Agents on other machines, and hosted agents, connect to one long-running <code>lokra serve --http</code> instead of starting their own process. Each request carries the agent's token in an <code>Authorization: Bearer</code> header. Set up the server and TLS first, as described in <a href="/docs/production#serve-over-http">run in production</a>.</p>
+<p>Mint a token for the agent on the Lokra host:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">28800</span>
+</code></pre></div>
+
+<p>Then add the server to Claude Code with that token:</p>
+<div class="hl"><pre><span></span><code>claude<span class="t-w"> </span>mcp<span class="t-w"> </span>add<span class="t-w"> </span>--transport<span class="t-w"> </span>http<span class="t-w"> </span>lokra<span class="t-w"> </span>https://lokra.internal.example/mcp<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>--header<span class="t-w"> </span><span class="t-s2">"Authorization: Bearer &lt;token&gt;"</span>
+</code></pre></div>
+
+<p>The MCP endpoint is always <code>/mcp</code>. Other clients that support remote MCP servers over streamable HTTP take the same URL and header; check your client's documentation for where to put them.</p>
+<p>A call without a valid token is refused and recorded in the ledger as <code>denied</code>. Because tokens expire within 8 hours, something has to mint and hand over fresh ones: a person, or a job you run on the Lokra host.</p>
+<h2 id="next-steps">Next steps<a class="anchor" href="#next-steps" title="Permanent link">#</a></h2>
+<ul>
+<li>See every tool the agent gets in the <a href="/docs/mcp-tools">MCP tools reference</a>.</li>
+<li>Decide how writes get approved in <a href="/docs/approvals">approvals</a> and <a href="/docs/slack">approve in Slack</a>.</li>
+<li>Learn how to pause an agent or revoke a token in <a href="/docs/stop-agents">stop an agent</a>.</li>
+<li>If the client does not show the tools, see <a href="/docs/troubleshooting">troubleshooting</a>.</li>
+</ul>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/approvals"><span>Previous</span>Approve writes</a><a class="next" href="/docs/production"><span>Next</span>Run in production</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/connect-clients.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#connect-in-one-command">Connect in one command</a></li><li><a href="#supported-clients">Supported clients</a></li><li><a href="#what-lokra-writes">What Lokra writes</a></li><li><a href="#the-login-check">The login check</a></li><li><a href="#existing-entries-and-other-servers">Existing entries and other servers</a></li><li><a href="#flags">Flags</a></li><li><a href="#any-other-mcp-client">Any other MCP client</a></li><li><a href="#connect-over-http">Connect over HTTP</a></li><li><a href="#next-steps">Next steps</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

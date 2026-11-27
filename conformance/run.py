@@ -92,7 +92,7 @@ def main(argv=None) -> int:
     if args.markdown:
         Path(args.markdown).write_text(markdown(all_results))
         print(f"\nwrote {args.markdown}")
-    return 0
+    return 0 if all(r["passed"] for r in all_results.get(adapters[0].name, [])) else 1
 
 
 if __name__ == "__main__":

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Plans and billing · Lokra docs</title>
+<meta name="description" content="Lokra Cloud&#x27;s Free, Team and Enterprise plans, what counts as an agent action, what happens at the limit, and how to upgrade or cancel.">
+<link rel="canonical" href="https://lokra.dev/docs/cloud-billing">
+<meta property="og:title" content="Plans and billing · Lokra docs">
+<meta property="og:description" content="Lokra Cloud&#x27;s Free, Team and Enterprise plans, what counts as an agent action, what happens at the limit, and how to upgrade or cancel.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing" class="on" aria-current="page">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Lokra Cloud</p>
+    <h1>Plans and billing</h1>
+    <p class="docs-lede">Lokra Cloud&#x27;s Free, Team and Enterprise plans, what counts as an agent action, what happens at the limit, and how to upgrade or cancel.</p>
+    <div class="docs-body">
+<p>Lokra Cloud has one price for the whole team. Every plan includes unlimited people, agents and databases. Plans differ in how many agent actions Cloud copies from your gates each month and how long it keeps them. The open-source gate is free whatever plan you choose, and it keeps working on its own if you never use Cloud.</p>
+<h2 id="plans">Plans<a class="anchor" href="#plans" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Free</th>
+<th>Team</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Price</td>
+<td>$0</td>
+<td>$49 a month, or $490 a year</td>
+</tr>
+<tr>
+<td>Agent actions a month</td>
+<td>25,000</td>
+<td>1,000,000</td>
+</tr>
+<tr>
+<td>History</td>
+<td>7 days</td>
+<td>1 year</td>
+</tr>
+<tr>
+<td>People, agents and databases</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Approvals, pauses and alerts from your phone</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Priority email support</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Free trial</td>
+<td>—</td>
+<td>14 days, if your organisation has never subscribed</td>
+</tr>
+</tbody>
+</table>
+<p>Free needs no card. Prices are in US dollars, before tax. At checkout Stripe shows the price in the buyer's currency and adds sales tax, VAT or GST where it applies; an Australian buyer, for example, sees 10% GST added. The yearly price costs the same as 10 months, which the Billing page shows as <strong>2 months free</strong>.</p>
+<h3 id="enterprise">Enterprise<a class="anchor" href="#enterprise" title="Permanent link">#</a></h3>
+<p>Enterprise is for security reviews and larger fleets. It offers higher limits and longer history, payment by invoice, and help answering your security questionnaire. The price is custom: choose <strong>Talk to us</strong> on the Billing page, or email hello@lokra.dev.</p>
+<h2 id="no-per-seat-pricing">No per-seat pricing<a class="anchor" href="#no-per-seat-pricing" title="Permanent link">#</a></h2>
+<p>Lokra never charges per person, per agent or per database. More approvers and narrower agents make you safer, so adding them costs nothing. Invite everyone who should decide or watch, and give each agent only the access it needs. See <a href="/docs/cloud-team">Team and roles</a>.</p>
+<h2 id="the-billing-page">The Billing page<a class="anchor" href="#the-billing-page" title="Permanent link">#</a></h2>
+<p>Open <strong>Billing</strong>, or on a phone tap <strong>More</strong>, then <strong>Billing</strong>. Everyone in the organisation can see it. Only owners can change the plan.</p>
+<p>The top card shows:</p>
+<ul>
+<li>Your plan and its state: <strong>No card needed</strong> on Free, <strong>Trial</strong> with the day it ends, <strong>Active</strong> with the day it renews, or <strong>Payment due</strong>.</li>
+<li><strong>Agent actions this month</strong>, as a count out of your limit, with a bar and the day the count resets.</li>
+<li><strong>History</strong>, and how many <strong>People</strong>, <strong>Agents</strong> and <strong>Databases</strong> your organisation has.</li>
+<li><strong>Manage billing</strong>, for owners once the organisation has a subscription.</li>
+</ul>
+<p>Below it, the plans sit side by side, with a <strong>Monthly</strong> and <strong>Yearly</strong> switch.</p>
+<h2 id="what-counts-as-an-agent-action">What counts as an agent action<a class="anchor" href="#what-counts-as-an-agent-action" title="Permanent link">#</a></h2>
+<p>An agent action is one entry in a gate's signed ledger that Cloud copies: a read, a proposed, approved or executed write, a refused query, a stopped request, or a pause.</p>
+<ul>
+<li>Cloud counts actions per organisation, across all of its gates, per calendar month in UTC.</li>
+<li>An entry counts once. If a gate sends the same entry again, for example after a dropped connection, it does not count twice.</li>
+<li>Decisions made in Cloud are not actions in themselves. The entries they cause on the gate, such as <code>write_approved</code> or <code>agent_paused</code>, are.</li>
+<li>When you connect a gate for the first time, it sends the entries already in its ledger, and those count too.</li>
+</ul>
+<p>The Activity page's filters show the kinds of entry Cloud copies. See <a href="/docs/cloud-activity#filters">Activity and export</a>.</p>
+<h2 id="what-happens-over-the-limit">What happens over the limit<a class="anchor" href="#what-happens-over-the-limit" title="Permanent link">#</a></h2>
+<p>Nothing stops. Approvals, pauses and syncing keep working, and every gate keeps its full ledger. What changes:</p>
+<ul>
+<li>Cloud stops copying new ledger entries until the month resets or you upgrade.</li>
+<li>Agents, pending writes, decisions and phone alerts keep syncing, because they do not depend on ledger entries. You can still approve, deny, pause and resume.</li>
+<li>The Billing page shows how many entries were not copied, with <strong>Your gates still have every one in their own ledgers.</strong></li>
+<li>The Activity page shows a notice that Cloud has copied this month's actions, with a link to the plans.</li>
+</ul>
+<p>The entries Cloud did not copy are still on each gate. Read them there with <code>lokra log</code>, <code>lokra report</code> or <code>lokra evidence</code>. See <a href="/docs/audit">Audit ledger</a>.</p>
+<h2 id="start-a-trial-or-upgrade">Start a trial or upgrade<a class="anchor" href="#start-a-trial-or-upgrade" title="Permanent link">#</a></h2>
+<p>Only owners can do this.</p>
+<ol>
+<li>Open <strong>Billing</strong>.</li>
+<li>Under <strong>Plans</strong>, choose <strong>Monthly</strong> or <strong>Yearly</strong>.</li>
+<li>On the Team plan, choose <strong>Start 14-day trial</strong>. If your organisation has subscribed before, the button reads <strong>Upgrade to Team</strong> and there is no trial.</li>
+<li>Complete Stripe Checkout. It accepts promotion codes.</li>
+</ol>
+<p>Stripe brings you back to the Billing page. The plan changes to Team as soon as Stripe confirms the subscription, usually within seconds. During a trial, the plan card reads <strong>Trial</strong> with the day it ends.</p>
+<p>People who are not owners see <strong>Ask an owner to upgrade</strong> on the Team plan instead of a button.</p>
+<h2 id="manage-or-cancel">Manage or cancel<a class="anchor" href="#manage-or-cancel" title="Permanent link">#</a></h2>
+<p>Owners choose <strong>Manage billing</strong> on the Billing page. It opens Stripe's billing portal, where you can update your card or cancel.</p>
+<ul>
+<li><strong>Payment due</strong> means a payment failed. Team stays on while you update your card in <strong>Manage billing</strong>.</li>
+<li><strong>If payment stops altogether</strong>, the organisation is treated as Free, but Cloud keeps its year of history for two weeks past the paid period, so paying again within that time brings it all back.</li>
+<li><strong>Cancelling</strong> keeps Team on until the end of the period you paid for. Then the organisation moves to Free.</li>
+</ul>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> When an organisation moves to Free, Cloud keeps only 7 days of activity. Older entries disappear from Activity at once and are deleted at the next daily clean-up, at 03:17 UTC. Export them first if you need them. See <a href="/docs/cloud-activity#export">Export</a>.</p>
+</blockquote>
+<p>Moving to Free does not touch your gates, agents, people or their roles, and it never touches the ledgers on your gates.</p>
+<h2 id="questions">Questions<a class="anchor" href="#questions" title="Permanent link">#</a></h2>
+<h3 id="do-i-need-a-card-for-free">Do I need a card for Free?<a class="anchor" href="#do-i-need-a-card-for-free" title="Permanent link">#</a></h3>
+<p>No. Sign in with GitHub and connect your gates. Free has no time limit.</p>
+<h3 id="does-adding-a-gate-or-a-person-change-the-price">Does adding a gate or a person change the price?<a class="anchor" href="#does-adding-a-gate-or-a-person-change-the-price" title="Permanent link">#</a></h3>
+<p>No. The price depends only on the plan. Gates, agents and people are unlimited on every plan, though each gate's ledger entries count towards your agent actions.</p>
+<h3 id="who-handles-payment-details">Who handles payment details?<a class="anchor" href="#who-handles-payment-details" title="Permanent link">#</a></h3>
+<p>Stripe. Checkout and the billing portal are Stripe pages, so Cloud never sees your card number. Any owner can open <strong>Manage billing</strong>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/cloud-activity"><span>Previous</span>Activity and export</a><a class="next" href="/docs/cli"><span>Next</span>CLI reference</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/cloud-billing.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#plans">Plans</a></li><li><a href="#no-per-seat-pricing">No per-seat pricing</a></li><li><a href="#the-billing-page">The Billing page</a></li><li><a href="#what-counts-as-an-agent-action">What counts as an agent action</a></li><li><a href="#what-happens-over-the-limit">What happens over the limit</a></li><li><a href="#start-a-trial-or-upgrade">Start a trial or upgrade</a></li><li><a href="#manage-or-cancel">Manage or cancel</a></li><li><a href="#questions">Questions</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

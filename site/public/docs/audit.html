@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Audit ledger and reports · Lokra docs</title>
+<meta name="description" content="How Lokra&#x27;s hash-chained, signed ledger works, and how to read it with lokra log, verify-ledger, report, dashboard and evidence.">
+<link rel="canonical" href="https://lokra.dev/docs/audit">
+<meta property="og:title" content="Audit ledger and reports · Lokra docs">
+<meta property="og:description" content="How Lokra&#x27;s hash-chained, signed ledger works, and how to read it with lokra log, verify-ledger, report, dashboard and evidence.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit" class="on" aria-current="page">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Running agents</p>
+    <h1>Audit ledger and reports</h1>
+    <p class="docs-lede">How Lokra&#x27;s hash-chained, signed ledger works, and how to read it with lokra log, verify-ledger, report, dashboard and evidence.</p>
+    <div class="docs-body">
+<p>Every request an agent makes, and every decision a person makes about it, is written to an append-only ledger. Each entry is chained to the one before it by a SHA-256 hash and signed with an HMAC, so a changed or deleted entry is detected. Lokra then reads the ledger back into a per-agent report, a live dashboard and a control evidence pack for reviewers.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it gives you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lokra log</code></td>
+<td>The most recent entries, one per line</td>
+</tr>
+<tr>
+<td><code>lokra verify-ledger</code></td>
+<td>A check that no entry was changed or removed</td>
+</tr>
+<tr>
+<td><code>lokra report</code></td>
+<td>Per-agent activity and risk flags, as text or JSON</td>
+</tr>
+<tr>
+<td><code>lokra dashboard</code></td>
+<td>A local web page with the report, an approvals queue, the full log and a policy editor</td>
+</tr>
+<tr>
+<td><code>lokra evidence</code></td>
+<td>A control evidence pack in Markdown or JSON, mapped to privacy and security frameworks</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-the-ledger-records">What the ledger records<a class="anchor" href="#what-the-ledger-records" title="Permanent link">#</a></h2>
+<p>The ledger is <code>.lokra/ledger.jsonl</code> in Lokra's state directory: one JSON object per line. Lokra writes an entry for:</p>
+<ul>
+<li>every query and <code>list_tables</code> call, and every statement refused by Lokra's SQL check or by Postgres,</li>
+<li>every request refused because of its token or purpose, a pause, a revoked token or the rate limit, whatever the tool,</li>
+<li>every write proposed, approved, partly approved, denied, executed or rolled back,</li>
+<li>every pause, resume and token revocation.</li>
+</ul>
+<p>Successful <code>whoami</code> and <code>write_status</code> calls are not recorded, because they only read Lokra's own state. An <code>execute_write</code> that Lokra turns down because the write is not approved, or its approval has expired, is recorded as <code>write_refused</code>.</p>
+<h3 id="fields-on-every-entry">Fields on every entry<a class="anchor" href="#fields-on-every-entry" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>seq</code></td>
+<td>Position in the ledger, starting at 1</td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>UTC time, to the millisecond</td>
+</tr>
+<tr>
+<td><code>event</code></td>
+<td>What happened; see the table below</td>
+</tr>
+<tr>
+<td><code>prev</code></td>
+<td>The <code>hash</code> of the previous entry (64 zeros for the first)</td>
+</tr>
+<tr>
+<td><code>hash</code></td>
+<td>SHA-256 of this entry's contents, including <code>prev</code></td>
+</tr>
+<tr>
+<td><code>sig</code></td>
+<td>HMAC-SHA256 of <code>hash</code>, keyed with <code>.lokra/signing.key</code></td>
+</tr>
+</tbody>
+</table>
+<p>Entries about an agent's request also carry <code>agent</code>, <code>role</code> (its database role), <code>on_behalf_of</code> (the person on its token), <code>token_id</code>, <code>tool</code> and, if the token declared one, <code>purpose</code>.</p>
+<h3 id="events">Events<a class="anchor" href="#events" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Written when</th>
+<th>Extra fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>read</code></td>
+<td>A query returned rows</td>
+<td><code>sql</code>, <code>tables</code>, <code>rows</code>, <code>truncated</code>, <code>masked</code>, <code>ms</code></td>
+</tr>
+<tr>
+<td><code>listed_tables</code></td>
+<td>The agent called <code>list_tables</code></td>
+<td><code>tables</code></td>
+</tr>
+<tr>
+<td><code>rejected</code></td>
+<td>Lokra's SQL check refused a statement</td>
+<td><code>sql</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><code>db_refused</code></td>
+<td>Postgres refused a statement, such as a missing grant</td>
+<td><code>sql</code>, <code>error</code></td>
+</tr>
+<tr>
+<td><code>denied</code></td>
+<td>No token, a bad or expired token, a token for an unknown agent, or a missing or unpermitted purpose</td>
+<td><code>tool</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><code>stopped</code></td>
+<td>The agent was paused, the token revoked, or the rate limit hit</td>
+<td><code>control</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><code>write_proposed</code></td>
+<td>The agent proposed a write and Lokra dry-ran it</td>
+<td><code>write_id</code>, <code>sql</code>, <code>reason</code>, <code>would_affect_rows</code>, <code>warnings</code></td>
+</tr>
+<tr>
+<td><code>write_approved</code></td>
+<td>A person, or the policy, approved a write</td>
+<td><code>write_id</code>, <code>decided_by</code></td>
+</tr>
+<tr>
+<td><code>write_partly_approved</code></td>
+<td>The first of two required approvals</td>
+<td><code>write_id</code>, <code>decided_by</code>, <code>approvals</code>, <code>needed</code></td>
+</tr>
+<tr>
+<td><code>write_denied</code></td>
+<td>A person denied a write</td>
+<td><code>write_id</code>, <code>decided_by</code></td>
+</tr>
+<tr>
+<td><code>write_executed</code></td>
+<td>An approved write ran and committed</td>
+<td><code>write_id</code>, <code>approved_by</code>, <code>affected_rows</code></td>
+</tr>
+<tr>
+<td><code>write_rolled_back</code></td>
+<td>An approved write would have changed more rows than approved</td>
+<td><code>write_id</code>, <code>approved_rows</code>, <code>would_change</code></td>
+</tr>
+<tr>
+<td><code>write_refused</code></td>
+<td>The agent tried to run a write that is not approved, or whose approval expired</td>
+<td><code>write_id</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><code>agent_paused</code>, <code>agent_resumed</code></td>
+<td>Someone paused or resumed an agent</td>
+<td><code>decided_by</code>, <code>reason</code></td>
+</tr>
+<tr>
+<td><code>token_revoked</code></td>
+<td>Someone revoked a token</td>
+<td><code>token_id</code>, <code>decided_by</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>decided_by</code> shows where a decision came from: a terminal username such as <code>dana</code>, <code>dana (dashboard)</code>, <code>dana (slack)</code>, a name from Lokra Cloud, or <code>policy (up to 5 rows)</code> for a write the <a href="/docs/approvals">approval rules</a> let through.</p>
+<p>Here is a <code>read</code> entry:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"agent"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"support-bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"event"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"read"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"hash"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"ccc879d924437a763ba98d1be2de729204da8f61b1d6bd377dc695316dc12d6d"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span><span class="t-nt">"column:last3"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"column:redact"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">},</span><span class="t-w"> </span><span class="t-nt">"ms"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">20</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"prev"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"0000000000000000000000000000000000000000000000000000000000000000"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"role"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"lokra_support_bot"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"seq"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sig"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"151baf8fcf3c24fb9be021087f38521c5a8e49fefce809c43016b05ac808723e"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, name, email, phone FROM customers ORDER BY id LIMIT 3"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"customers"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"token_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"b4476ff04ead5a3a"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tool"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"query"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"ts"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"2026-11-27T09:17:15.422+00:00"</span><span class="t-p">}</span>
+</code></pre></div>
+
+<p>The ledger never holds query results. <code>masked</code> counts what was masked, by rule: <code>column:&lt;strategy&gt;</code> for a <a href="/docs/masking">column rule</a>, or the detector's name, such as <code>email</code> or <code>au_phone</code>, for a value found by a detector.</p>
+<h3 id="sql-is-masked-before-it-is-written">SQL is masked before it is written<a class="anchor" href="#sql-is-masked-before-it-is-written" title="Permanent link">#</a></h3>
+<p>Agents sometimes put identifiers in the SQL itself, for example in a <code>WHERE</code> clause. Before writing a statement to the ledger, Lokra runs the policy's value detectors over it, so this query:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'jo@example.com'</span>
+</code></pre></div>
+
+<p>is recorded as:</p>
+<div class="hl"><pre><span></span><code>SELECT id, name FROM customers WHERE email = '[EMAIL]'
+</code></pre></div>
+
+<p>Only values a configured detector recognises are replaced. If the policy has no <code>detectors</code>, SQL is recorded as written. The same masked SQL is what Slack, the dashboard and Lokra Cloud show.</p>
+<h3 id="what-the-chain-protects">What the chain protects<a class="anchor" href="#what-the-chain-protects" title="Permanent link">#</a></h3>
+<p><code>lokra verify-ledger</code> recomputes every hash and signature in order. It detects an entry whose contents were changed, an entry removed or inserted in the middle, and an entry signed with a different key.</p>
+<p>It cannot detect two things on its own:</p>
+<ul>
+<li><strong>Entries removed from the end.</strong> A shortened ledger is still a valid chain. Keep a copy elsewhere as entries happen, for example by shipping the file to your log platform or connecting <a href="/docs/cloud">Lokra Cloud</a>, which receives each entry as it is written.</li>
+<li><strong>Someone holding the signing key.</strong> With <code>.lokra/signing.key</code>, a person could rebuild and re-sign the whole chain. Keep the key readable only by the user that runs Lokra. See <a href="/docs/production#where-state-lives">where state lives</a>.</li>
+</ul>
+<h2 id="lokra-log">lokra log<a class="anchor" href="#lokra-log" title="Permanent link">#</a></h2>
+<p>Show the most recent entries:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>log<span class="t-w"> </span>-n<span class="t-w"> </span><span class="t-m">5</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>   77 2026-11-27T09:18:58 support-bot        rejected        SELECT pg_read_file('/etc/passwd')
+   78 2026-11-27T09:18:59 support-bot        rejected        SELECT * FROM orders; DROP TABLE orders
+   79 2026-11-27T09:18:59 support-bot        rejected        SET ROLE postgres
+   80 2026-11-27T09:19:49 support-bot        read            SELECT id, name FROM customers WHERE email = '[EMAIL]'
+   81 2026-11-27T09:20:02 ops-bot            write_approved  w_4de7597e
+</code></pre></div>
+
+<p>Each line shows the sequence number, the UTC time, the agent, the event, and the SQL, reason or write id, cut to 90 characters. <code>-n</code> sets how many entries to show; the default is 20. For every field, read <code>.lokra/ledger.jsonl</code> directly, for example with <code>jq</code>.</p>
+<h2 id="lokra-verify-ledger">lokra verify-ledger<a class="anchor" href="#lokra-verify-ledger" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>verify-ledger
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>ok: 82 entries verified
+</code></pre></div>
+
+<p>If anything is wrong, it names the first bad entry and exits with status 2:</p>
+<table>
+<thead>
+<tr>
+<th>Message</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>entry 5: contents were modified</code></td>
+<td>The entry's contents no longer match its hash</td>
+</tr>
+<tr>
+<td><code>entry 3: chain broken (an earlier entry was removed or changed)</code></td>
+<td>The entry's <code>prev</code> does not match the entry before it</td>
+</tr>
+<tr>
+<td><code>entry 1: signature invalid</code></td>
+<td>The entry was signed with a different key, or the signature was changed</td>
+</tr>
+</tbody>
+</table>
+<p>Run it on a schedule, and before you hand a report or evidence pack to anyone.</p>
+<h2 id="lokra-report">lokra report<a class="anchor" href="#lokra-report" title="Permanent link">#</a></h2>
+<p><code>lokra report</code> turns the ledger into a per-agent activity and risk summary:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>report
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>Lokra activity report — 79 ledger entries, chain verified
+  5 access attempt(s) by an unknown or expired agent
+
+ops-bot (for dana)
+  reads 18 · rows 20 · masked 0
+  writes 6 proposed, 5 approved, 1 denied, 1 executed (3 rows)
+  blocked 2 · tables orders
+  ⚠ hit its rate limit 20 times, a sign of a retry loop
+
+support-bot (for dana)
+  reads 3 · rows 5 · masked 8 (au_phone 2, last3 3, redact 3)
+  writes 0 proposed, 0 approved, 0 denied, 0 executed (0 rows)
+  blocked 5 · tables customers, orders
+  ⚠ 5 blocked statements, a sign of probing or prompt injection
+
+2 agent(s) · 2 risk flag(s)
+</code></pre></div>
+
+<p>For each agent it shows who it acted for, how many reads and rows, what was masked, its writes, how many statements were blocked (by the SQL check or by Postgres), and the tables it touched. The first lines show whether the chain verified, and how many requests were denied for their token or purpose.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--agent</code></td>
+<td>Limit the report to one agent. Denied requests are still counted, since most name no agent.</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Print the report as JSON.</td>
+</tr>
+</tbody>
+</table>
+<p>It exits with status 2 if the chain does not verify, so a scheduled job can alert on it.</p>
+<h3 id="risk-flags">Risk flags<a class="anchor" href="#risk-flags" title="Permanent link">#</a></h3>
+<p>Flags are plain rules over the ledger, not a model, so each one traces back to the entries that raised it. They cover the whole ledger, or the one agent with <code>--agent</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Raised when</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>looping</code></td>
+<td>The agent hit its <a href="/docs/stop-agents#cap-the-request-rate">rate limit</a> 3 or more times</td>
+<td>A stuck retry loop</td>
+</tr>
+<tr>
+<td><code>probing</code></td>
+<td>3 or more of its statements were blocked</td>
+<td>Probing, or a prompt injection trying its luck</td>
+</tr>
+<tr>
+<td><code>broad_read</code></td>
+<td>A single read returned 500 or more rows</td>
+<td>An unusually large read</td>
+</tr>
+<tr>
+<td><code>phi_volume</code></td>
+<td>It saw 50 or more masked identifiers</td>
+<td>A lot of sensitive data passed through, even if masked</td>
+</tr>
+<tr>
+<td><code>large_write</code></td>
+<td>It proposed a write that would change 100 or more rows</td>
+<td>A broad change</td>
+</tr>
+<tr>
+<td><code>unscoped_write</code></td>
+<td>It proposed an <code>UPDATE</code> or <code>DELETE</code> with no <code>WHERE</code> clause</td>
+<td>A change to every row the agent can see</td>
+</tr>
+</tbody>
+</table>
+<h3 id="json-output">JSON output<a class="anchor" href="#json-output" title="Permanent link">#</a></h3>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>report<span class="t-w"> </span>--json
+</code></pre></div>
+
+<p>The top level holds <code>chain_verified</code>, <code>entry_count</code>, <code>identity_denials</code>, <code>risk_flags</code> (the total), <code>events_by_type</code> (a count per event), <code>blocked_reasons</code> (the six most common, each with <code>reason</code> and <code>count</code>), and <code>agents</code>. Each agent has <code>agent</code>, <code>on_behalf_of</code>, <code>reads</code>, <code>rows_read</code>, <code>max_read_rows</code>, <code>masked</code>, <code>masked_total</code>, <code>tables</code>, <code>writes_proposed</code>, <code>writes_approved</code>, <code>writes_denied</code>, <code>writes_executed</code>, <code>rows_written</code>, <code>blocked</code>, <code>stopped</code>, and <code>flags</code>, a list of objects with <code>kind</code> and <code>detail</code>. Use it to feed a SIEM or your own reporting.</p>
+<h2 id="the-dashboard">The dashboard<a class="anchor" href="#the-dashboard" title="Permanent link">#</a></h2>
+<p><code>lokra dashboard</code> serves a local web page with the same report, refreshed every four seconds, and lets you act on it:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>dashboard<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>Lokra dashboard on http://127.0.0.1:8900  (Ctrl+C to stop)
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--port</code></td>
+<td><code>8900</code></td>
+<td>Port on <code>127.0.0.1</code></td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td><code>$LOKRA_ADMIN_DSN</code></td>
+<td>Admin connection string. Needed to apply policy changes, and to block the database login when you pause an agent.</td>
+</tr>
+</tbody>
+</table>
+<p>It has four views:</p>
+<ul>
+<li><strong>Dashboard</strong>: counts of agents, statements, masked identifiers and risk flags; statement outcomes; the risk flags; every agent with a <strong>Pause</strong> or <strong>Resume</strong> button; and recent activity.</li>
+<li><strong>Approvals</strong>: each pending write with its agent, the person it acts for, the reason, the masked SQL, the dry-run row count and any warnings, with <strong>Approve</strong> and <strong>Deny</strong> buttons; and recent decisions. Decisions are recorded as your username followed by <code>(dashboard)</code>.</li>
+<li><strong>Audit</strong>: what was masked, the top blocked reasons, and an activity feed, with a link to the full log.</li>
+<li><strong>Policy</strong>: an editor for agents, read grants, write operations, row locks, maximum rows, purposes, masking rules, detectors, the approval window and whether a purpose is required. Saving rewrites <code>policies.yaml</code> and reprovisions the database roles. Removing an agent drops its role.</li>
+</ul>
+<blockquote class="callout note">
+<p><strong>Note:</strong> The policy editor does not show approval rules (<code>approval</code>) or rate limits (<code>rate_limit</code>); it keeps them as they are when you save. Saving does rewrite <code>policies.yaml</code> without YAML comments, so keep comments elsewhere if you rely on them.</p>
+</blockquote>
+<p>The dashboard binds to <code>127.0.0.1</code> only and has no login of its own: anyone who can reach that port on the machine can approve writes. Do not put it behind a proxy. It refuses cross-origin requests that try to change anything. After saving a policy in it, restart <code>lokra serve --http</code> so the server picks up the change.</p>
+<h2 id="lokra-evidence">lokra evidence<a class="anchor" href="#lokra-evidence" title="Permanent link">#</a></h2>
+<p>For a security review or a vendor questionnaire, <code>lokra evidence</code> turns the policy and the ledger into a control evidence pack:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>evidence<span class="t-w">                      </span><span class="t-c1"># Markdown to stdout</span>
+lokra<span class="t-w"> </span>evidence<span class="t-w"> </span>--out<span class="t-w"> </span>evidence.md<span class="t-w">    </span><span class="t-c1"># write it to a file</span>
+lokra<span class="t-w"> </span>evidence<span class="t-w"> </span>--json<span class="t-w">               </span><span class="t-c1"># structured, for your own templates</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--out</code></td>
+<td>Write the Markdown pack to this file instead of standard output.</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Print structured JSON instead of Markdown.</td>
+</tr>
+</tbody>
+</table>
+<p>The pack covers the whole ledger and has these sections:</p>
+<ol>
+<li><strong>Summary</strong>: agents under policy, reads, blocked statements, writes proposed, approved, denied and executed, identifiers masked, and any purposes declared on requests.</li>
+<li><strong>Least-privilege access per agent</strong>: a table of each agent's database role, read grants, write grants and row scope.</li>
+<li><strong>Masking of sensitive values</strong>: the column rules, the detectors, and what was masked in the period.</li>
+<li><strong>Human approval for changes</strong>: write counts, how many the policy approved, and who approved.</li>
+<li><strong>Tamper-evident audit log</strong>: the result of verifying the chain.</li>
+<li><strong>Blocked access attempts</strong>: blocked statements, requests with no valid token, and the top reasons.</li>
+<li><strong>Framework mapping</strong>: each control mapped to frameworks.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Lokra control</th>
+<th>Privacy Act (APP)</th>
+<th>ISO/IEC 27001:2022</th>
+<th>Essential Eight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Least-privilege access per agent</td>
+<td>APP 11</td>
+<td>A.8.2, A.8.3</td>
+<td>Restrict administrative privileges</td>
+</tr>
+<tr>
+<td>Masking of sensitive values</td>
+<td>APP 3, APP 11</td>
+<td>A.8.11 Data masking</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Human approval for changes</td>
+<td>APP 11</td>
+<td>A.5.15</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Tamper-evident audit log</td>
+<td>APP 1, APP 11</td>
+<td>A.8.15, A.8.16</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Blocked access attempts</td>
+<td>APP 11</td>
+<td>A.5.24–A.5.26, A.8.16</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>When requests declared a purpose, the mapping adds <strong>Purpose-of-use enforcement</strong> (APP 6, A.5.15). When the policy masks Australian health identifiers (an <code>ihi</code> or <code>medicare</code> detector, or a masking rule for a column whose name contains <code>ihi</code> or <code>medicare</code>), the pack adds a health section covering the Healthcare Identifiers Act 2010, the My Health Records Act 2012 and the Notifiable Data Breaches scheme.</p>
+<p>The JSON form holds the same data under <code>generated</code>, <code>database</code>, <code>chain_verified</code>, <code>health</code>, <code>purposes</code>, <code>entry_count</code>, <code>summary</code>, <code>agents</code>, <code>masking</code>, <code>change_control</code> and <code>access_denials</code>.</p>
+<blockquote class="callout note">
+<p><strong>Note:</strong> The pack is evidence to support an assessment, not a certification. It covers the controls Lokra runs; the rest of each framework, such as your hosting and backups, is up to your environment. Run <code>lokra verify-ledger</code> before you send it.</p>
+</blockquote>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/slack"><span>Previous</span>Approve in Slack</a><a class="next" href="/docs/ci"><span>Next</span>Use Lokra in CI</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/audit.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#what-the-ledger-records">What the ledger records</a></li><li><a href="#lokra-log">lokra log</a></li><li><a href="#lokra-verify-ledger">lokra verify-ledger</a></li><li><a href="#lokra-report">lokra report</a></li><li><a href="#the-dashboard">The dashboard</a></li><li><a href="#lokra-evidence">lokra evidence</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

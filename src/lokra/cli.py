@@ -313,7 +313,8 @@ def cmd_slack(args):
     run(_cfg(args), args.admin_dsn or os.environ.get("LOKRA_ADMIN_DSN"))
 
 
-def main(argv=None):
+def build_parser() -> argparse.ArgumentParser:
+    """Every command and flag; the docs build reads this too, so the CLI reference cannot drift."""
     p = argparse.ArgumentParser(prog="lokra", description="Policy proxy between AI agents and your database")
     p.add_argument("--config", help="path to policies.yaml (default: ./policies.yaml or $LOKRA_CONFIG)")
     p.add_argument("--home", help="state directory (default: .lokra next to the config)")
@@ -439,8 +440,11 @@ def main(argv=None):
     s.add_argument("--on-behalf-of", help="human recorded in the audit log (default: your username)")
     s.add_argument("--purpose", help="declared purpose-of-use for the --dev-agent token")
     s.set_defaults(fn=cmd_serve)
+    return p
 
-    args = p.parse_args(argv)
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
     if args.cmd is None:
         from .term import Style, welcome
         print("\n".join(welcome(Style.detect())))

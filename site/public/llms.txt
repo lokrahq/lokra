@@ -1,17 +1,21 @@
 # Lokra
 
-> Lokra is an open-source MCP server that sits between AI agents and Postgres. Each agent gets its own database role, so the database itself enforces what the agent can read and change. Lokra locks each agent to the rows it may see, masks sensitive values such as emails, phone numbers, card numbers, IBANs and government identifiers, requires human approval for every write, and records every action in a signed, tamper-evident audit ledger.
+> Lokra is an open-source MCP server that sits between AI agents and Postgres. Each agent gets its own database role, so the database itself enforces what the agent can read and change. Lokra locks each agent to the rows it may see, masks sensitive values such as emails, phone numbers, card numbers, IBANs and government identifiers, holds every write for human approval (or lets small ones through by rule), and records every action in a signed, tamper-evident audit ledger.
 
-- Status: v0.6, early release
+- Status: v0.8, early release
 - Licence: Apache-2.0, self-hosted and free (pipx install lokra); Lokra Cloud, the hosted inbox, is free to start at https://cloud.lokra.dev
-- Works with: Claude Code, Cursor, OpenClaw and any MCP client, locally or over HTTP; PostgreSQL today, Supabase planned
+- Works with: Claude Code, Cursor, OpenClaw and any MCP client, locally or over HTTP; PostgreSQL, including Supabase and Amazon RDS
 - Founded: 2026, in Australia
 
 ## Docs
 
 - [LLM context](https://lokra.dev/llm-context): authoritative facts, FAQ and guidance for AI assistants
-- [README and quick start](https://github.com/lokrahq/lokra#quick-start): install, policy file, and `lokra connect` for Claude Code, Claude Desktop, Cursor, VS Code or Windsurf
-- [Security model](https://github.com/lokrahq/lokra#security-model): how each layer is enforced
+- [Documentation](https://lokra.dev/docs/): guides, Lokra Cloud setup and reference
+- [Quickstart](https://lokra.dev/docs/quickstart): install, scaffold a policy, provision and connect Claude Code
+- [Write a policy](https://lokra.dev/docs/policies) and [policy reference](https://lokra.dev/docs/policy-reference): every option
+- [CLI reference](https://lokra.dev/docs/cli): every command and flag
+- [Security model](https://lokra.dev/docs/security-model): how each layer is enforced, and what Lokra does not protect against
+- [Lokra Cloud](https://lokra.dev/docs/cloud): the hosted inbox, connecting gates, phone alerts and plans
 - [Security policy](https://github.com/lokrahq/lokra/blob/main/SECURITY.md): reporting vulnerabilities
 
 ## Optional

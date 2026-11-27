@@ -5,7 +5,7 @@
   </picture>
 </p>
 
-<p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a></p>
+<p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a> · <a href="https://lokra.dev/docs/">Docs</a></p>
 
 <p align="center"><img src="docs/demo.svg" alt="lokra demo: two AI agents meet a production-like Postgres. Row locks, masking, blocked prompt injection, an approved write, a rate limit and pause, and the signed ledger." width="820"></p>
 
@@ -280,8 +280,8 @@ port 8787 with the `policies.yaml` in `/work`, and keeps its state (signing key,
 pending writes, ledger) in `/work/.lokra`, so mount a directory that persists:
 
 ```bash
-docker run -d --name lokra -p 8787:8787 --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.0
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.0 mint-token support-bot
+docker run -d --name lokra -p 8787:8787 --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2 mint-token support-bot
 ```
 
 The database host in the policy has to be reachable from the container, so not `127.0.0.1`. Any

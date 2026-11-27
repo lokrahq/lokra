@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Approve in Slack · Lokra docs</title>
+<meta name="description" content="Post pending writes to a Slack channel with Approve, Deny and Pause buttons, and record every decision in the signed ledger.">
+<link rel="canonical" href="https://lokra.dev/docs/slack">
+<meta property="og:title" content="Approve in Slack · Lokra docs">
+<meta property="og:description" content="Post pending writes to a Slack channel with Approve, Deny and Pause buttons, and record every decision in the signed ledger.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack" class="on" aria-current="page">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Running agents</p>
+    <h1>Approve in Slack</h1>
+    <p class="docs-lede">Post pending writes to a Slack channel with Approve, Deny and Pause buttons, and record every decision in the signed ledger.</p>
+    <div class="docs-body">
+<p><code>lokra slack</code> posts each write that is waiting for approval to a Slack channel, with the agent, the person it acts for, its reason, the masked SQL and the dry-run row count, plus <strong>Approve</strong> and <strong>Deny</strong> buttons. Only the people you list can decide, and every decision lands in the <a href="/docs/audit">audit ledger</a>. It connects out to Slack over Socket Mode, so Lokra needs no public URL and no inbound firewall rule.</p>
+<p>It works alongside the other ways to decide. A write approved or denied in the terminal, the dashboard or Lokra Cloud closes its Slack message too. For how approval rules decide which writes need a person at all, see <a href="/docs/approvals">approvals</a>.</p>
+<h2 id="before-you-start">Before you start<a class="anchor" href="#before-you-start" title="Permanent link">#</a></h2>
+<p>You need:</p>
+<ul>
+<li>A working Lokra with at least one agent that can write. See <a href="/docs/quickstart">quickstart</a>.</li>
+<li>A Slack workspace where you can create apps.</li>
+<li>The machine that runs <code>lokra slack</code> must share Lokra's state directory (<code>.lokra</code>) with <code>lokra serve</code>, because pending writes and approvals live there. See <a href="/docs/production#where-state-lives">where state lives</a>.</li>
+</ul>
+<h2 id="set-up">Set up<a class="anchor" href="#set-up" title="Permanent link">#</a></h2>
+<h3 id="1-create-the-slack-app">1. Create the Slack app<a class="anchor" href="#1-create-the-slack-app" title="Permanent link">#</a></h3>
+<p>At <a href="https://api.slack.com/apps">api.slack.com/apps</a>, choose to create an app from a manifest, pick your workspace, and paste this YAML:</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">display_information</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">Lokra</span><span class="t-p t-p-Indicator">}</span>
+<span class="t-nt">features</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">bot_user</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">display_name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">Lokra</span><span class="t-p t-p-Indicator">}}</span>
+<span class="t-nt">oauth_config</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">scopes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">bot</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">chat</span><span class="t-p t-p-Indicator">:</span><span class="t-nv">write</span><span class="t-p t-p-Indicator">]}}</span>
+<span class="t-nt">settings</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">interactivity</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">is_enabled</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">true</span><span class="t-p t-p-Indicator">},</span><span class="t-nt"> socket_mode_enabled</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">true</span><span class="t-p t-p-Indicator">}</span>
+</code></pre></div>
+
+<p>The app only needs <code>chat:write</code>: it posts and updates messages, and sends a private note to someone who presses a button they may not use. Socket Mode and interactivity let the buttons reach Lokra over its outbound connection.</p>
+<p>Install the app to your workspace, then copy the <strong>Bot User OAuth Token</strong> from <strong>OAuth &amp; Permissions</strong>. It starts with <code>xoxb-</code>.</p>
+<h3 id="2-create-an-app-level-token">2. Create an app-level token<a class="anchor" href="#2-create-an-app-level-token" title="Permanent link">#</a></h3>
+<p>Under <strong>Basic Information</strong>, in <strong>App-Level Tokens</strong>, generate a token with the <code>connections:write</code> scope. It starts with <code>xapp-</code>. This is what lets <code>lokra slack</code> open its Socket Mode connection.</p>
+<h3 id="3-invite-the-bot-to-your-channel">3. Invite the bot to your channel<a class="anchor" href="#3-invite-the-bot-to-your-channel" title="Permanent link">#</a></h3>
+<p>Create a channel for approvals, such as <code>#db-approvals</code>, and invite the Lokra bot to it, for example with <code>/invite @Lokra</code>. The bot can only post in channels it is a member of.</p>
+<h3 id="4-add-the-channel-and-approvers-to-the-policy">4. Add the channel and approvers to the policy<a class="anchor" href="#4-add-the-channel-and-approvers-to-the-policy" title="Permanent link">#</a></h3>
+<p>Add a <code>slack</code> section to <code>policies.yaml</code> with the channel ID and the Slack member IDs of the people who may decide:</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">slack</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">channel</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">C0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> approvers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">U0123ABCD</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">U0456EFGH</span><span class="t-p t-p-Indicator">]}</span>
+</code></pre></div>
+
+<p>Use IDs, not names. In Slack, the channel ID is at the bottom of the channel's details, and a person's member ID is under <strong>Copy member ID</strong> in their profile menu. Saving the policy from the dashboard keeps this section.</p>
+<h3 id="5-install-the-slack-extra">5. Install the Slack extra<a class="anchor" href="#5-install-the-slack-extra" title="Permanent link">#</a></h3>
+<p>Slack support is an optional extra:</p>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span><span class="t-s1">'lokra[slack]'</span>
+</code></pre></div>
+
+<p>If Lokra is already installed with pipx, run <code>pipx install --force 'lokra[slack]'</code> to add the extra. The <a href="/docs/production#run-in-a-container">container image</a> already includes it.</p>
+<h3 id="6-run-it">6. Run it<a class="anchor" href="#6-run-it" title="Permanent link">#</a></h3>
+<p>Run <code>lokra slack</code> next to your policy, with both tokens in the environment:</p>
+<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_SLACK_BOT_TOKEN</span><span class="t-o">=</span>xoxb-...<span class="t-w"> </span><span class="t-nv">LOKRA_SLACK_APP_TOKEN</span><span class="t-o">=</span>xapp-...<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>lokra<span class="t-w"> </span>slack<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>lokra: posting write approvals to Slack channel C0123ABCD (Ctrl+C to stop)
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOKRA_SLACK_BOT_TOKEN</code></td>
+<td>The bot token (<code>xoxb-...</code>). Required.</td>
+</tr>
+<tr>
+<td><code>LOKRA_SLACK_APP_TOKEN</code></td>
+<td>The app-level token (<code>xapp-...</code>). Required.</td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>Admin connection string, so pausing from Slack also blocks the agent's database login. Default: <code>$LOKRA_ADMIN_DSN</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Keep it running for as long as you want approvals in Slack. It checks for new and decided writes every two seconds, and remembers which messages it posted in <code>.lokra/slack.json</code>, so a restart does not post them again. To run it as a service, follow <a href="/docs/production#run-with-systemd">run in production</a> with <code>slack</code> in place of <code>cloud</code>.</p>
+<h2 id="what-the-messages-show">What the messages show<a class="anchor" href="#what-the-messages-show" title="Permanent link">#</a></h2>
+<p>When an agent proposes a write that needs a person, Lokra posts a message like this:</p>
+<div class="hl"><pre><span></span><code>ops-bot wants to DELETE orders
+w_28cbd037 · on behalf of dana
+
+&gt; remove cancelled orders for account 42
+DELETE FROM orders WHERE status = 'cancelled' AND notes = '[EMAIL]'
+Dry run: 3 rows would change
+Needs two people
+
+[Approve]  [Deny]  [Pause ops-bot]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Where it comes from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent, statement and tables</td>
+<td>The proposed write</td>
+</tr>
+<tr>
+<td>Write id and "on behalf of"</td>
+<td>The write id the agent sees, and the person on the agent's token</td>
+</tr>
+<tr>
+<td>Quoted line</td>
+<td>The reason the agent gave, or "No reason given."</td>
+</tr>
+<tr>
+<td>SQL</td>
+<td>The statement, with values the policy's <a href="/docs/masking">detectors</a> recognise masked. Very long SQL is cut short.</td>
+</tr>
+<tr>
+<td>Dry run</td>
+<td>How many rows the write changed when Lokra ran it and rolled it back</td>
+</tr>
+<tr>
+<td>Needs two people</td>
+<td>Shown when the policy's <code>two_people</code> rule applies</td>
+</tr>
+<tr>
+<td>Warnings</td>
+<td>For example <code>no WHERE clause: this changes every row the agent can see</code>, or <code>changes no rows: they may not exist, or be outside this agent's scope</code></td>
+</tr>
+</tbody>
+</table>
+<p>Writes that the policy approves on its own, under <code>auto_max_rows</code>, never need a person, so they are not posted. They still appear in the ledger.</p>
+<h2 id="approve-or-deny">Approve or deny<a class="anchor" href="#approve-or-deny" title="Permanent link">#</a></h2>
+<p>Press <strong>Approve</strong> or <strong>Deny</strong>. Lokra records the decision, then updates the message: the buttons go and a line shows the outcome, such as:</p>
+<div class="hl"><pre><span></span><code>Approved by dana (slack)
+</code></pre></div>
+
+<p>Approving does not run the write. The agent runs it with <code>execute_write</code>, and Lokra still refuses it if it would now change more rows than the dry run showed. See <a href="/docs/approvals">approvals</a>.</p>
+<p>The same happens when someone decides elsewhere. If a write is approved with <code>lokra approve</code>, in the dashboard or in Lokra Cloud, its Slack message closes with that outcome within a few seconds.</p>
+<h2 id="two-person-approvals">Two-person approvals<a class="anchor" href="#two-person-approvals" title="Permanent link">#</a></h2>
+<p>When a write needs two people (the agent's <code>approval</code> block lists its statement under <code>two_people</code>), the message says <strong>Needs two people</strong>. After the first approval it stays open and updates:</p>
+<div class="hl"><pre><span></span><code>Needs two people: approved by dana (slack), one more to go
+</code></pre></div>
+
+<p>A second, different approver must press <strong>Approve</strong> before the write is approved. If the same person presses it again, only they see a private note:</p>
+<div class="hl"><pre><span></span><code>dana (slack) has already approved w_28cbd037; it needs a different person
+</code></pre></div>
+
+<p>The two approvals can come from different places, for example one in Slack and one with <code>lokra approve</code>. Once both are in, the message closes with both names: <code>Approved by dana (slack), sam (slack)</code>.</p>
+<blockquote class="callout note">
+<p><strong>Note:</strong> Lokra tells approvers apart by name, ignoring where the approval came from, so <code>dana (slack)</code> and <code>dana</code> from <code>lokra approve</code> count as one person. A Slack approval is recorded as the Slack username followed by <code>(slack)</code>, and <code>lokra approve</code> records the <code>--by</code> name or the username on that machine, which need not match. Limit who can run <code>lokra approve</code> on the Lokra host, so the second approval really comes from a second person.</p>
+</blockquote>
+<h2 id="pause-and-resume-from-slack">Pause and resume from Slack<a class="anchor" href="#pause-and-resume-from-slack" title="Permanent link">#</a></h2>
+<p>Every approval message has a <strong>Pause</strong> button for the agent that proposed the write. Pressing it pauses the agent with the reason <code>paused from Slack</code>: Lokra refuses its requests at once, and with <code>--admin-dsn</code> it also blocks the agent's database login and ends its sessions.</p>
+<p>Whenever an agent is paused, from Slack or anywhere else, Lokra posts a notice with a <strong>Resume</strong> button:</p>
+<div class="hl"><pre><span></span><code>ops-bot is paused by dana (slack): paused from Slack. Lokra refuses its requests.
+
+[Resume]
+</code></pre></div>
+
+<p>When the agent is resumed, from Slack or anywhere else, the notice changes to say it is running again. See <a href="/docs/stop-agents">stop an agent</a> for what a pause does.</p>
+<h2 id="who-may-decide">Who may decide<a class="anchor" href="#who-may-decide" title="Permanent link">#</a></h2>
+<p>Only the member IDs in <code>slack.approvers</code> can use the buttons: Approve, Deny, Pause and Resume. Anyone else in the channel who presses one gets a private note and nothing changes:</p>
+<div class="hl"><pre><span></span><code>You're not on Lokra's approver list for this database.
+</code></pre></div>
+
+<p>Being in the channel is not enough, so you can share the channel with people who should see writes but not decide them. Each decision is written to the ledger with the approver's Slack username, so <code>lokra log</code> and <code>lokra report</code> show who approved what.</p>
+<p>The approver list is read when <code>lokra slack</code> starts. After you change it, restart <code>lokra slack</code>.</p>
+<h2 id="errors-when-starting">Errors when starting<a class="anchor" href="#errors-when-starting" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Message</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Slack support needs an extra package: pipx install 'lokra[slack]'</code></td>
+<td>Install the extra, as in step 5.</td>
+</tr>
+<tr>
+<td><code>set LOKRA_SLACK_BOT_TOKEN (xoxb-…) and LOKRA_SLACK_APP_TOKEN (xapp-…)</code></td>
+<td>Set both environment variables.</td>
+</tr>
+<tr>
+<td><code>add the channel to policies.yaml: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}</code></td>
+<td>Add <code>slack.channel</code> to the policy.</td>
+</tr>
+<tr>
+<td><code>list who may approve: slack: {approvers: [U0123ABCD]} (Slack member IDs)</code></td>
+<td>Add at least one approver.</td>
+</tr>
+</tbody>
+</table>
+<p>If it starts but nothing appears in the channel, check that the bot is a member of it. For more, see <a href="/docs/troubleshooting">troubleshooting</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/stop-agents"><span>Previous</span>Stop an agent</a><a class="next" href="/docs/audit"><span>Next</span>Audit ledger and reports</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/slack.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#before-you-start">Before you start</a></li><li><a href="#set-up">Set up</a></li><li><a href="#what-the-messages-show">What the messages show</a></li><li><a href="#approve-or-deny">Approve or deny</a></li><li><a href="#two-person-approvals">Two-person approvals</a></li><li><a href="#pause-and-resume-from-slack">Pause and resume from Slack</a></li><li><a href="#who-may-decide">Who may decide</a></li><li><a href="#errors-when-starting">Errors when starting</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import secrets
 import time
 from datetime import date, datetime
@@ -196,6 +197,8 @@ class Gateway:
         record = _load_pending(self.cfg, write_id)
         if record["agent"] != agent.name:
             raise GatewayError("unknown write_id")
+        if record["status"] == "approved" and time.time() - record.get("approved_at", 0) > self.cfg.approval_ttl_seconds:
+            record = {**record, "status": "expired"}
         return self._describe(record)
 
     def _describe(self, record: dict) -> dict:
@@ -213,12 +216,16 @@ class Gateway:
         record = _load_pending(self.cfg, write_id)
         if record["agent"] != agent.name:
             raise GatewayError("unknown write_id")
+        refusal = None
         if record["status"] != "approved":
-            raise GatewayError(f"write {write_id} is '{record['status']}', not approved")
-        if time.time() - record.get("approved_at", 0) > self.cfg.approval_ttl_seconds:
+            refusal = f"write {write_id} is '{record['status']}', not approved"
+        elif time.time() - record.get("approved_at", 0) > self.cfg.approval_ttl_seconds:
             record["status"] = "expired"
             _save_pending(self.cfg, record)
-            raise GatewayError(f"approval for {write_id} expired; propose it again")
+            refusal = f"approval for {write_id} expired; propose it again"
+        if refusal:
+            self.ledger.append({**base, "event": "write_refused", "write_id": write_id, "reason": refusal})
+            raise GatewayError(refusal)
         sqlcheck.check_write(record["sql"])
         approved_rows = record.get("would_affect_rows")
         try:
@@ -276,6 +283,11 @@ def list_pending(cfg: Config) -> list[dict]:
     return sorted(records, key=lambda r: r["created_at"])
 
 
+def _person(by: str) -> str:
+    """The same person may approve from the terminal, Slack or Cloud; the channel does not make them two people."""
+    return re.sub(r"\s*\((?:cloud|slack|dashboard)\)$", "", by).strip().lower()
+
+
 def decide(cfg: Config, write_id: str, approve: bool, by: str) -> dict:
     """Record one person's decision. A write that needs two people stays pending after the first approval."""
     record = _load_pending(cfg, write_id)
@@ -285,7 +297,7 @@ def decide(cfg: Config, write_id: str, approve: bool, by: str) -> dict:
              "decided_by": by}
     if approve:
         approvals = record.setdefault("approvals", [])
-        if any(a["by"] == by for a in approvals):
+        if any(_person(a["by"]) == _person(by) for a in approvals):
             raise GatewayError(f"{by} has already approved {write_id}; it needs a different person")
         approvals.append({"by": by, "at": time.time()})
         needed = record.get("approvals_needed", 1)

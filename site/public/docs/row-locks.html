@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Row locks · Lokra docs</title>
+<meta name="description" content="Limit an agent to the rows of one account, tenant or region, enforced by Postgres row-level security on the agent&#x27;s own role.">
+<link rel="canonical" href="https://lokra.dev/docs/row-locks">
+<meta property="og:title" content="Row locks · Lokra docs">
+<meta property="og:description" content="Limit an agent to the rows of one account, tenant or region, enforced by Postgres row-level security on the agent&#x27;s own role.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks" class="on" aria-current="page">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Self-hosting</p>
+    <h1>Row locks</h1>
+    <p class="docs-lede">Limit an agent to the rows of one account, tenant or region, enforced by Postgres row-level security on the agent&#x27;s own role.</p>
+    <div class="docs-body">
+<p>A row lock limits an agent to the rows that belong to one account, tenant, clinic or region. You add a <code>rows</code> rule to the agent's policy, and <code>lokra provision</code> turns it into Postgres row-level security policies on that agent's role. The database enforces the lock on every read and write, so it holds even if a query gets past Lokra's SQL check.</p>
+<h2 id="add-a-row-lock">Add a row lock<a class="anchor" href="#add-a-row-lock" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">support-bot</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">account_id</span>
+<span class="t-w">      </span><span class="t-nt">values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">customers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">      </span><span class="t-nt">notes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">    </span><span class="t-nt">write</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">notes</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">insert</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<p><code>support-bot</code> now only sees, inserts, updates and deletes rows whose <code>account_id</code> is 42, on every table in its policy that has an <code>account_id</code> column. Rows outside the lock do not exist as far as the agent can tell: they do not appear in results, counts or joins.</p>
+<ul>
+<li><code>values</code> takes one or more numbers or strings. With several, the agent sees rows matching any of them: <code>values: [42, 43]</code>.</li>
+<li>Strings work for <code>text</code> and <code>uuid</code> columns: <code>values: [a3b8f042-1e16-4f0a-a8f0-421e16f0a8f0]</code>.</li>
+<li>The lock is fixed per agent. To serve several accounts with separate scopes, define one agent per account. Each gets its own role.</li>
+</ul>
+<p>The agent's <code>list_tables</code> tool tells it the scope, for example "You only see rows where account_id in [42]."</p>
+<h2 id="which-tables-are-locked">Which tables are locked<a class="anchor" href="#which-tables-are-locked" title="Permanent link">#</a></h2>
+<p>The lock applies to every table the agent can read or write that has the lock column. A table without that column is not locked: the agent sees all of its rows. <code>provision</code> says so in its output, and <code>lokra check</code> warns:</p>
+<div class="hl"><pre><span></span><code>created role lokra_support_bot: rows where account_id in [42] on ['customers', 'notes', 'orders']; all rows on ['products'], reads ['customers', 'notes', 'orders', 'products'], writes ['notes']
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  WARN   support-bot: sees every row of 'products', which has no 'account_id' column to lock rows by
+</code></pre></div>
+
+<p>That is fine for a shared table such as a product catalogue. For a table that does hold per-account data, such as <code>order_items</code> linked only through <code>order_id</code>, either add an <code>account_id</code> column to it or leave it out of the agent's policy. A lock only follows a column on the table itself, not a foreign key.</p>
+<h3 id="map-a-column-with-a-different-name">Map a column with a different name<a class="anchor" href="#map-a-column-with-a-different-name" title="Permanent link">#</a></h3>
+<p>Where a table names the scope differently, map it with <code>tables</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">account_id</span>
+<span class="t-w">      </span><span class="t-nt">values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">      </span><span class="t-nt">tables</span><span class="t-p">:</span>
+<span class="t-w">        </span><span class="t-nt">accounts</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">id</span>
+<span class="t-w">        </span><span class="t-nt">billing.invoices</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">customer_account</span>
+</code></pre></div>
+
+<p>Here the lock is <code>id IN (42)</code> on <code>accounts</code>, <code>customer_account IN (42)</code> on <code>billing.invoices</code>, and <code>account_id IN (42)</code> everywhere else. Table names follow the policy's usual rule: <code>schema.table</code> outside <code>public</code>.</p>
+<h2 id="what-provision-creates">What provision creates<a class="anchor" href="#what-provision-creates" title="Permanent link">#</a></h2>
+<p>For each locked table, <code>provision</code> creates two policies on the agent's role, both with the same condition for reading (<code>USING</code>) and for writing (<code>WITH CHECK</code>):</p>
+<div class="hl"><pre><span></span><code><span class="t-k">CREATE</span><span class="t-w"> </span><span class="t-n">POLICY</span><span class="t-w"> </span><span class="t-n">lokra_support_bot_rows</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">PERMISSIVE</span><span class="t-w"> </span><span class="t-k">FOR</span><span class="t-w"> </span><span class="t-k">ALL</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span>
+<span class="t-w">  </span><span class="t-k">USING</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">account_id</span><span class="t-w"> </span><span class="t-k">IN</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-mi">42</span><span class="t-p">))</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">CHECK</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">account_id</span><span class="t-w"> </span><span class="t-k">IN</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-mi">42</span><span class="t-p">));</span>
+<span class="t-k">CREATE</span><span class="t-w"> </span><span class="t-n">POLICY</span><span class="t-w"> </span><span class="t-n">lokra_support_bot_lock</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">RESTRICTIVE</span><span class="t-w"> </span><span class="t-k">FOR</span><span class="t-w"> </span><span class="t-k">ALL</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span>
+<span class="t-w">  </span><span class="t-k">USING</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">account_id</span><span class="t-w"> </span><span class="t-k">IN</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-mi">42</span><span class="t-p">))</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">CHECK</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">account_id</span><span class="t-w"> </span><span class="t-k">IN</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-mi">42</span><span class="t-p">));</span>
+</code></pre></div>
+
+<p>Postgres needs both:</p>
+<ul>
+<li>With row-level security on, a role sees no rows at all unless a <strong>permissive</strong> policy lets it. <code>_rows</code> is what lets the agent see its own rows.</li>
+<li>Permissive policies add up: if any one of them allows a row, the role sees it. If your schema already has a permissive policy that applies to everyone, it would widen the agent's view. The <strong>restrictive</strong> <code>_lock</code> policy must also pass for every row, so no other policy can let the agent see past the lock.</li>
+</ul>
+<p>Postgres skips row-level security for a table's owner, for superusers and for roles with <code>BYPASSRLS</code>. Agent roles are none of these: they are created <code>NOSUPERUSER NOBYPASSRLS</code>, never own tables, and <code>provision</code> refuses to run an agent whose role has gained such an attribute.</p>
+<h3 id="agents-without-a-lock-on-the-same-table">Agents without a lock on the same table<a class="anchor" href="#agents-without-a-lock-on-the-same-table" title="Permanent link">#</a></h3>
+<p>Once row-level security is on for a table, any agent without a lock there would see nothing. So for each such agent, <code>provision</code> adds a policy that allows all rows:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">CREATE</span><span class="t-w"> </span><span class="t-n">POLICY</span><span class="t-w"> </span><span class="t-n">lokra_ops_bot_all</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">orders</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">PERMISSIVE</span><span class="t-w"> </span><span class="t-k">FOR</span><span class="t-w"> </span><span class="t-k">ALL</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_ops_bot</span>
+<span class="t-w">  </span><span class="t-k">USING</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-k">true</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">CHECK</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-k">true</span><span class="t-p">);</span>
+</code></pre></div>
+
+<h3 id="other-roles-keep-their-access">Other roles keep their access<a class="anchor" href="#other-roles-keep-their-access" title="Permanent link">#</a></h3>
+<p>If row-level security was off on a table, <code>provision</code> turns it on and adds a pass-through policy for everyone who is not a Lokra agent:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">TABLE</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-n">ENABLE</span><span class="t-w"> </span><span class="t-k">ROW</span><span class="t-w"> </span><span class="t-k">LEVEL</span><span class="t-w"> </span><span class="t-k">SECURITY</span><span class="t-p">;</span>
+<span class="t-k">CREATE</span><span class="t-w"> </span><span class="t-n">POLICY</span><span class="t-w"> </span><span class="t-n">lokra_passthrough</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">AS</span><span class="t-w"> </span><span class="t-n">PERMISSIVE</span><span class="t-w"> </span><span class="t-k">FOR</span><span class="t-w"> </span><span class="t-k">ALL</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-k">PUBLIC</span>
+<span class="t-w">  </span><span class="t-k">USING</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-k">NOT</span><span class="t-w"> </span><span class="t-n">pg_has_role</span><span class="t-p">(</span><span class="t-k">session_user</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'lokra_agents'</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'MEMBER'</span><span class="t-p">))</span>
+<span class="t-w">  </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">CHECK</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-k">NOT</span><span class="t-w"> </span><span class="t-n">pg_has_role</span><span class="t-p">(</span><span class="t-k">session_user</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'lokra_agents'</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s1">'MEMBER'</span><span class="t-p">));</span>
+</code></pre></div>
+
+<p>Your app and other roles see and change exactly what they did before. Agent roles are members of <code>lokra_agents</code>, so the pass-through does not apply to them; they only get the policies above.</p>
+<h3 id="tables-that-already-use-row-level-security">Tables that already use row-level security<a class="anchor" href="#tables-that-already-use-row-level-security" title="Permanent link">#</a></h3>
+<p>If you already turned row-level security on for a table, for example on Supabase, Lokra leaves it on and adds no pass-through. It adds only its own agent policies, all named <code>lokra_…</code>, and never changes yours.</p>
+<p>Your policies apply to the agent roles only if they are written for <code>PUBLIC</code>. A permissive policy for <code>PUBLIC</code> cannot widen a locked agent's view, because of the restrictive <code>_lock</code> policy. A restrictive policy for <code>PUBLIC</code>, such as <code>deleted_at IS NULL</code>, applies to agents as well, so it can only narrow what they see.</p>
+<h2 id="release-a-lock">Release a lock<a class="anchor" href="#release-a-lock" title="Permanent link">#</a></h2>
+<p>Each <code>provision</code> drops every policy it made for an agent and creates them again from the current policy. So when you change <code>values</code>, remove a table from the agent, or delete the <code>rows</code> rule, the next <code>provision</code> updates the database to match.</p>
+<p>When no agent's rows are locked on a table any more, and Lokra was the one that turned row-level security on there (the table has <code>lokra_passthrough</code>), <code>provision</code> drops all of Lokra's policies on it and turns row-level security off again. Tables where you turned it on yourself keep it on.</p>
+<p>Deleting an agent from the policy does not drop its role or its policies. See <a href="/docs/connect-database#removing-an-agent">removing an agent</a>.</p>
+<h2 id="views">Views<a class="anchor" href="#views" title="Permanent link">#</a></h2>
+<p>A plain Postgres view runs with its owner's rights, not the agent's. The row lock lives on the tables, so reading through such a view would skip it. For an agent with a row lock, <code>provision</code> refuses plain views, and <code>lokra check</code> reports them as errors:</p>
+<div class="hl"><pre><span></span><code>support-bot: order_totals is a view, which runs with its owner's rights, so the row lock would not apply through it; grant the tables it reads instead, or make it run as the agent (Postgres 15+): ALTER VIEW order_totals SET (security_invoker = true)
+</code></pre></div>
+
+<p>A materialized view stores its rows when it is refreshed, so no lock can reach them. It is refused the same way:</p>
+<div class="hl"><pre><span></span><code>support-bot: order_counts is a materialized view, which a row lock cannot reach; grant the tables it reads instead
+</code></pre></div>
+
+<p>A view that runs as the agent (<code>security_invoker</code>, Postgres 15 or later) is allowed, and the lock holds on the tables underneath:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">VIEW</span><span class="t-w"> </span><span class="t-n">order_totals</span><span class="t-w"> </span><span class="t-k">SET</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">security_invoker</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-k">true</span><span class="t-p">);</span>
+</code></pre></div>
+
+<p>Postgres checks a <code>security_invoker</code> view's tables with the agent's own grants. List the tables the view reads in the agent's <code>read</code> as well. That grants access and puts the lock on them; without it, the query fails with <code>permission denied for table orders</code>.</p>
+<div class="hl"><pre><span></span><code><span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">orders</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">      </span><span class="t-nt">order_totals</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+</code></pre></div>
+
+<p><code>provision</code> checks views before it touches any agent role or table, so a refused view leaves your grants and tables as they were. Agents without a row lock can be given any view.</p>
+<h2 id="writes">Writes<a class="anchor" href="#writes" title="Permanent link">#</a></h2>
+<p>Every lock has the same condition in <code>WITH CHECK</code> as in <code>USING</code>, so writes are held to it too:</p>
+<ul>
+<li>An <code>INSERT</code> of a row for another account fails, and so does an <code>UPDATE</code> that would move a row out of the lock. The dry run in <code>propose_write</code> hits this first, so the write is never proposed:</li>
+</ul>
+<div class="hl"><pre><span></span><code>database refused the query: new row violates row-level security policy for table "notes"
+</code></pre></div>
+
+<ul>
+<li>An <code>UPDATE</code> or <code>DELETE</code> aimed at another account's rows matches nothing, because the agent cannot see them. The dry run reports 0 rows and warns: <code>changes no rows: they may not exist, or be outside this agent's scope</code>.</li>
+</ul>
+<p>The lock does not fill in the column for you. An agent inserting a note still has to set <code>account_id</code> to 42, unless the column has a default.</p>
+<p>See <a href="/docs/approvals">approve writes</a> for the rest of the write flow.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/masking"><span>Previous</span>Masking</a><a class="next" href="/docs/approvals"><span>Next</span>Approve writes</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/row-locks.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#add-a-row-lock">Add a row lock</a></li><li><a href="#which-tables-are-locked">Which tables are locked</a></li><li><a href="#what-provision-creates">What provision creates</a></li><li><a href="#release-a-lock">Release a lock</a></li><li><a href="#views">Views</a></li><li><a href="#writes">Writes</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

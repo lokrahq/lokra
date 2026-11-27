@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Install · Lokra docs</title>
+<meta name="description" content="Every way to install Lokra, how to upgrade it, and how to check which version you run.">
+<link rel="canonical" href="https://lokra.dev/docs/install">
+<meta property="og:title" content="Install · Lokra docs">
+<meta property="og:description" content="Every way to install Lokra, how to upgrade it, and how to check which version you run.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install" class="on" aria-current="page">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Getting started</p>
+    <h1>Install</h1>
+    <p class="docs-lede">Every way to install Lokra, how to upgrade it, and how to check which version you run.</p>
+    <div class="docs-body">
+<p>Lokra is one Python package, <code>lokra</code>, with one command, also called <code>lokra</code>. It needs Python 3.11 or newer. There is also a container image for servers.</p>
+<h2 id="pipx-recommended">pipx (recommended)<a class="anchor" href="#pipx-recommended" title="Permanent link">#</a></h2>
+<p><a href="https://pipx.pypa.io">pipx</a> installs command-line tools in their own environment, so Lokra's dependencies never clash with your projects:</p>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+</code></pre></div>
+
+<p>To approve writes in Slack, install the Slack extra instead:</p>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span><span class="t-s1">'lokra[slack]'</span>
+</code></pre></div>
+
+<h2 id="uv">uv<a class="anchor" href="#uv" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>uv<span class="t-w"> </span>tool<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+</code></pre></div>
+
+<h2 id="pip-in-a-virtual-environment">pip in a virtual environment<a class="anchor" href="#pip-in-a-virtual-environment" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>python3<span class="t-w"> </span>-m<span class="t-w"> </span>venv<span class="t-w"> </span>.venv
+.venv/bin/pip<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+.venv/bin/lokra<span class="t-w"> </span>--version
+</code></pre></div>
+
+<h2 id="container-image">Container image<a class="anchor" href="#container-image" title="Permanent link">#</a></h2>
+<p>Each release is published for amd64 and arm64:</p>
+<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>pull<span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2
+</code></pre></div>
+
+<p>Tags: an exact version such as <code>0.8.2</code>, the minor line such as <code>0.8</code>, and <code>latest</code>. The image runs <code>lokra serve --http</code> on port 8787 as a non-root user, reads <code>policies.yaml</code> from <code>/work</code> and keeps its state in <code>/work/.lokra</code>. Any other command works by naming it:</p>
+<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://..."</span>
+</code></pre></div>
+
+<p><a href="/docs/production#run-in-a-container">Run in production</a> covers volumes, networking and compose files.</p>
+<h2 id="from-source">From source<a class="anchor" href="#from-source" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>git<span class="t-w"> </span>clone<span class="t-w"> </span>https://github.com/lokrahq/lokra
+<span class="t-nb">cd</span><span class="t-w"> </span>lokra
+python3<span class="t-w"> </span>-m<span class="t-w"> </span>venv<span class="t-w"> </span>.venv<span class="t-w"> </span><span class="t-o">&amp;&amp;</span><span class="t-w"> </span>.venv/bin/pip<span class="t-w"> </span>install<span class="t-w"> </span>-e<span class="t-w"> </span><span class="t-s2">".[dev]"</span>
+docker<span class="t-w"> </span>compose<span class="t-w"> </span>up<span class="t-w"> </span>-d
+.venv/bin/python<span class="t-w"> </span>-m<span class="t-w"> </span>pytest<span class="t-w"> </span>-q
+</code></pre></div>
+
+<p><code>docker compose up -d</code> starts the lab Postgres on <code>127.0.0.1:55432</code> with fake clinic data, which the test suite uses.</p>
+<h2 id="check-your-version">Check your version<a class="anchor" href="#check-your-version" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>--version
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>lokra 0.8.2
+</code></pre></div>
+
+<p>Run <code>lokra</code> with no command to see a short welcome screen with the main commands.</p>
+<h2 id="upgrade">Upgrade<a class="anchor" href="#upgrade" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>upgrade<span class="t-w"> </span>lokra
+</code></pre></div>
+
+<p>Right after a release, pip can briefly keep serving a cached list of versions. If <code>pipx upgrade</code> says you already have the latest version when you know you don't, skip the cache:</p>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>upgrade<span class="t-w"> </span>lokra<span class="t-w"> </span>--pip-args<span class="t-o">=</span><span class="t-s2">"--no-cache-dir"</span>
+</code></pre></div>
+
+<p>For the image, change the tag and restart the container. Upgrades keep your policy and the <code>.lokra</code> state folder as they are. Before upgrading a production gate, read what changed: each <a href="https://github.com/lokrahq/lokra/tags">release tag on GitHub</a> points at a commit whose message describes the release.</p>
+<h2 id="uninstall">Uninstall<a class="anchor" href="#uninstall" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>pipx<span class="t-w"> </span>uninstall<span class="t-w"> </span>lokra
+</code></pre></div>
+
+<p>This removes the command. It does not touch your database: the agent roles and row-level security policies Lokra provisioned stay until you drop them. Your <code>policies.yaml</code> and <code>.lokra</code> folder also stay where they are.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/quickstart"><span>Previous</span>Quickstart</a><a class="next" href="/docs/connect-database"><span>Next</span>Connect your database</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/install.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#pipx-recommended">pipx (recommended)</a></li><li><a href="#uv">uv</a></li><li><a href="#pip-in-a-virtual-environment">pip in a virtual environment</a></li><li><a href="#container-image">Container image</a></li><li><a href="#from-source">From source</a></li><li><a href="#check-your-version">Check your version</a></li><li><a href="#upgrade">Upgrade</a></li><li><a href="#uninstall">Uninstall</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

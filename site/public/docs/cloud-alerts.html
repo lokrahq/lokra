@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Approve from your phone · Lokra docs</title>
+<meta name="description" content="Add Lokra Cloud to your phone, turn on alerts, and approve, deny or pause agents from anywhere.">
+<link rel="canonical" href="https://lokra.dev/docs/cloud-alerts">
+<meta property="og:title" content="Approve from your phone · Lokra docs">
+<meta property="og:description" content="Add Lokra Cloud to your phone, turn on alerts, and approve, deny or pause agents from anywhere.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts" class="on" aria-current="page">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Lokra Cloud</p>
+    <h1>Approve from your phone</h1>
+    <p class="docs-lede">Add Lokra Cloud to your phone, turn on alerts, and approve, deny or pause agents from anywhere.</p>
+    <div class="docs-body">
+<p>Lokra Cloud works in any current browser, and on a phone it can live on your Home Screen like an app. With alerts on, your phone tells you when an agent's write is waiting, even with Lokra closed. You can then hold to approve, deny, or pause the agent, and watch the decision reach the gate.</p>
+<h2 id="add-lokra-to-your-home-screen">Add Lokra to your Home Screen<a class="anchor" href="#add-lokra-to-your-home-screen" title="Permanent link">#</a></h2>
+<h3 id="iphone-and-ipad">iPhone and iPad<a class="anchor" href="#iphone-and-ipad" title="Permanent link">#</a></h3>
+<p>On iPhone and iPad, alerts only work once Lokra is on your Home Screen. This needs iOS or iPadOS 16.4 or later.</p>
+<ol>
+<li>Open <a href="https://cloud.lokra.dev">cloud.lokra.dev</a> in Safari and sign in.</li>
+<li>Tap Share in the browser toolbar.</li>
+<li>Scroll and tap <strong>Add to Home Screen</strong>.</li>
+<li>Open Lokra from your Home Screen like any app.</li>
+</ol>
+<p>Lokra shows these steps too: tap <strong>More</strong>, then <strong>Add to Home Screen</strong>. If Lokra asks you to sign in when you first open it from the Home Screen, sign in with GitHub again.</p>
+<h3 id="android">Android<a class="anchor" href="#android" title="Permanent link">#</a></h3>
+<p>Alerts work in Chrome on Android without installing anything. To get a Home Screen icon as well, tap <strong>More</strong>, then <strong>Add to Home Screen</strong>, and accept your browser's prompt. The option appears when your browser offers to install Lokra.</p>
+<h3 id="desktop-browsers">Desktop browsers<a class="anchor" href="#desktop-browsers" title="Permanent link">#</a></h3>
+<p>Alerts work in desktop browsers without installing. If your browser can install Lokra as an app, an install button (<strong>Install as an app</strong>) appears at the bottom of the left rail.</p>
+<h2 id="turn-on-alerts">Turn on alerts<a class="anchor" href="#turn-on-alerts" title="Permanent link">#</a></h2>
+<p>Turn alerts on separately on each device where you want them.</p>
+<ol>
+<li>On a wide screen, click the bell at the bottom of the left rail, next to <strong>Sign out</strong>. On a phone, tap <strong>More</strong>, then <strong>Turn on alerts</strong>.</li>
+<li>Allow notifications when your browser asks.</li>
+<li>Cloud sends a test alert to this device:</li>
+</ol>
+<div class="hl"><pre><span></span><code>Alerts are on
+Lokra will tell you here when an agent's write needs you.
+</code></pre></div>
+
+<p>Cloud then confirms with <strong>You'll get an alert on this device, even with Lokra closed</strong>. If it says <strong>You'll get an alert while Lokra is open</strong> instead, this browser could not register for push alerts. You will only get alerts while Lokra is open in a tab or window.</p>
+<p>On an iPhone or iPad where Lokra is not on the Home Screen, Cloud shows <strong>Alerts need the app</strong> instead, with the steps above.</p>
+<p>The bell, or the item under <strong>More</strong>, always shows where things stand:</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Turn on alerts</td>
+<td>You have not allowed notifications on this device yet.</td>
+</tr>
+<tr>
+<td>Alerts on</td>
+<td>This device gets alerts.</td>
+</tr>
+<tr>
+<td>Alerts off</td>
+<td>Notifications are allowed, but you switched Lokra's alerts off on this device.</td>
+</tr>
+<tr>
+<td>Alerts blocked</td>
+<td>Your browser or phone blocks notifications from Lokra. See <a href="#if-alerts-are-blocked">If alerts are blocked</a>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-an-alert-says">What an alert says<a class="anchor" href="#what-an-alert-says" title="Permanent link">#</a></h2>
+<p>When a write starts waiting, the alert names the agent, the statement and the tables. Below that come the agent's reason, the gate, the number of rows the dry run says would change, and <strong>needs two people</strong> if the write needs a second approver:</p>
+<div class="hl"><pre><span></span><code>support-bot wants to UPDATE orders
+Customer asked for a refund · production-db · 3 rows · needs two people
+</code></pre></div>
+
+<p>If the agent gave no reason, the alert says <strong>No reason given</strong>. If several writes start waiting on one gate at the same moment, you get one alert for all of them, such as <strong>3 writes are waiting for you</strong>, <strong>From production-db</strong>.</p>
+<p>Alerts never contain SQL or any values from it. To see the SQL, tap the alert. It opens the Inbox, where the SQL is shown masked.</p>
+<p>Cloud sends each alert once, when it first sees the write waiting. If your device is offline, the push service holds the alert for up to an hour.</p>
+<h2 id="who-gets-alerts">Who gets alerts<a class="anchor" href="#who-gets-alerts" title="Permanent link">#</a></h2>
+<p>Cloud sends alerts to every owner and approver in the organisation who has turned them on, on each device where they did. Alerts cover every gate in the organisation. Viewers cannot decide, so Cloud does not send them write alerts. See <a href="/docs/cloud-team">Team and roles</a>.</p>
+<h2 id="switch-alerts-off">Switch alerts off<a class="anchor" href="#switch-alerts-off" title="Permanent link">#</a></h2>
+<p>Click the bell, or tap <strong>More</strong>, then <strong>Alerts on</strong>. The label changes to <strong>Alerts off</strong>, and this device stops getting alerts. Your other devices, and other people, are not affected. Turn them back on the same way; Cloud sends the test alert again.</p>
+<p>Signing out also switches alerts off on that device, so a shared or old phone stops getting them.</p>
+<h2 id="if-alerts-are-blocked">If alerts are blocked<a class="anchor" href="#if-alerts-are-blocked" title="Permanent link">#</a></h2>
+<p>If you once refused notifications, the browser remembers, and only its settings can undo that. Clicking the bell then opens <strong>Alerts are blocked</strong>, with the steps for your device:</p>
+<table>
+<thead>
+<tr>
+<th>Device</th>
+<th>How to allow alerts again</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iPhone or iPad</td>
+<td>Open the Settings app, go to Notifications, then Lokra, and turn on Allow Notifications.</td>
+</tr>
+<tr>
+<td>Android, Lokra on the Home Screen</td>
+<td>Press and hold the Lokra icon, open App info, then Notifications, and allow them.</td>
+</tr>
+<tr>
+<td>Android, in the browser</td>
+<td>Tap the icon left of the address bar, open Permissions, and allow Notifications.</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>Click the icon left of the address bar and clear Notifications: Blocked, then reload.</td>
+</tr>
+<tr>
+<td>Safari on a Mac</td>
+<td>Open Safari, then Settings, then Websites, then Notifications, and set cloud.lokra.dev to Allow.</td>
+</tr>
+<tr>
+<td>Chrome, Edge and other browsers</td>
+<td>Click the icon left of the address bar, open Site settings, set Notifications to Allow, then reload.</td>
+</tr>
+</tbody>
+</table>
+<p>Then click the bell again to turn alerts on.</p>
+<h2 id="act-on-a-request">Act on a request<a class="anchor" href="#act-on-a-request" title="Permanent link">#</a></h2>
+<p>Each request in the Inbox shows the statement and tables, the gate, the agent and who it acts for, the agent's reason, the masked SQL, and how many rows the dry run says would change. Viewers see <strong>view only</strong> instead of the buttons.</p>
+<h3 id="hold-to-approve">Hold to approve<a class="anchor" href="#hold-to-approve" title="Permanent link">#</a></h3>
+<p>Press and hold <strong>Hold to approve</strong>. The button fills and reads <strong>Keep holding</strong>; after about a second the approval is sent. Let go early and nothing happens, so a stray tap in your pocket cannot approve a write. Cloud confirms with <strong>Approved · sending to production-db</strong>.</p>
+<p>On a keyboard, hold <code>A</code>, or focus the button and hold Space or Enter.</p>
+<h3 id="deny">Deny<a class="anchor" href="#deny" title="Permanent link">#</a></h3>
+<p>Tap <strong>Deny</strong>. It takes effect at once, without a second step, and Cloud confirms with <strong>Denied</strong>.</p>
+<h3 id="pause-the-agent">Pause the agent<a class="anchor" href="#pause-the-agent" title="Permanent link">#</a></h3>
+<p>Each request has a <strong>Pause</strong> button for its agent. On a wide screen it names the agent, such as <strong>Pause support-bot</strong>. It pauses the agent at once, without a second step, with the reason <code>paused from Lokra Cloud</code>. Lokra then refuses that agent's requests until someone resumes it.</p>
+<p>On the <strong>Agents</strong> page, <strong>Pause</strong> first asks <strong>Pause support-bot?</strong> and lets you add a reason before you choose <strong>Pause agent</strong>. To resume a paused agent, use <strong>Hold to resume</strong> on the same page.</p>
+<p>If the gate runs <code>lokra cloud</code> with <code>--admin-dsn</code>, a pause also blocks the agent's database login and ends its open sessions. See <a href="/docs/cloud-gates#why-admin-dsn-matters-for-pauses">Connect a gate</a>.</p>
+<h3 id="watch-it-reach-the-gate">Watch it reach the gate<a class="anchor" href="#watch-it-reach-the-gate" title="Permanent link">#</a></h3>
+<p>After you decide, the buttons give way to three steps:</p>
+<div class="hl"><pre><span></span><code>Sent ── Gate received ── Approved
+</code></pre></div>
+
+<ul>
+<li><strong>Sent</strong>: Cloud has queued your decision for the gate.</li>
+<li><strong>Gate received</strong>: the gate picked it up on its next sync, usually within a few seconds.</li>
+<li>The outcome: <strong>Approved</strong>, <strong>Denied</strong>, <strong>Paused</strong> or <strong>Resumed</strong>. For a write that needs two people, the first approval ends at <strong>1 of 2 approved</strong>. If the gate could not apply it, the last step reads <strong>Failed</strong>, with the gate's reason underneath, for example because someone already decided the write in the terminal.</li>
+</ul>
+<p>A few seconds after the outcome, the request leaves the list. Decided writes move to <strong>Decided today</strong> at the bottom of the Inbox, with their status and who decided them.</p>
+<p>If a decision stays at <strong>Sent</strong>, the gate is not syncing. Check that it is live on the <strong>Gates</strong> page. The decision waits in Cloud, and the gate applies it when it reconnects.</p>
+<h2 id="two-person-approvals">Two-person approvals<a class="anchor" href="#two-person-approvals" title="Permanent link">#</a></h2>
+<p>Some writes need two different people to approve them. The <a href="/docs/approvals">approval rules</a> in the gate's policy decide which ones. In the Inbox such a write shows <strong>Needs two people</strong>, and its alert ends with <strong>needs two people</strong>.</p>
+<ol>
+<li>The first approver holds to approve. The steps end at <strong>1 of 2 approved</strong>.</li>
+<li>The request stays in everyone's Inbox and reads <strong>Needs two people: approved by dana (cloud), one more to go</strong>.</li>
+<li>The person who approved sees <strong>You approved · waiting for one more person</strong> in place of the approve button. They can still deny or pause.</li>
+<li>A second owner or approver holds to approve, and the write is approved.</li>
+</ol>
+<p>The gate refuses a second approval from the same person, so one person cannot approve twice from Cloud. Approvals from the terminal, the dashboard and <a href="/docs/slack">Slack</a> count towards the same two.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/cloud-gates"><span>Previous</span>Connect a gate</a><a class="next" href="/docs/cloud-team"><span>Next</span>Team and roles</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/cloud-alerts.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#add-lokra-to-your-home-screen">Add Lokra to your Home Screen</a></li><li><a href="#turn-on-alerts">Turn on alerts</a></li><li><a href="#what-an-alert-says">What an alert says</a></li><li><a href="#who-gets-alerts">Who gets alerts</a></li><li><a href="#switch-alerts-off">Switch alerts off</a></li><li><a href="#if-alerts-are-blocked">If alerts are blocked</a></li><li><a href="#act-on-a-request">Act on a request</a></li><li><a href="#two-person-approvals">Two-person approvals</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

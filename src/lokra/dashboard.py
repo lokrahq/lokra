@@ -18,7 +18,7 @@ import psycopg
 from psycopg import sql
 
 from . import controls
-from .config import Config, ConfigError, dump_policy, load_config
+from .config import Config, ConfigError, dump_policy, load_config, valid_strategy
 from .gateway import GatewayError, decide, list_pending
 from .ledger import Ledger
 from .masking import DETECTORS, Masker
@@ -169,9 +169,7 @@ def policy_payload(cfg: Config) -> dict:
     }
 
 
-def _valid_strategy(s: str) -> bool:
-    return s in ("none", "redact", "year_only", "hash") or (
-        s.startswith("last") and s[4:].isdigit() and int(s[4:]) > 0)
+_valid_strategy = valid_strategy
 
 
 def _rows_entry(agent: str, rows, errs: list[str]) -> dict | None:
@@ -195,10 +193,17 @@ def _rows_entry(agent: str, rows, errs: list[str]) -> dict | None:
     return entry
 
 
+# The settings the policy editor shows. Anything else an agent has, such as approval rules or a rate
+# limit, is carried over from the file unchanged when the editor saves.
+EDITED_KEYS = {"description", "rows", "read", "write", "purposes", "max_rows"}
+
+
 def _build_doc(cfg: Config, data: dict) -> dict:
     errs: list[str] = []
     agents: dict = {}
     seen: set[str] = set()
+    kept = (yaml.safe_load(cfg.path.read_text()) if cfg.path.exists() else {}) or {}
+    kept_agents = kept.get("agents") or {}
     for a in data.get("agents", []):
         name = (a.get("name") or "").strip()
         if not name:
@@ -252,6 +257,9 @@ def _build_doc(cfg: Config, data: dict) -> dict:
         if purposes:
             entry["purposes"] = purposes
         entry["max_rows"] = mr
+        for key, value in (kept_agents.get(name) or {}).items():
+            if key not in EDITED_KEYS:
+                entry[key] = value
         agents[name] = entry
     if not agents:
         errs.append("define at least one agent")
@@ -282,8 +290,7 @@ def _build_doc(cfg: Config, data: dict) -> dict:
     doc["agents"] = agents
     doc["masking"] = {"columns": columns, "detectors": detectors}
     doc["approval_ttl_seconds"] = ttl
-    kept = yaml.safe_load(cfg.path.read_text()) if cfg.path.exists() else {}
-    if (kept or {}).get("slack"):
+    if kept.get("slack"):
         doc["slack"] = kept["slack"]
     return doc
 

@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Run in production · Lokra docs</title>
+<meta name="description" content="Serve Lokra over HTTP with tokens and TLS, run it in a container or under systemd, and back up, change and upgrade it safely.">
+<link rel="canonical" href="https://lokra.dev/docs/production">
+<meta property="og:title" content="Run in production · Lokra docs">
+<meta property="og:description" content="Serve Lokra over HTTP with tokens and TLS, run it in a container or under systemd, and back up, change and upgrade it safely.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production" class="on" aria-current="page">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Running agents</p>
+    <h1>Run in production</h1>
+    <p class="docs-lede">Serve Lokra over HTTP with tokens and TLS, run it in a container or under systemd, and back up, change and upgrade it safely.</p>
+    <div class="docs-body">
+<p>On a laptop, each AI client starts its own <code>lokra serve</code> process. In production you usually run one long-lived Lokra next to your database that many agents reach over HTTP, plus <code>lokra cloud</code> or <code>lokra slack</code> for approvals. This page covers both transports, tokens, TLS, the container image, systemd, where state lives, and how to change and upgrade a running deployment.</p>
+<h2 id="stdio-or-http">Stdio or HTTP<a class="anchor" href="#stdio-or-http" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>stdio</th>
+<th>HTTP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Command</td>
+<td><code>lokra serve</code></td>
+<td><code>lokra serve --http</code></td>
+</tr>
+<tr>
+<td>Who starts it</td>
+<td>The AI client, once per session</td>
+<td>You, as a service</td>
+</tr>
+<tr>
+<td>Where the agent runs</td>
+<td>Same machine as Lokra</td>
+<td>Anywhere that can reach Lokra</td>
+</tr>
+<tr>
+<td>Token</td>
+<td><code>LOKRA_TOKEN</code> in the process environment, or <code>--dev-agent</code></td>
+<td><code>Authorization: Bearer</code> header on every request</td>
+</tr>
+<tr>
+<td>Agents per process</td>
+<td>One</td>
+<td>Many: each request is checked against its own token</td>
+</tr>
+</tbody>
+</table>
+<p>Use stdio for an agent on your own machine; <a href="/docs/connect-clients">connect AI clients</a> sets it up. Use HTTP for always-on agents, hosted agents and agents on other machines.</p>
+<h2 id="serve-over-http">Serve over HTTP<a class="anchor" href="#serve-over-http" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>serve<span class="t-w"> </span>--http<span class="t-w"> </span>--host<span class="t-w"> </span><span class="t-m">127</span>.0.0.1<span class="t-w"> </span>--port<span class="t-w"> </span><span class="t-m">8787</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>lokra: MCP over HTTP at http://127.0.0.1:8787/mcp
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--http</code></td>
+<td>off</td>
+<td>Serve MCP over HTTP instead of stdio.</td>
+</tr>
+<tr>
+<td><code>--host</code></td>
+<td><code>127.0.0.1</code></td>
+<td>Address to bind.</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td><code>8787</code></td>
+<td>Port to listen on.</td>
+</tr>
+</tbody>
+</table>
+<p>The MCP endpoint is <code>/mcp</code>. The server is stateless and answers each request with JSON, so it needs no sticky sessions behind a proxy. Listing the tools needs no token; every tool call does, and a call without a valid token is refused and written to the ledger as <code>denied</code>.</p>
+<p><code>--dev-agent</code> is refused with <code>--http</code>, because over HTTP each agent must send its own token.</p>
+<p>When you bind to anything other than <code>127.0.0.1</code>, <code>localhost</code> or <code>::1</code>, Lokra reminds you:</p>
+<div class="hl"><pre><span></span><code>lokra: listening beyond this machine; put TLS in front, since agent tokens travel in the Authorization header
+</code></pre></div>
+
+<blockquote class="callout note">
+<p><strong>Note:</strong> When Lokra binds to <code>127.0.0.1</code> (the default), it only accepts requests whose <code>Host</code> header is <code>127.0.0.1</code>, <code>localhost</code> or <code>[::1]</code>, and answers others with <code>421 Invalid Host header</code>. A reverse proxy on the same machine must therefore send <code>Host: 127.0.0.1:8787</code>, as in the Caddy example below. The container binds to <code>0.0.0.0</code>, where this check does not apply.</p>
+</blockquote>
+<h3 id="what-the-server-needs">What the server needs<a class="anchor" href="#what-the-server-needs" title="Permanent link">#</a></h3>
+<ul>
+<li><strong>The policy and state directory.</strong> It reads <code>policies.yaml</code> once at start-up, and reads and writes <code>.lokra</code> on every request.</li>
+<li><strong>A network path to Postgres.</strong> Lokra logs in as each agent's own role at the host and port in the policy, with the password from <code>.lokra/secrets.json</code>. Your <code>pg_hba.conf</code> and firewall must allow password logins for the <code>lokra_*</code> roles from the Lokra host.</li>
+<li><strong>No admin connection.</strong> <code>lokra serve</code> never uses <code>LOKRA_ADMIN_DSN</code>, so keep the admin connection string out of its environment.</li>
+</ul>
+<p>Each tool call opens its own database connection as the agent's role. <code>lokra provision</code> limits each agent role to 10 connections, a 5-second statement timeout and a 10-second idle-in-transaction timeout, so one agent cannot exhaust the database.</p>
+<h2 id="tokens">Tokens<a class="anchor" href="#tokens" title="Permanent link">#</a></h2>
+<p>Each agent gets a short-lived token signed with the key in <code>.lokra/signing.key</code>. Mint one on the Lokra host:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">28800</span><span class="t-w"> </span>--on-behalf-of<span class="t-w"> </span>dana<span class="t-w"> </span>--purpose<span class="t-w"> </span>customer-support
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td>required</td>
+<td>The agent from the policy. Unknown names are refused.</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td><code>3600</code></td>
+<td>Lifetime in seconds. The maximum is 8 hours (<code>28800</code>).</td>
+</tr>
+<tr>
+<td><code>--on-behalf-of</code></td>
+<td>your username</td>
+<td>The person the agent acts for, recorded on every request.</td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>none</td>
+<td>A declared purpose-of-use, recorded on every request. See <a href="/docs/policies">policies</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>The token looks like <code>lokra1.&lt;payload&gt;.&lt;signature&gt;</code>. Its payload holds the agent name, the person it acts for, the issue and expiry times, a token id and the purpose, if any. Lokra checks the signature and expiry on every call, so a forged or expired token fails:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>What the agent sees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No token</td>
+<td><code>access denied: no agent token supplied (LOKRA_TOKEN, or an Authorization: Bearer header over HTTP)</code></td>
+</tr>
+<tr>
+<td>Altered or signed with another key</td>
+<td><code>access denied: token signature is invalid</code></td>
+</tr>
+<tr>
+<td>Expired</td>
+<td><code>access denied: token has expired, mint a new one</code></td>
+</tr>
+<tr>
+<td>TTL over 8 hours</td>
+<td><code>error: ttl must be between 1 and 28800 seconds</code> (from <code>mint-token</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Hand the token to the agent in one of two ways:</p>
+<ul>
+<li><strong>stdio:</strong> set <code>LOKRA_TOKEN</code> in the environment of <code>lokra serve</code>.</li>
+<li><strong>HTTP:</strong> send it on every request as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+</ul>
+<p>Tokens are not refreshed for you. Plan for something to mint a new token at least every 8 hours, such as a job on the Lokra host that hands it to the agent's platform. To cut off one token early, revoke it; see <a href="/docs/stop-agents#revoke-one-token">stop an agent</a>.</p>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> Anyone with <code>.lokra/signing.key</code> can mint a token for any agent. Keep it readable only by the user that runs Lokra, and never copy it to agent hosts.</p>
+</blockquote>
+<h2 id="put-tls-in-front">Put TLS in front<a class="anchor" href="#put-tls-in-front" title="Permanent link">#</a></h2>
+<p>Tokens are bearer credentials, so never send them over plain HTTP beyond the local machine. Run Lokra on <code>127.0.0.1</code> and put a reverse proxy that terminates TLS in front of it. Caddy is a short example because it gets and renews certificates by itself:</p>
+<div class="hl"><pre><span></span><code>lokra.example.com {
+    reverse_proxy 127.0.0.1:8787 {
+        header_up Host {upstream_hostport}
+    }
+}
+</code></pre></div>
+
+<p>The <code>header_up Host</code> line sends <code>Host: 127.0.0.1:8787</code> to Lokra, which it requires when bound to <code>127.0.0.1</code>. For a host that is only reachable inside your network, replace the automatic certificate with your own, or add <code>tls internal</code> inside the block to use Caddy's internal CA.</p>
+<p>Agents then connect to <code>https://lokra.example.com/mcp</code>. Also limit who can reach the port at all, with a firewall, security group or VPN: a valid token is all a caller needs.</p>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> Never expose <code>lokra serve --http</code> to another machine without TLS.</p>
+</blockquote>
+<h2 id="run-in-a-container">Run in a container<a class="anchor" href="#run-in-a-container" title="Permanent link">#</a></h2>
+<p>Each release is published to <code>ghcr.io/lokrahq/lokra</code> for <code>linux/amd64</code> and <code>linux/arm64</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>Follows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0.8.2</code></td>
+<td>That exact release. Pin this in production.</td>
+</tr>
+<tr>
+<td><code>0.8</code></td>
+<td>The latest patch release of 0.8.</td>
+</tr>
+<tr>
+<td><code>latest</code></td>
+<td>The latest release.</td>
+</tr>
+</tbody>
+</table>
+<p>The image runs <code>lokra serve --http --host 0.0.0.0 --port 8787</code>, with <code>/work</code> as its working folder. It reads <code>/work/policies.yaml</code> and keeps its state in <code>/work/.lokra</code>, so mount a directory that persists. Its entrypoint is <code>lokra</code>, so anything after the image name is a Lokra command. The image includes the Slack extra.</p>
+<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>-d<span class="t-w"> </span>--name<span class="t-w"> </span>lokra<span class="t-w"> </span>-p<span class="t-w"> </span><span class="t-m">127</span>.0.0.1:8787:8787<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2
+</code></pre></div>
+
+<p>Run other commands against the same mount:</p>
+<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:secret@db.internal:5432/app"</span>
+docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span><span class="t-se">\</span>
+<span class="t-w">  </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">28800</span>
+</code></pre></div>
+
+<p>Two things trip people up:</p>
+<ul>
+<li><strong>File ownership.</strong> The image runs as user <code>lokra</code> (uid 10001). The mounted directory must be writable by the container's user, so either pass <code>--user</code> matching the directory's owner, as above, or make the directory owned by uid 10001.</li>
+<li><strong>The database host.</strong> Inside the container, <code>127.0.0.1</code> is the container itself. The <code>host</code> in <code>policies.yaml</code> must be reachable from the container: a hostname on your network, a Compose service name, or <code>host.docker.internal</code> for a database on the Docker host (on Linux, add <code>--add-host=host.docker.internal:host-gateway</code>).</li>
+</ul>
+<h3 id="docker-compose">Docker Compose<a class="anchor" href="#docker-compose" title="Permanent link">#</a></h3>
+<p>This runs the HTTP server, <code>lokra cloud</code> and Caddy, all sharing one state directory. Put <code>policies.yaml</code> in <code>./lokra</code> and make that directory owned by uid 10001 (<code>sudo chown -R 10001:10001 lokra</code>).</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">services</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">lokra</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">image</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">ghcr.io/lokrahq/lokra:0.8.2</span>
+<span class="t-w">    </span><span class="t-nt">restart</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">unless-stopped</span>
+<span class="t-w">    </span><span class="t-nt">volumes</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">./lokra:/work</span>
+<span class="t-w">    </span><span class="t-nt">expose</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-s">"8787"</span>
+
+<span class="t-w">  </span><span class="t-nt">lokra-cloud</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">image</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">ghcr.io/lokrahq/lokra:0.8.2</span>
+<span class="t-w">    </span><span class="t-nt">restart</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">unless-stopped</span>
+<span class="t-w">    </span><span class="t-nt">command</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-s">"cloud"</span><span class="t-p t-p-Indicator">]</span>
+<span class="t-w">    </span><span class="t-nt">env_file</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">./cloud.env</span>
+<span class="t-w">    </span><span class="t-nt">volumes</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">./lokra:/work</span>
+
+<span class="t-w">  </span><span class="t-nt">caddy</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">image</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">caddy:2</span>
+<span class="t-w">    </span><span class="t-nt">restart</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">unless-stopped</span>
+<span class="t-w">    </span><span class="t-nt">ports</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-s">"80:80"</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-s">"443:443"</span>
+<span class="t-w">    </span><span class="t-nt">volumes</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">./Caddyfile:/etc/caddy/Caddyfile:ro</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">caddy_data:/data</span>
+<span class="t-w">    </span><span class="t-nt">depends_on</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">lokra</span>
+
+<span class="t-nt">volumes</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">caddy_data</span><span class="t-p">:</span>
+</code></pre></div>
+
+<p>Inside Compose, Caddy reaches Lokra by its service name, and no <code>Host</code> rewrite is needed because the container binds to <code>0.0.0.0</code>:</p>
+<div class="hl"><pre><span></span><code>lokra.example.com {
+    reverse_proxy lokra:8787
+}
+</code></pre></div>
+
+<p><code>cloud.env</code> holds the secrets for <code>lokra cloud</code>. Keep it out of version control:</p>
+<div class="hl"><pre><span></span><code><span class="t-na">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span><span class="t-s">lkg_your_gate_token</span>
+<span class="t-na">LOKRA_ADMIN_DSN</span><span class="t-o">=</span><span class="t-s">postgresql://lokra_admin:secret@db.internal:5432/app</span>
+</code></pre></div>
+
+<p>Provision and mint tokens with one-off containers:</p>
+<div class="hl"><pre><span></span><code>docker<span class="t-w"> </span>compose<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://lokra_admin:secret@db.internal:5432/app"</span>
+docker<span class="t-w"> </span>compose<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>lokra<span class="t-w"> </span>mint-token<span class="t-w"> </span>support-bot<span class="t-w"> </span>--ttl<span class="t-w"> </span><span class="t-m">28800</span>
+</code></pre></div>
+
+<p>To approve in Slack instead of, or as well as, Lokra Cloud, add a service with <code>command: ["slack"]</code> and the Slack tokens in its env file. See <a href="/docs/slack">approve in Slack</a>.</p>
+<h2 id="run-with-systemd">Run with systemd<a class="anchor" href="#run-with-systemd" title="Permanent link">#</a></h2>
+<p>On a plain Linux host, install Lokra into its own virtual environment so the service has a fixed path. It needs Python 3.11 or later.</p>
+<div class="hl"><pre><span></span><code>sudo<span class="t-w"> </span>useradd<span class="t-w"> </span>--system<span class="t-w"> </span>--home-dir<span class="t-w"> </span>/srv/lokra<span class="t-w"> </span>--create-home<span class="t-w"> </span>--shell<span class="t-w"> </span>/usr/sbin/nologin<span class="t-w"> </span>lokra
+sudo<span class="t-w"> </span>python3<span class="t-w"> </span>-m<span class="t-w"> </span>venv<span class="t-w"> </span>/opt/lokra
+sudo<span class="t-w"> </span>/opt/lokra/bin/pip<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+</code></pre></div>
+
+<p>Put <code>policies.yaml</code> in <code>/srv/lokra</code> and run every Lokra command for this deployment as the <code>lokra</code> user, because the state files are readable only by their owner:</p>
+<div class="hl"><pre><span></span><code>sudo<span class="t-w"> </span>-u<span class="t-w"> </span>lokra<span class="t-w"> </span>/opt/lokra/bin/lokra<span class="t-w"> </span>--config<span class="t-w"> </span>/srv/lokra/policies.yaml<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://lokra_admin:secret@db.internal:5432/app"</span>
+</code></pre></div>
+
+<h3 id="the-http-server">The HTTP server<a class="anchor" href="#the-http-server" title="Permanent link">#</a></h3>
+<p>Save as <code>/etc/systemd/system/lokra.service</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">[Unit]</span>
+<span class="t-na">Description</span><span class="t-o">=</span><span class="t-s">Lokra MCP server</span>
+<span class="t-na">After</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
+<span class="t-na">Wants</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
+
+<span class="t-k">[Service]</span>
+<span class="t-na">User</span><span class="t-o">=</span><span class="t-s">lokra</span>
+<span class="t-na">Group</span><span class="t-o">=</span><span class="t-s">lokra</span>
+<span class="t-na">WorkingDirectory</span><span class="t-o">=</span><span class="t-s">/srv/lokra</span>
+<span class="t-na">ExecStart</span><span class="t-o">=</span><span class="t-s">/opt/lokra/bin/lokra --config /srv/lokra/policies.yaml serve --http --host 127.0.0.1 --port 8787</span>
+<span class="t-na">Environment</span><span class="t-o">=</span><span class="t-s">PYTHONUNBUFFERED=1</span>
+<span class="t-na">Restart</span><span class="t-o">=</span><span class="t-s">on-failure</span>
+<span class="t-na">RestartSec</span><span class="t-o">=</span><span class="t-s">5</span>
+<span class="t-na">NoNewPrivileges</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">ProtectSystem</span><span class="t-o">=</span><span class="t-s">strict</span>
+<span class="t-na">ProtectHome</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">PrivateTmp</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">ReadWritePaths</span><span class="t-o">=</span><span class="t-s">/srv/lokra</span>
+
+<span class="t-k">[Install]</span>
+<span class="t-na">WantedBy</span><span class="t-o">=</span><span class="t-s">multi-user.target</span>
+</code></pre></div>
+
+<h3 id="the-lokra-cloud-connector">The Lokra Cloud connector<a class="anchor" href="#the-lokra-cloud-connector" title="Permanent link">#</a></h3>
+<p>Save the secrets as <code>/etc/lokra/cloud.env</code>, owned by root with mode 600:</p>
+<div class="hl"><pre><span></span><code><span class="t-na">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span><span class="t-s">lkg_your_gate_token</span>
+<span class="t-na">LOKRA_ADMIN_DSN</span><span class="t-o">=</span><span class="t-s">postgresql://lokra_admin:secret@db.internal:5432/app</span>
+</code></pre></div>
+
+<p>Then <code>/etc/systemd/system/lokra-cloud.service</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">[Unit]</span>
+<span class="t-na">Description</span><span class="t-o">=</span><span class="t-s">Lokra Cloud connector</span>
+<span class="t-na">After</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
+<span class="t-na">Wants</span><span class="t-o">=</span><span class="t-s">network-online.target</span>
+
+<span class="t-k">[Service]</span>
+<span class="t-na">User</span><span class="t-o">=</span><span class="t-s">lokra</span>
+<span class="t-na">Group</span><span class="t-o">=</span><span class="t-s">lokra</span>
+<span class="t-na">WorkingDirectory</span><span class="t-o">=</span><span class="t-s">/srv/lokra</span>
+<span class="t-na">EnvironmentFile</span><span class="t-o">=</span><span class="t-s">/etc/lokra/cloud.env</span>
+<span class="t-na">ExecStart</span><span class="t-o">=</span><span class="t-s">/opt/lokra/bin/lokra --config /srv/lokra/policies.yaml cloud</span>
+<span class="t-na">Environment</span><span class="t-o">=</span><span class="t-s">PYTHONUNBUFFERED=1</span>
+<span class="t-na">Restart</span><span class="t-o">=</span><span class="t-s">on-failure</span>
+<span class="t-na">RestartSec</span><span class="t-o">=</span><span class="t-s">5</span>
+<span class="t-na">NoNewPrivileges</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">ProtectSystem</span><span class="t-o">=</span><span class="t-s">strict</span>
+<span class="t-na">ProtectHome</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">PrivateTmp</span><span class="t-o">=</span><span class="t-s">true</span>
+<span class="t-na">ReadWritePaths</span><span class="t-o">=</span><span class="t-s">/srv/lokra</span>
+
+<span class="t-k">[Install]</span>
+<span class="t-na">WantedBy</span><span class="t-o">=</span><span class="t-s">multi-user.target</span>
+</code></pre></div>
+
+<p>Start both and follow their output:</p>
+<div class="hl"><pre><span></span><code>sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span>daemon-reload
+sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span><span class="t-nb">enable</span><span class="t-w"> </span>--now<span class="t-w"> </span>lokra<span class="t-w"> </span>lokra-cloud
+journalctl<span class="t-w"> </span>-u<span class="t-w"> </span>lokra<span class="t-w"> </span>-u<span class="t-w"> </span>lokra-cloud<span class="t-w"> </span>-f
+</code></pre></div>
+
+<p><code>PYTHONUNBUFFERED=1</code> makes Lokra's messages reach the journal straight away. With <code>LOKRA_ADMIN_DSN</code> set, a pause from Lokra Cloud also blocks the agent's database login; see <a href="/docs/cloud">Lokra Cloud</a>. A <code>lokra slack</code> service looks the same, with <code>slack</code> in place of <code>cloud</code> and the Slack tokens in its environment file.</p>
+<h2 id="where-state-lives">Where state lives<a class="anchor" href="#where-state-lives" title="Permanent link">#</a></h2>
+<p>Lokra keeps its state in <code>.lokra</code> next to <code>policies.yaml</code>, or wherever <code>--home</code> or <code>LOKRA_HOME</code> points.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it holds</th>
+<th>If you lose it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>signing.key</code></td>
+<td>The key that signs tokens and ledger entries</td>
+<td>Every token stops working, and the existing ledger can no longer be verified</td>
+</tr>
+<tr>
+<td><code>secrets.json</code></td>
+<td>Each agent role's database password</td>
+<td>Run <code>lokra provision</code> again; it sets new passwords</td>
+</tr>
+<tr>
+<td><code>pending/</code></td>
+<td>One file per proposed write, with its approvals</td>
+<td>Pending and approved writes are gone; agents must propose them again</td>
+</tr>
+<tr>
+<td><code>ledger.jsonl</code></td>
+<td>The hash-chained, signed audit ledger</td>
+<td>Your audit history is gone</td>
+</tr>
+<tr>
+<td><code>controls.json</code></td>
+<td>Paused agents, revoked tokens and rate-limit counters</td>
+<td>Paused agents run again and revoked tokens work again until they expire</td>
+</tr>
+<tr>
+<td><code>slack.json</code>, <code>cloud.json</code></td>
+<td>Which Slack messages were posted; the Cloud sync position</td>
+<td>Lokra posts or syncs again</td>
+</tr>
+</tbody>
+</table>
+<p>Lokra creates the directory with mode 700 and the secret files with mode 600.</p>
+<p>Every Lokra process for one database must share the same state directory: <code>lokra serve</code>, <code>lokra slack</code>, <code>lokra cloud</code>, <code>lokra dashboard</code> and the commands you run by hand. That is how an approval in Slack reaches the server, and how a pause takes effect at once. Keep it on a local disk: Lokra uses file locks to keep the ledger and controls consistent.</p>
+<h3 id="back-it-up">Back it up<a class="anchor" href="#back-it-up" title="Permanent link">#</a></h3>
+<p>Back up the whole directory regularly; it is small. Treat the backup as a secret, since it holds the signing key and the agents' database passwords. For a consistent copy of the ledger, take the backup while no requests are being written, or snapshot the volume. Run <code>lokra verify-ledger</code> against a restored copy to check it.</p>
+<p>Losing <code>signing.key</code> is the costly case. Keep a copy somewhere safe, apart from the hosts agents run on. For long-term audit retention beyond backups, see <a href="/docs/audit">audit ledger and reports</a>.</p>
+<h2 id="change-the-policy">Change the policy<a class="anchor" href="#change-the-policy" title="Permanent link">#</a></h2>
+<p>Policy changes take three steps:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
+lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
+sudo<span class="t-w"> </span>systemctl<span class="t-w"> </span>restart<span class="t-w"> </span>lokra<span class="t-w"> </span>lokra-cloud
+</code></pre></div>
+
+<ol>
+<li><code>lokra check</code> validates the new policy against the database. Run it in CI too; see <a href="/docs/ci">use Lokra in CI</a>.</li>
+<li><code>lokra provision</code> applies grants, row locks and new agents to the database. It is safe to run again: it updates existing roles, keeps their passwords, and keeps paused agents paused.</li>
+<li>Restart the long-running processes. <code>lokra serve --http</code>, <code>lokra slack</code> and <code>lokra cloud</code> read the policy once at start-up, so they only pick up new agents and changed masking, approval and rate-limit rules after a restart. Stdio servers pick it up the next time the client starts them.</li>
+</ol>
+<p>Grants and row locks take effect in the database as soon as <code>provision</code> finishes.</p>
+<h2 id="upgrade">Upgrade<a class="anchor" href="#upgrade" title="Permanent link">#</a></h2>
+<p>Check what you are running with <code>lokra --version</code>, then upgrade the way you installed:</p>
+<table>
+<thead>
+<tr>
+<th>Installed with</th>
+<th>Upgrade with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pipx</td>
+<td><code>pipx upgrade lokra</code></td>
+</tr>
+<tr>
+<td>uv</td>
+<td><code>uv tool upgrade lokra</code></td>
+</tr>
+<tr>
+<td>A virtual environment</td>
+<td><code>/opt/lokra/bin/pip install --upgrade lokra</code></td>
+</tr>
+<tr>
+<td>The container image</td>
+<td>Change the tag, for example <code>0.8.2</code> to the new version, and recreate the container</td>
+</tr>
+</tbody>
+</table>
+<p>After upgrading, run <code>lokra check</code>, then <code>lokra provision</code>, so the roles match what the new version expects, and restart the long-running processes. The state directory carries over between versions.</p>
+<h2 id="checklist">Checklist<a class="anchor" href="#checklist" title="Permanent link">#</a></h2>
+<ul>
+<li><code>lokra serve --http</code> binds to <code>127.0.0.1</code>, behind a TLS proxy and a firewall.</li>
+<li>Tokens are minted on the Lokra host with the shortest TTL that works, never more than 8 hours.</li>
+<li><code>.lokra</code> is owned by the service user, on local disk, and backed up.</li>
+<li>The admin connection string is only given to the commands that use it (<code>check</code>, <code>provision</code>, <code>pause</code>, <code>resume</code>, <code>dashboard</code>, <code>slack</code>, <code>cloud</code>), never to <code>serve</code>.</li>
+<li><code>lokra check --strict</code> runs in CI on every migration; see <a href="/docs/ci">use Lokra in CI</a>.</li>
+<li>You know how to <a href="/docs/stop-agents">stop an agent</a> before you need to.</li>
+</ul>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/connect-clients"><span>Previous</span>Connect AI clients</a><a class="next" href="/docs/stop-agents"><span>Next</span>Stop an agent</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/production.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#stdio-or-http">Stdio or HTTP</a></li><li><a href="#serve-over-http">Serve over HTTP</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#put-tls-in-front">Put TLS in front</a></li><li><a href="#run-in-a-container">Run in a container</a></li><li><a href="#run-with-systemd">Run with systemd</a></li><li><a href="#where-state-lives">Where state lives</a></li><li><a href="#change-the-policy">Change the policy</a></li><li><a href="#upgrade">Upgrade</a></li><li><a href="#checklist">Checklist</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

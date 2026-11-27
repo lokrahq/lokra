@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>CLI reference · Lokra docs</title>
+<meta name="description" content="Every lokra command and flag, generated from the CLI itself.">
+<link rel="canonical" href="https://lokra.dev/docs/cli">
+<meta property="og:title" content="CLI reference · Lokra docs">
+<meta property="og:description" content="Every lokra command and flag, generated from the CLI itself.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli" class="on" aria-current="page">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Reference</p>
+    <h1>CLI reference</h1>
+    <p class="docs-lede">Every lokra command and flag, generated from the CLI itself.</p>
+    <div class="docs-body">
+<p>Every command and flag, generated from <code>lokra</code> itself, so this page always matches the version it was built from. Run <code>lokra &lt;command&gt; --help</code> for the same text in your terminal.</p>
+<h2 id="global-options">Global options<a class="anchor" href="#global-options" title="Permanent link">#</a></h2>
+<p>These go before the command, for example <code>lokra --config ./policies.yaml check</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--config</code></td>
+<td>path to policies.yaml (default: ./policies.yaml or $LOKRA_CONFIG)</td>
+</tr>
+<tr>
+<td><code>--home</code></td>
+<td>state directory (default: .lokra next to the config)</td>
+</tr>
+<tr>
+<td><code>-V, --version</code></td>
+<td>show program's version number and exit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-init">lokra init<a class="anchor" href="#lokra-init" title="Permanent link">#</a></h2>
+<p>Introspect a database (read-only) and scaffold a starter policies.yaml.</p>
+<div class="hl"><pre><span></span><code>lokra init [-h] [--out OUT] [--force] [--schemas SCHEMAS] dsn
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dsn</code></td>
+<td>connection string to the target database, e.g. a Supabase or local Postgres</td>
+</tr>
+<tr>
+<td><code>--out</code></td>
+<td>where to write the policy (default: policies.yaml)</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>overwrite the file if it already exists</td>
+</tr>
+<tr>
+<td><code>--schemas</code></td>
+<td>comma-separated schemas to include (default: public)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-check">lokra check<a class="anchor" href="#lokra-check" title="Permanent link">#</a></h2>
+<p>Validate the policy against the database (read-only).</p>
+<div class="hl"><pre><span></span><code>lokra check [-h] [--dsn DSN] [--strict]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dsn</code></td>
+<td>connection string to check against (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+<tr>
+<td><code>--strict</code></td>
+<td>fail on warnings too, such as an unmasked sensitive column (for CI)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-provision">lokra provision<a class="anchor" href="#lokra-provision" title="Permanent link">#</a></h2>
+<p>Create or update one DB role per agent.</p>
+<div class="hl"><pre><span></span><code>lokra provision [-h] [--admin-dsn ADMIN_DSN]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-mint-token">lokra mint-token<a class="anchor" href="#lokra-mint-token" title="Permanent link">#</a></h2>
+<p>Issue a short-lived token for an agent.</p>
+<div class="hl"><pre><span></span><code>lokra mint-token [-h] [--on-behalf-of ON_BEHALF_OF] [--ttl TTL]
+                        [--purpose PURPOSE]
+                        agent
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--on-behalf-of</code></td>
+<td>the human launching the agent (default: your username)</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>seconds, max 8 hours</td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>declared purpose-of-use, recorded on every request</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-try">lokra try<a class="anchor" href="#lokra-try" title="Permanent link">#</a></h2>
+<p>Run SQL as an agent from the terminal.</p>
+<div class="hl"><pre><span></span><code>lokra try [-h] [--write] [--reason REASON] [--purpose PURPOSE]
+                 agent sql
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sql</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--write</code></td>
+<td>propose a write instead of a read</td>
+</tr>
+<tr>
+<td><code>--reason</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>declared purpose-of-use for this request</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-pending">lokra pending<a class="anchor" href="#lokra-pending" title="Permanent link">#</a></h2>
+<p>List writes waiting for approval.</p>
+<div class="hl"><pre><span></span><code>lokra pending [-h] [--all]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--all</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-approve">lokra approve<a class="anchor" href="#lokra-approve" title="Permanent link">#</a></h2>
+<p>Approve a proposed write.</p>
+<div class="hl"><pre><span></span><code>lokra approve [-h] [--by BY] [--yes] write_id
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_id</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--by</code></td>
+<td>your name for the audit log</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>skip the confirmation prompt</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-deny">lokra deny<a class="anchor" href="#lokra-deny" title="Permanent link">#</a></h2>
+<p>Deny a proposed write.</p>
+<div class="hl"><pre><span></span><code>lokra deny [-h] [--by BY] write_id
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_id</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--by</code></td>
+<td>your name for the audit log</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-verify-ledger">lokra verify-ledger<a class="anchor" href="#lokra-verify-ledger" title="Permanent link">#</a></h2>
+<p>Check the audit ledger has not been tampered with.</p>
+<div class="hl"><pre><span></span><code>lokra verify-ledger [-h]
+</code></pre></div>
+
+<h2 id="lokra-log">lokra log<a class="anchor" href="#lokra-log" title="Permanent link">#</a></h2>
+<p>Show recent audit entries.</p>
+<div class="hl"><pre><span></span><code>lokra log [-h] [-n N]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-n</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-report">lokra report<a class="anchor" href="#lokra-report" title="Permanent link">#</a></h2>
+<p>Activity and risk report from the audit ledger.</p>
+<div class="hl"><pre><span></span><code>lokra report [-h] [--agent AGENT] [--json]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--agent</code></td>
+<td>limit to one agent</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-evidence">lokra evidence<a class="anchor" href="#lokra-evidence" title="Permanent link">#</a></h2>
+<p>Generate a control evidence pack from the policy and ledger.</p>
+<div class="hl"><pre><span></span><code>lokra evidence [-h] [--out OUT] [--json]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--out</code></td>
+<td>write the Markdown pack to this file instead of stdout</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>emit structured JSON instead of Markdown</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-dashboard">lokra dashboard<a class="anchor" href="#lokra-dashboard" title="Permanent link">#</a></h2>
+<p>Serve a local web dashboard of the ledger and policy.</p>
+<div class="hl"><pre><span></span><code>lokra dashboard [-h] [--port PORT] [--admin-dsn ADMIN_DSN]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--port</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string, needed to apply policy changes (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-cloud">lokra cloud<a class="anchor" href="#lokra-cloud" title="Permanent link">#</a></h2>
+<p>Connect this Lokra to Lokra Cloud (token in $LOKRA_CLOUD_TOKEN).</p>
+<div class="hl"><pre><span></span><code>lokra cloud [-h] [--url URL] [--admin-dsn ADMIN_DSN] [--once]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--url</code></td>
+<td>Lokra Cloud address (default: $LOKRA_CLOUD_URL or https://cloud.lokra.dev)</td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string, so pauses from the Cloud also block the database login (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+<tr>
+<td><code>--once</code></td>
+<td>sync once and exit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-connect">lokra connect<a class="anchor" href="#lokra-connect" title="Permanent link">#</a></h2>
+<p>Add an agent to Claude Code, Claude Desktop, Cursor, VS Code or Windsurf.</p>
+<div class="hl"><pre><span></span><code>lokra connect [-h]
+                     [--client {claude-code,claude-desktop,cursor,vscode,windsurf}]
+                     [--name NAME] [--purpose PURPOSE] [--print] [--no-check]
+                     [--force]
+                     [agent]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td>agent from the policy (optional when there is only one)</td>
+</tr>
+<tr>
+<td><code>--client</code></td>
+<td>where to add it (default: claude-code, which writes .mcp.json in this folder) Choices: <code>claude-code</code>, <code>claude-desktop</code>, <code>cursor</code>, <code>vscode</code>, <code>windsurf</code>.</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>server name in the client (default: lokra-<agent>)</td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>declared purpose-of-use for the agent's session token</td>
+</tr>
+<tr>
+<td><code>--print</code></td>
+<td>print the config entry instead of writing it</td>
+</tr>
+<tr>
+<td><code>--no-check</code></td>
+<td>skip logging in as the agent to test it</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>replace a server of the same name that is not Lokra</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-demo">lokra demo<a class="anchor" href="#lokra-demo" title="Permanent link">#</a></h2>
+<p>Watch Lokra handle two AI agents on a throwaway Postgres (needs Docker or --dsn).</p>
+<div class="hl"><pre><span></span><code>lokra demo [-h] [--dsn DSN] [--keep]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dsn</code></td>
+<td>use this Postgres instead of Docker; the demo needs to create roles, and removes everything it creates</td>
+</tr>
+<tr>
+<td><code>--keep</code></td>
+<td>leave the demo database in place afterwards</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-pause">lokra pause<a class="anchor" href="#lokra-pause" title="Permanent link">#</a></h2>
+<p>Stop an agent now: refuse its requests and block its database login.</p>
+<div class="hl"><pre><span></span><code>lokra pause [-h] [--reason REASON] [--admin-dsn ADMIN_DSN] agent
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--reason</code></td>
+<td>recorded in the ledger and shown to the agent</td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-resume">lokra resume<a class="anchor" href="#lokra-resume" title="Permanent link">#</a></h2>
+<p>Let a paused agent run again.</p>
+<div class="hl"><pre><span></span><code>lokra resume [-h] [--admin-dsn ADMIN_DSN] agent
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-revoke-token">lokra revoke-token<a class="anchor" href="#lokra-revoke-token" title="Permanent link">#</a></h2>
+<p>Revoke one token, by the token itself or its id.</p>
+<div class="hl"><pre><span></span><code>lokra revoke-token [-h] token
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-slack">lokra slack<a class="anchor" href="#lokra-slack" title="Permanent link">#</a></h2>
+<p>Post pending writes to Slack and take approvals there.</p>
+<div class="hl"><pre><span></span><code>lokra slack [-h] [--admin-dsn ADMIN_DSN]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--admin-dsn</code></td>
+<td>admin connection string, so pausing from Slack also blocks the database login (default: $LOKRA_ADMIN_DSN)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lokra-serve">lokra serve<a class="anchor" href="#lokra-serve" title="Permanent link">#</a></h2>
+<p>Run the MCP server, over stdio (default) or HTTP.</p>
+<div class="hl"><pre><span></span><code>lokra serve [-h] [--http] [--host HOST] [--port PORT]
+                   [--dev-agent DEV_AGENT] [--on-behalf-of ON_BEHALF_OF]
+                   [--purpose PURPOSE]
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--http</code></td>
+<td>serve MCP over HTTP for agents on other machines; each request needs an Authorization: Bearer token</td>
+</tr>
+<tr>
+<td><code>--host</code></td>
+<td>HTTP bind address (default: 127.0.0.1)</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td>HTTP port (default: 8787)</td>
+</tr>
+<tr>
+<td><code>--dev-agent</code></td>
+<td>LOCAL DEV ONLY: issue an 8h token for this agent at startup if LOKRA_TOKEN is not set</td>
+</tr>
+<tr>
+<td><code>--on-behalf-of</code></td>
+<td>human recorded in the audit log (default: your username)</td>
+</tr>
+<tr>
+<td><code>--purpose</code></td>
+<td>declared purpose-of-use for the --dev-agent token</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/cloud-billing"><span>Previous</span>Plans and billing</a><a class="next" href="/docs/policy-reference"><span>Next</span>Policy file reference</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/blob/main/scripts/build_docs.py">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#global-options">Global options</a></li><li><a href="#lokra-init">lokra init</a></li><li><a href="#lokra-check">lokra check</a></li><li><a href="#lokra-provision">lokra provision</a></li><li><a href="#lokra-mint-token">lokra mint-token</a></li><li><a href="#lokra-try">lokra try</a></li><li><a href="#lokra-pending">lokra pending</a></li><li><a href="#lokra-approve">lokra approve</a></li><li><a href="#lokra-deny">lokra deny</a></li><li><a href="#lokra-verify-ledger">lokra verify-ledger</a></li><li><a href="#lokra-log">lokra log</a></li><li><a href="#lokra-report">lokra report</a></li><li><a href="#lokra-evidence">lokra evidence</a></li><li><a href="#lokra-dashboard">lokra dashboard</a></li><li><a href="#lokra-cloud">lokra cloud</a></li><li><a href="#lokra-connect">lokra connect</a></li><li><a href="#lokra-demo">lokra demo</a></li><li><a href="#lokra-pause">lokra pause</a></li><li><a href="#lokra-resume">lokra resume</a></li><li><a href="#lokra-revoke-token">lokra revoke-token</a></li><li><a href="#lokra-slack">lokra slack</a></li><li><a href="#lokra-serve">lokra serve</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

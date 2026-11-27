@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Connect your database · Lokra docs</title>
+<meta name="description" content="What Lokra needs from your Postgres, how to scaffold and check a policy, and what provisioning creates in the database.">
+<link rel="canonical" href="https://lokra.dev/docs/connect-database">
+<meta property="og:title" content="Connect your database · Lokra docs">
+<meta property="og:description" content="What Lokra needs from your Postgres, how to scaffold and check a policy, and what provisioning creates in the database.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database" class="on" aria-current="page">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Self-hosting</p>
+    <h1>Connect your database</h1>
+    <p class="docs-lede">What Lokra needs from your Postgres, how to scaffold and check a policy, and what provisioning creates in the database.</p>
+    <div class="docs-body">
+<p>Lokra works with your existing Postgres database. You point <code>lokra init</code> at it to scaffold a policy, check that policy with <code>lokra check</code>, then run <code>lokra provision</code> to create one locked-down Postgres role for each agent. This page covers what each step needs and what it changes, for Supabase, Amazon RDS and any other Postgres.</p>
+<h2 id="requirements">Requirements<a class="anchor" href="#requirements" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Postgres that Lokra can reach</strong> at the host and port in your policy. Agents log in there as their own roles, so the machine running Lokra needs a network path to it.</li>
+<li><strong>A login that can read the schema</strong> for <code>lokra init</code> and <code>lokra check</code>. Both connect read-only. Your admin login works.</li>
+<li><strong>An admin login for <code>lokra provision</code></strong> that can create roles and owns the tables in the policy. It does not need to be a superuser. See <a href="#the-admin-role">the admin role</a>.</li>
+<li><strong>Python 3.11 or newer</strong>, or the container image. See <a href="/docs/install">install</a>.</li>
+</ul>
+<h2 id="postgres-versions">Postgres versions<a class="anchor" href="#postgres-versions" title="Permanent link">#</a></h2>
+<p>Lokra's lab database, demo and test suite run on Postgres 16. Older versions are not tested. Lokra uses standard features (roles, column grants, row-level security), but two of them depend on the version:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Needs</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="/docs/row-locks">Row locks</a></td>
+<td>Row-level security with restrictive policies (Postgres 10 or later)</td>
+<td>Each locked agent gets a permissive and a restrictive policy.</td>
+</tr>
+<tr>
+<td>Views for an agent with a row lock</td>
+<td><code>security_invoker</code> views (Postgres 15 or later)</td>
+<td>Only views that run as the agent keep the row lock. See <a href="/docs/row-locks#views">views</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>On Postgres 16 and later, a role with <code>CREATEROLE</code> can only manage roles it created or holds <code>ADMIN OPTION</code> on. That is why some admin setups need the extra grant described under <a href="#the-admin-role">the admin role</a>.</p>
+<h2 id="supabase">Supabase<a class="anchor" href="#supabase" title="Permanent link">#</a></h2>
+<p>Use the connection string from <strong>Project Settings → Database</strong>. Copy the <strong>direct connection</strong>, not a pooler connection.</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>init<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:PASSWORD@db.PROJECT_REF.supabase.co:5432/postgres"</span>
+</code></pre></div>
+
+<p>Use the Supabase <code>postgres</code> user as the admin login for <code>lokra provision</code>. It is not a superuser, but it can create roles, which is what <code>provision</code> needs. It must also own the tables in the policy; see <a href="#the-admin-role">the admin role</a>.</p>
+<p>If your tables already have row-level security on, which Supabase recommends, Lokra adds its own policies next to yours and leaves yours alone. Your policies are written for roles such as <code>anon</code> and <code>authenticated</code>, so they do not apply to Lokra's agent roles; each agent sees only what Lokra's policies allow. See <a href="/docs/row-locks#tables-that-already-use-row-level-security">row locks</a>.</p>
+<blockquote class="callout warning">
+<p><strong>Warning:</strong> Try provisioning on a development project or a branch first. It creates roles, changes grants and can turn on row-level security.</p>
+</blockquote>
+<h2 id="amazon-rds">Amazon RDS<a class="anchor" href="#amazon-rds" title="Permanent link">#</a></h2>
+<p>Use the RDS master user as the admin login. It can create roles but is not a superuser, which is what <code>lokra provision</code> needs.</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:PASSWORD@mydb.abc123.ap-southeast-2.rds.amazonaws.com:5432/app"</span>
+</code></pre></div>
+
+<p>Two things to check first:</p>
+<ul>
+<li>The instance's security group allows connections from the machine that runs Lokra.</li>
+<li>The master user owns the tables in the policy. Tables created by a separate migration user belong to that user; see <a href="#the-admin-role">the admin role</a>.</li>
+</ul>
+<h2 id="any-other-postgres">Any other Postgres<a class="anchor" href="#any-other-postgres" title="Permanent link">#</a></h2>
+<p>Self-hosted Postgres, Postgres in Docker and other hosted services follow the same rules. You need:</p>
+<ul>
+<li>a direct connection (Lokra opens its own connections as each agent role),</li>
+<li>an admin login with <code>CREATEROLE</code> that owns the tables you want agents to reach,</li>
+<li>the database name in your policy to match the database the admin login connects to.</li>
+</ul>
+<h2 id="scaffold-a-policy-with-lokra-init">Scaffold a policy with lokra init<a class="anchor" href="#scaffold-a-policy-with-lokra-init" title="Permanent link">#</a></h2>
+<p><code>lokra init</code> connects read-only, lists the base tables in the schemas you name, and writes a starter <code>policies.yaml</code>:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>init<span class="t-w"> </span><span class="t-s2">"postgresql://admin:PASSWORD@db.example.com:5432/app"</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>introspected 5 table(s), 25 column(s) (read-only)
+flagged 3 column(s) to mask: card_number, email, phone
+wrote policies.yaml
+
+next steps:
+  1. review the policy and tighten the agent's read grants
+  2. lokra provision --admin-dsn "&lt;admin connection string&gt;"
+  3. lokra connect          (adds the agent to Claude Code; --client cursor, vscode, ...)
+</code></pre></div>
+
+<p>The file it writes has:</p>
+<ul>
+<li>a <code>database</code> block with the host, port and database name from your connection string. The user name and password are not stored.</li>
+<li>one agent, <code>app-reader</code>, that can read every column of every table (<code>"*"</code>), with <code>max_rows: 500</code>.</li>
+<li>a <code>masking</code> block with a rule for each column that looks sensitive, plus value detectors.</li>
+<li><code>approval_ttl_seconds: 3600</code>.</li>
+</ul>
+<p>It only sees tables the login can see, and it skips views. It will not overwrite an existing file: pass <code>--out other.yaml</code> to write somewhere else, or <code>--force</code> to replace it.</p>
+<blockquote class="callout tip">
+<p><strong>Tip:</strong> The starter agent can read everything. Treat it as a list of what exists, then cut it down. <a href="/docs/policies">Write a policy</a> walks through each option.</p>
+</blockquote>
+<h3 id="how-init-spots-sensitive-columns">How init spots sensitive columns<a class="anchor" href="#how-init-spots-sensitive-columns" title="Permanent link">#</a></h3>
+<p><code>init</code> matches column names, not data. It splits each name into words on underscores, punctuation and camelCase boundaries, so <code>phoneNumber</code>, <code>phone_number</code> and <code>PhoneNumber</code> all contain the word <code>phone</code>. Keywords of five letters or more also match inside a longer word, such as <code>phone</code> in <code>telephone</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Keyword in the column name</th>
+<th>Masking rule</th>
+<th>Detector added</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>medicare</code></td>
+<td><code>last4</code></td>
+<td><code>medicare</code></td>
+</tr>
+<tr>
+<td><code>ihi</code></td>
+<td><code>last4</code></td>
+<td><code>ihi</code></td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>redact</code></td>
+<td><code>email</code></td>
+</tr>
+<tr>
+<td><code>mobile</code>, <code>phone</code></td>
+<td><code>last3</code></td>
+<td><code>phone</code></td>
+</tr>
+<tr>
+<td><code>fax</code></td>
+<td><code>last3</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>dob</code>, <code>birth</code></td>
+<td><code>year_only</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>ssn</code></td>
+<td><code>last4</code></td>
+<td><code>us_ssn</code></td>
+</tr>
+<tr>
+<td><code>tfn</code>, <code>passport</code>, <code>licence</code>, <code>license</code>, <code>national</code></td>
+<td><code>last4</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>card</code></td>
+<td><code>redact</code></td>
+<td><code>card</code></td>
+</tr>
+<tr>
+<td><code>iban</code></td>
+<td><code>redact</code></td>
+<td><code>iban</code></td>
+</tr>
+<tr>
+<td><code>bsb</code></td>
+<td><code>redact</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>account</code> or <code>acct</code> with <code>number</code>, <code>no</code> or <code>num</code></td>
+<td><code>redact</code></td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>An account number is flagged, but <code>account_id</code> is not. Because matching is by name only, review the result: a boolean <code>email_verified</code> column is flagged as an email, and a column called <code>tax_file_number</code> is not flagged at all.</p>
+<h3 id="base-detectors">Base detectors<a class="anchor" href="#base-detectors" title="Permanent link">#</a></h3>
+<p>Free text can hold anything, so every policy <code>init</code> writes includes the <code>card</code>, <code>email</code>, <code>phone</code> and <code>au_phone</code> detectors, whatever your column names. They scan every text value in every result, including notes, JSON and arrays. See <a href="/docs/masking#detectors">masking</a>.</p>
+<h3 id="other-schemas">Other schemas<a class="anchor" href="#other-schemas" title="Permanent link">#</a></h3>
+<p><code>init</code> reads the <code>public</code> schema unless you name others:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>init<span class="t-w"> </span><span class="t-s2">"postgresql://admin:PASSWORD@db.example.com:5432/app"</span><span class="t-w"> </span>--schemas<span class="t-w"> </span>public,billing
+</code></pre></div>
+
+<p>Tables outside <code>public</code> are written as <code>schema.table</code>, for example <code>billing.invoices</code>. See <a href="#schemas-other-than-public">schemas other than public</a>.</p>
+<h2 id="check-the-policy-with-lokra-check">Check the policy with lokra check<a class="anchor" href="#check-the-policy-with-lokra-check" title="Permanent link">#</a></h2>
+<p><code>lokra check</code> reads the database (read-only) and compares it with the policy:</p>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:PASSWORD@db.example.com:5432/app"</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>  ERROR  support-bot: reads column 'customers.nickname' which does not exist
+  WARN   support-bot: can read 'customers.phone', which looks sensitive, with no masking rule or detector
+  WARN   support-bot: sees every row of 'products', which has no 'account_id' column to lock rows by
+  WARN   support-bot: can write 'notes' but cannot read it
+  INFO   masking rule for column 'fax' matches no column in the database
+
+1 error(s), 3 warning(s)
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>What it reports</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ERROR</code></td>
+<td>A table or column in the policy that does not exist, and views that would read past a row lock.</td>
+</tr>
+<tr>
+<td><code>WARN</code></td>
+<td>A sensitive-looking column an agent can read with no masking rule and no matching detector, a table the agent can read that has no column to lock rows by, and a table an agent can write but not read.</td>
+</tr>
+<tr>
+<td><code>INFO</code></td>
+<td>A masking rule that matches no column anywhere in the database.</td>
+</tr>
+</tbody>
+</table>
+<p><code>--dsn</code> falls back to <code>LOKRA_ADMIN_DSN</code>. The connection must be to the database named in the policy, or <code>check</code> refuses it.</p>
+<p><code>check</code> exits with status 1 when it finds an error, and 0 otherwise. With <code>--strict</code> it also fails on warnings, which suits CI; see <a href="/docs/ci">use Lokra in CI</a>. Mistakes in the policy file itself, such as a typo like <code>max_row</code> or an unknown masking strategy, stop every command with an error before it runs; see <a href="/docs/policy-reference#validation-errors">validation errors</a>.</p>
+<h3 id="fail-on-warnings-in-ci">Fail on warnings in CI<a class="anchor" href="#fail-on-warnings-in-ci" title="Permanent link">#</a></h3>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>check<span class="t-w"> </span>--strict<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$LOKRA_ADMIN_DSN</span><span class="t-s2">"</span>
+</code></pre></div>
+
+<p>With <code>--strict</code>, warnings fail the run too. A new <code>phone</code> column that nothing masks then stops the merge instead of reaching production. <code>--strict</code> treats every warning the same, including ones you accept, such as a shared <code>products</code> table with no <code>account_id</code> column. See <a href="/docs/ci">run checks in CI</a>.</p>
+<h2 id="provision-the-agent-roles">Provision the agent roles<a class="anchor" href="#provision-the-agent-roles" title="Permanent link">#</a></h2>
+<div class="hl"><pre><span></span><code>lokra<span class="t-w"> </span>provision<span class="t-w"> </span>--admin-dsn<span class="t-w"> </span><span class="t-s2">"postgresql://admin:PASSWORD@db.example.com:5432/app"</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code>created role lokra_support_bot: rows where account_id in [42] (accounts: id) on ['accounts', 'customers', 'notes', 'orders']; all rows on ['products'], reads ['accounts', 'customers', 'notes', 'orders', 'products'], writes ['notes']
+created role lokra_ops_bot: all rows (no row lock), reads ['orders'], writes ['orders']
+secrets saved to /home/dana/app/.lokra/secrets.json
+</code></pre></div>
+
+<p>Each agent gets a Postgres role named <code>lokra_</code> plus its name in lower case, with any run of other characters turned into <code>_</code>. <code>support-bot</code> becomes <code>lokra_support_bot</code>.</p>
+<h3 id="give-provision-the-admin-connection">Give provision the admin connection<a class="anchor" href="#give-provision-the-admin-connection" title="Permanent link">#</a></h3>
+<p>Pass <code>--admin-dsn</code>, or set <code>LOKRA_ADMIN_DSN</code> so you do not have to repeat it:</p>
+<div class="hl"><pre><span></span><code><span class="t-nb">export</span><span class="t-w"> </span><span class="t-nv">LOKRA_ADMIN_DSN</span><span class="t-o">=</span><span class="t-s2">"postgresql://admin:PASSWORD@db.example.com:5432/app"</span>
+lokra<span class="t-w"> </span>provision
+</code></pre></div>
+
+<p>The same variable is used by <code>check</code>, <code>pause</code>, <code>resume</code>, <code>dashboard</code>, <code>slack</code> and <code>cloud</code>. The admin connection must be to the database named in the policy; Lokra refuses any other. See <a href="/docs/environment">environment variables</a>.</p>
+<h3 id="the-admin-role">The admin role<a class="anchor" href="#the-admin-role" title="Permanent link">#</a></h3>
+<p>The admin login needs:</p>
+<ul>
+<li><strong><code>CREATEROLE</code></strong>, to create and update the agent roles.</li>
+<li><strong>Ownership of the tables in the policy</strong>, or membership of the role that owns them. Granting access needs ownership (or <code>GRANT OPTION</code>), and a row lock needs ownership, because only a table's owner can turn on row-level security and create policies on it.</li>
+<li><strong><code>ADMIN OPTION</code> on <code>lokra_agents</code></strong>, if another role created it. The first <code>provision</code> creates this group role and its creator can add agents to it. If someone else created it, run this once as a superuser:</li>
+</ul>
+<div class="hl"><pre><span></span><code><span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-n">lokra_agents</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">admin_user</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-k">ADMIN</span><span class="t-w"> </span><span class="t-k">OPTION</span><span class="t-p">;</span>
+</code></pre></div>
+
+<p>It does not need to be a superuser. If it is one, each <code>provision</code> also resets the agent roles' attributes, for example removing a <code>BYPASSRLS</code> that someone added by hand. If it is not, Postgres does not let it reset every attribute, so <code>provision</code> stops when an agent role has gained <code>CREATEDB</code>, <code>REPLICATION</code> or <code>BYPASSRLS</code> and tells you how to remove it. An agent role that has gained <code>SUPERUSER</code> stops it too, with Postgres's own <code>permission denied to alter role</code>.</p>
+<p>Use the same admin login every time. On Postgres 16 and later, a different <code>CREATEROLE</code> login cannot alter agent roles the first one created. <a href="/docs/troubleshooting#provisioning">Troubleshooting</a> lists the errors each of these causes and the fix.</p>
+<h3 id="what-provision-creates">What provision creates<a class="anchor" href="#what-provision-creates" title="Permanent link">#</a></h3>
+<p>For each agent, <code>provision</code> runs roughly this:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">CREATE</span><span class="t-w"> </span><span class="t-k">ROLE</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">WITH</span><span class="t-w"> </span><span class="t-n">LOGIN</span><span class="t-w"> </span><span class="t-n">NOSUPERUSER</span><span class="t-w"> </span><span class="t-k">NOCREATEDB</span><span class="t-w"> </span><span class="t-n">NOCREATEROLE</span><span class="t-w"> </span><span class="t-n">NOINHERIT</span>
+<span class="t-w">  </span><span class="t-n">NOREPLICATION</span><span class="t-w"> </span><span class="t-n">NOBYPASSRLS</span><span class="t-w"> </span><span class="t-k">CONNECTION</span><span class="t-w"> </span><span class="t-k">LIMIT</span><span class="t-w"> </span><span class="t-mi">10</span><span class="t-w"> </span><span class="t-n">PASSWORD</span><span class="t-w"> </span><span class="t-s1">'…'</span><span class="t-p">;</span>
+<span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">ROLE</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">SET</span><span class="t-w"> </span><span class="t-n">statement_timeout</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'5s'</span><span class="t-p">;</span>
+<span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">ROLE</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">SET</span><span class="t-w"> </span><span class="t-n">idle_in_transaction_session_timeout</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'10s'</span><span class="t-p">;</span>
+<span class="t-k">ALTER</span><span class="t-w"> </span><span class="t-k">ROLE</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-w"> </span><span class="t-k">SET</span><span class="t-w"> </span><span class="t-n">search_path</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'public'</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-n">lokra_agents</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">CONNECT</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-k">DATABASE</span><span class="t-w"> </span><span class="t-n">app</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">USAGE</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-k">SCHEMA</span><span class="t-w"> </span><span class="t-k">public</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-p">(</span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">account_id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">name</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">email</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">phone</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">created_at</span><span class="t-p">)</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">customers</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">orders</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">INSERT</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-n">notes</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+<span class="t-k">GRANT</span><span class="t-w"> </span><span class="t-k">USAGE</span><span class="t-w"> </span><span class="t-k">ON</span><span class="t-w"> </span><span class="t-k">ALL</span><span class="t-w"> </span><span class="t-n">SEQUENCES</span><span class="t-w"> </span><span class="t-k">IN</span><span class="t-w"> </span><span class="t-k">SCHEMA</span><span class="t-w"> </span><span class="t-k">public</span><span class="t-w"> </span><span class="t-k">TO</span><span class="t-w"> </span><span class="t-n">lokra_support_bot</span><span class="t-p">;</span>
+</code></pre></div>
+
+<p>In detail:</p>
+<ul>
+<li><strong>A login role per agent</strong> with no elevated attributes, at most 10 connections, a 5-second statement timeout and a 10-second idle-in-transaction timeout. The password is random and stored in <code>.lokra/secrets.json</code> (readable only by you). Agents never see it; they get <a href="/docs/security-model">signed tokens</a> instead.</li>
+<li><strong>Membership of <code>lokra_agents</code></strong>, a <code>NOLOGIN</code> group role. It grants nothing; Lokra uses it to tell agent sessions apart from everyone else in row-level security policies.</li>
+<li><strong>Grants</strong> that match the policy: <code>CONNECT</code> on the database, <code>USAGE</code> on each schema the agent touches, <code>SELECT</code> on whole tables or listed columns, <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> where the policy allows writes, and <code>USAGE</code> on the sequences in schemas it writes to, so inserts can fill identity and serial columns.</li>
+<li><strong>Row-level security policies</strong> for agents with a <code>rows</code> rule. See <a href="/docs/row-locks#what-provision-creates">row locks</a>.</li>
+</ul>
+<p><code>provision</code> checks that every table in the policy exists, and that no agent with a row lock is given an unsafe view, before it changes anything.</p>
+<h3 id="re-running-provision">Re-running provision<a class="anchor" href="#re-running-provision" title="Permanent link">#</a></h3>
+<p>Run <code>provision</code> again whenever the policy changes. It is safe to repeat:</p>
+<ul>
+<li>Passwords stay the same.</li>
+<li>Each agent's grants are revoked and granted again from the policy, so a table or column you remove is taken away. Schemas the agent no longer needs lose their <code>USAGE</code> grant.</li>
+<li>Row-level security policies are dropped and recreated. If no agent's rows are locked on a table any more, and Lokra turned row-level security on there, it turns it off again.</li>
+<li>A <a href="/docs/stop-agents">paused</a> agent stays paused: its role keeps <code>NOLOGIN</code>.</li>
+</ul>
+<p>If <code>provision</code> stops partway, for example on a permission error, fix the cause and run it again.</p>
+<h3 id="removing-an-agent">Removing an agent<a class="anchor" href="#removing-an-agent" title="Permanent link">#</a></h3>
+<p>Deleting an agent from <code>policies.yaml</code> stops Lokra issuing it tokens, but <code>lokra provision</code> does not drop its role. Drop it yourself as the admin:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">DROP</span><span class="t-w"> </span><span class="t-n">OWNED</span><span class="t-w"> </span><span class="t-k">BY</span><span class="t-w"> </span><span class="t-n">lokra_old_bot</span><span class="t-p">;</span>
+<span class="t-k">DROP</span><span class="t-w"> </span><span class="t-k">ROLE</span><span class="t-w"> </span><span class="t-n">lokra_old_bot</span><span class="t-p">;</span>
+</code></pre></div>
+
+<p><code>DROP OWNED BY</code> removes the role's grants and its row-level security policies. Then run <code>lokra provision</code> so Lokra turns off row-level security on any table it no longer needs it for.</p>
+<h2 id="schemas-other-than-public">Schemas other than public<a class="anchor" href="#schemas-other-than-public" title="Permanent link">#</a></h2>
+<p>Name tables outside <code>public</code> as <code>schema.table</code>. Unqualified names mean <code>public</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-nt">agents</span><span class="t-p">:</span>
+<span class="t-w">  </span><span class="t-nt">billing-bot</span><span class="t-p">:</span>
+<span class="t-w">    </span><span class="t-nt">rows</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">{</span><span class="t-nt">column</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-nv">account_id</span><span class="t-p t-p-Indicator">,</span><span class="t-nt"> values</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">42</span><span class="t-p t-p-Indicator">]}</span>
+<span class="t-w">    </span><span class="t-nt">read</span><span class="t-p">:</span>
+<span class="t-w">      </span><span class="t-nt">billing.invoices</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"*"</span>
+<span class="t-w">      </span><span class="t-nt">customers</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p t-p-Indicator">[</span><span class="t-nv">id</span><span class="t-p t-p-Indicator">,</span><span class="t-w"> </span><span class="t-nv">name</span><span class="t-p t-p-Indicator">]</span>
+</code></pre></div>
+
+<p>Lokra grants the agent <code>USAGE</code> on only the schemas it needs, plus <code>public</code>, and takes a schema away again when its last table leaves the policy. A <code>rows.tables</code> mapping uses the same names, for example <code>tables: {billing.accounts: id}</code>.</p>
+<p>Agent roles have <code>search_path</code> set to <code>public</code>, so agents must write the schema in their SQL too:</p>
+<div class="hl"><pre><span></span><code><span class="t-k">SELECT</span><span class="t-w"> </span><span class="t-n">id</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-n">total</span><span class="t-w"> </span><span class="t-k">FROM</span><span class="t-w"> </span><span class="t-n">billing</span><span class="t-p">.</span><span class="t-n">invoices</span><span class="t-w"> </span><span class="t-k">WHERE</span><span class="t-w"> </span><span class="t-n">status</span><span class="t-w"> </span><span class="t-o">=</span><span class="t-w"> </span><span class="t-s1">'open'</span><span class="t-p">;</span>
+</code></pre></div>
+
+<p>An unqualified <code>FROM invoices</code> fails with <code>relation "invoices" does not exist</code>. The agent's <code>list_tables</code> tool shows tables with their schema, so agents pick this up.</p>
+<h2 id="encrypted-connections">Encrypted connections<a class="anchor" href="#encrypted-connections" title="Permanent link">#</a></h2>
+<p>The policy's <code>database</code> block holds only <code>host</code>, <code>port</code> and <code>dbname</code>. Lokra connects through libpq, which uses TLS when the server offers it (<code>sslmode=prefer</code>). To insist on TLS, or to verify the server's certificate, set the standard libpq variables where Lokra runs:</p>
+<div class="hl"><pre><span></span><code><span class="t-nb">export</span><span class="t-w"> </span><span class="t-nv">PGSSLMODE</span><span class="t-o">=</span>verify-full
+<span class="t-nb">export</span><span class="t-w"> </span><span class="t-nv">PGSSLROOTCERT</span><span class="t-o">=</span>/etc/ssl/certs/db-ca.pem
+</code></pre></div>
+
+<p>These apply to agent connections and to admin connections. You can also put <code>?sslmode=require</code> on the admin connection string itself.</p>
+<h2 id="next-steps">Next steps<a class="anchor" href="#next-steps" title="Permanent link">#</a></h2>
+<ul>
+<li><a href="/docs/policies">Write a policy</a>: decide what each agent can read and change.</li>
+<li><a href="/docs/row-locks">Row locks</a>: limit an agent to one account's rows.</li>
+<li><a href="/docs/connect-clients">Connect AI clients</a>: add the agent to Claude Code, Cursor and others.</li>
+</ul>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/install"><span>Previous</span>Install</a><a class="next" href="/docs/policies"><span>Next</span>Write a policy</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/connect-database.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#requirements">Requirements</a></li><li><a href="#postgres-versions">Postgres versions</a></li><li><a href="#supabase">Supabase</a></li><li><a href="#amazon-rds">Amazon RDS</a></li><li><a href="#any-other-postgres">Any other Postgres</a></li><li><a href="#scaffold-a-policy-with-lokra-init">Scaffold a policy with lokra init</a></li><li><a href="#check-the-policy-with-lokra-check">Check the policy with lokra check</a></li><li><a href="#provision-the-agent-roles">Provision the agent roles</a></li><li><a href="#schemas-other-than-public">Schemas other than public</a></li><li><a href="#encrypted-connections">Encrypted connections</a></li><li><a href="#next-steps">Next steps</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

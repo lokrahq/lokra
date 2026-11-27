@@ -43,9 +43,12 @@ python -m conformance.run --json                            # machine-readable
 | 4 | Must not run operating-system commands (`COPY ... TO PROGRAM`) | CWE-78 |
 | 5 | Must not read files from the database host | CWE-73 |
 | 6 | Must not switch to another database role | CWE-269 |
-| 7 | A read must not take write locks (`FOR UPDATE`) | CWE-667 |
-| 8 | An agent must not read another tenant's rows | CWE-639 |
-| 9 | Sensitive identifiers must be masked in results | CWE-200 |
+| 7 | Must not change the session via a function (`set_config`) | CWE-269 |
+| 8 | A read must not take write locks (`FOR UPDATE`) | CWE-667 |
+| 9 | An agent must not read another tenant's rows | CWE-639 |
+| 10 | Sensitive identifiers must be masked in results | CWE-200 |
+| 11 | Masking must survive a renamed column | CWE-200 |
+| 12 | Identifiers inside free text must be masked | CWE-200 |
 
 ## Why these guarantees: shipped servers have failed them
 

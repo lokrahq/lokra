@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>MCP tools reference · Lokra docs</title>
+<meta name="description" content="Every tool an agent sees through Lokra, with its inputs, what it returns, the errors it can raise, and the instructions the server gives the agent.">
+<link rel="canonical" href="https://lokra.dev/docs/mcp-tools">
+<meta property="og:title" content="MCP tools reference · Lokra docs">
+<meta property="og:description" content="Every tool an agent sees through Lokra, with its inputs, what it returns, the errors it can raise, and the instructions the server gives the agent.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools" class="on" aria-current="page">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Reference</p>
+    <h1>MCP tools reference</h1>
+    <p class="docs-lede">Every tool an agent sees through Lokra, with its inputs, what it returns, the errors it can raise, and the instructions the server gives the agent.</p>
+    <div class="docs-body">
+<p>Lokra gives every agent the same six MCP tools, whichever client it uses and whether it connects over stdio or HTTP. What the agent can do with them is decided by its policy and enforced by the database: the tools are the same, the tables and rows behind them are not.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Inputs</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#whoami"><code>whoami</code></a></td>
+<td>none</td>
+<td>Shows the agent identity, the person it acts for and when its token expires</td>
+</tr>
+<tr>
+<td><a href="#list_tables"><code>list_tables</code></a></td>
+<td>none</td>
+<td>Lists the tables and columns the agent may read or write</td>
+</tr>
+<tr>
+<td><a href="#query"><code>query</code></a></td>
+<td><code>sql</code></td>
+<td>Runs one read-only <code>SELECT</code></td>
+</tr>
+<tr>
+<td><a href="#propose_write"><code>propose_write</code></a></td>
+<td><code>sql</code>, <code>reason</code></td>
+<td>Dry-runs one <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> and asks for approval</td>
+</tr>
+<tr>
+<td><a href="#write_status"><code>write_status</code></a></td>
+<td><code>write_id</code></td>
+<td>Shows whether a proposed write is pending, approved, denied or executed</td>
+</tr>
+<tr>
+<td><a href="#execute_write"><code>execute_write</code></a></td>
+<td><code>write_id</code></td>
+<td>Runs an approved write</td>
+</tr>
+</tbody>
+</table>
+<h2 id="server-instructions">Server instructions<a class="anchor" href="#server-instructions" title="Permanent link">#</a></h2>
+<p>When a client connects, Lokra sends these instructions, which most clients pass to the model:</p>
+<div class="hl"><pre><span></span><code>You are connected to a database through Lokra, a policy proxy. Call list_tables first to see what you may read. Use query for one SELECT at a time. Rows outside your scope are invisible, and sensitive values are masked. To change data, call propose_write. It returns status approved when the policy allows small writes to run without a person; otherwise a human (or two, for some statements) must approve it before execute_write will run. Check write_status, then call execute_write.
+</code></pre></div>
+
+<h2 id="results-and-errors">Results and errors<a class="anchor" href="#results-and-errors" title="Permanent link">#</a></h2>
+<p>Every tool returns a JSON object, sent as the text of the tool result. The field names below are exactly what the agent sees.</p>
+<p>When a call fails, the tool result is marked as an error and its text explains why, in a form the agent can act on:</p>
+<div class="hl"><pre><span></span><code>Error executing tool query: send exactly one SQL statement per call
+</code></pre></div>
+
+<p>Before any tool does its work, Lokra checks the agent's token, its purpose, whether it is paused, whether the token was revoked, and its rate limit. These errors can come from any tool:</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>access denied: no agent token supplied (LOKRA_TOKEN, or an Authorization: Bearer header over HTTP)</code></td>
+<td>No token</td>
+</tr>
+<tr>
+<td><code>access denied: malformed token</code></td>
+<td>Not a Lokra token</td>
+</tr>
+<tr>
+<td><code>access denied: token signature is invalid</code></td>
+<td>Altered, or signed by another Lokra</td>
+</tr>
+<tr>
+<td><code>access denied: token has expired, mint a new one</code></td>
+<td>Older than its TTL</td>
+</tr>
+<tr>
+<td><code>access denied: unknown agent 'billing-bot'</code></td>
+<td>The agent is not in this policy</td>
+</tr>
+<tr>
+<td><code>access denied: a declared purpose-of-use is required for this request</code></td>
+<td>The policy sets <code>require_purpose</code> and the token has none</td>
+</tr>
+<tr>
+<td><code>access denied: purpose 'marketing' is not permitted for support-bot</code></td>
+<td>The purpose is not in the agent's <code>purposes</code></td>
+</tr>
+<tr>
+<td><code>stopped: support-bot is paused by dana: deleting too much</code></td>
+<td>The agent is <a href="/docs/stop-agents">paused</a></td>
+</tr>
+<tr>
+<td><code>stopped: this token was revoked; ask for a new one</code></td>
+<td>The token was <a href="/docs/stop-agents#revoke-one-token">revoked</a></td>
+</tr>
+<tr>
+<td><code>stopped: rate limit of 60 requests a minute reached; wait before retrying</code></td>
+<td>The agent hit its <a href="/docs/stop-agents#cap-the-request-rate">rate limit</a></td>
+</tr>
+</tbody>
+</table>
+<p>Every call counts towards the rate limit, including <code>whoami</code> and <code>write_status</code>, and every refusal above is written to the <a href="/docs/audit">audit ledger</a>.</p>
+<h2 id="whoami">whoami<a class="anchor" href="#whoami" title="Permanent link">#</a></h2>
+<p>Shows which identity the agent has and when its access ends. It takes no inputs.</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"agent"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"support-bot"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"description"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Answers customer questions for one account. Read only."</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"purpose"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"customer-support"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"expires_in_seconds"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">27841</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"max_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">200</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent</code></td>
+<td>The agent name from the policy</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>The agent's <code>description</code> from the policy</td>
+</tr>
+<tr>
+<td><code>on_behalf_of</code></td>
+<td>The person on the token</td>
+</tr>
+<tr>
+<td><code>purpose</code></td>
+<td>The declared purpose, or <code>null</code></td>
+</tr>
+<tr>
+<td><code>expires_in_seconds</code></td>
+<td>Seconds until the token expires</td>
+</tr>
+<tr>
+<td><code>max_rows</code></td>
+<td>The most rows a single <code>query</code> returns</td>
+</tr>
+</tbody>
+</table>
+<h2 id="list_tables">list_tables<a class="anchor" href="#list_tables" title="Permanent link">#</a></h2>
+<p>Lists what the agent may touch. It takes no inputs. The server instructions ask the agent to call it first.</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">    </span><span class="t-nt">"customers"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">      </span><span class="t-nt">"read"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"account_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"created_at"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"email"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"name"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"phone"</span><span class="t-p">],</span>
+<span class="t-w">      </span><span class="t-nt">"write"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[]</span>
+<span class="t-w">    </span><span class="t-p">},</span>
+<span class="t-w">    </span><span class="t-nt">"orders"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span>
+<span class="t-w">      </span><span class="t-nt">"read"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"account_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"created_at"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"customer_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"notes"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"status"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"total"</span><span class="t-p">],</span>
+<span class="t-w">      </span><span class="t-nt">"write"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"account_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"created_at"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"customer_id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"notes"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"status"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"total"</span><span class="t-p">]</span>
+<span class="t-w">    </span><span class="t-p">}</span>
+<span class="t-w">  </span><span class="t-p">},</span>
+<span class="t-w">  </span><span class="t-nt">"note"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"You only see rows where account_id in [42]. Some values are masked."</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tables</code></td>
+<td>Each table the agent's database role holds privileges on, keyed by name. Tables outside <code>public</code> are named <code>schema.table</code>.</td>
+</tr>
+<tr>
+<td><code>tables.&lt;name&gt;.read</code></td>
+<td>Columns the agent may select, in alphabetical order</td>
+</tr>
+<tr>
+<td><code>tables.&lt;name&gt;.write</code></td>
+<td>Columns the agent may insert into or update. <code>DELETE</code> applies to whole rows, so it does not show here.</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td>The agent's row lock, if it has one, and a reminder that values may be masked</td>
+</tr>
+</tbody>
+</table>
+<p>The list comes from the database's own record of the role's privileges, so it shows what Postgres will actually allow rather than what the policy file says.</p>
+<h2 id="query">query<a class="anchor" href="#query" title="Permanent link">#</a></h2>
+<p>Runs one read-only <code>SELECT</code> as the agent's own database role.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sql</code></td>
+<td>string</td>
+<td>Exactly one <code>SELECT</code> statement</td>
+</tr>
+</tbody>
+</table>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"name"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"email"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"phone"</span><span class="t-p">],</span>
+<span class="t-w">  </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span>
+<span class="t-w">    </span><span class="t-p">[</span><span class="t-mi">2</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"Customer 2"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"[REDACTED]"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"********134"</span><span class="t-p">],</span>
+<span class="t-w">    </span><span class="t-p">[</span><span class="t-mi">4</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"Customer 4"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"[REDACTED]"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"********268"</span><span class="t-p">]</span>
+<span class="t-w">  </span><span class="t-p">],</span>
+<span class="t-w">  </span><span class="t-nt">"row_count"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{</span><span class="t-nt">"column:redact"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"column:last3"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">2</span><span class="t-p">}</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>columns</code></td>
+<td>Column names, in order</td>
+</tr>
+<tr>
+<td><code>rows</code></td>
+<td>One array per row. Dates and times are ISO 8601 strings, <code>numeric</code> values are strings, and binary values are <code>"&lt;binary&gt;"</code>.</td>
+</tr>
+<tr>
+<td><code>row_count</code></td>
+<td>How many rows came back</td>
+</tr>
+<tr>
+<td><code>truncated</code></td>
+<td><code>true</code> if the query matched more rows than the agent's <code>max_rows</code>, and the rest were cut off</td>
+</tr>
+<tr>
+<td><code>masked</code></td>
+<td>How many values were masked, by rule: <code>column:&lt;strategy&gt;</code> for a column rule, or a detector name such as <code>email</code> or <code>au_phone</code> for a value found in free text</td>
+</tr>
+</tbody>
+</table>
+<p>The query runs in a read-only transaction with the row lock and a 5-second statement timeout applied by the database. Rows outside the agent's scope do not appear at all. See <a href="/docs/masking">masking</a> and <a href="/docs/row-locks">row locks</a>.</p>
+<h3 id="query-errors">Query errors<a class="anchor" href="#query-errors" title="Permanent link">#</a></h3>
+<p>Lokra's SQL check refuses these before they reach the database:</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>send exactly one SQL statement per call</code></td>
+<td>More than one statement, such as <code>SELECT 1; DROP TABLE orders</code></td>
+</tr>
+<tr>
+<td><code>this is a write; use propose_write so a human can approve it</code></td>
+<td>An <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code></td>
+</tr>
+<tr>
+<td><code>only SELECT queries are allowed here (got COPY)</code></td>
+<td>Anything else that is not a <code>SELECT</code>: <code>COPY</code>, <code>CREATE</code>, <code>BEGIN</code> (<code>got TRANSACTION</code>), <code>SET ROLE</code> or <code>SHOW</code> (<code>got COMMAND</code>)</td>
+</tr>
+<tr>
+<td><code>INTO is not allowed in a read query</code></td>
+<td><code>SELECT ... INTO</code></td>
+</tr>
+<tr>
+<td><code>LOCK is not allowed in a read query</code></td>
+<td><code>FOR UPDATE</code> or <code>FOR SHARE</code></td>
+</tr>
+<tr>
+<td><code>data-modifying statements inside a SELECT (for example in a WITH clause) are not allowed</code></td>
+<td>A write hidden in a CTE</td>
+</tr>
+<tr>
+<td><code>the function pg_read_file() is not allowed</code></td>
+<td>A function that reads files, runs programs, changes the session or sleeps, such as <code>pg_read_file</code>, <code>set_config</code> or <code>pg_sleep</code></td>
+</tr>
+<tr>
+<td><code>the masked column email can only be selected as itself, or used in WHERE, JOIN, GROUP BY or ORDER BY; ...</code></td>
+<td>A masked column inside a function, alias, <code>UNION</code> or subquery result</td>
+</tr>
+<tr>
+<td><code>c refers to a whole row, which would carry masked columns; select the columns you need</code></td>
+<td>A whole row, as in <code>row_to_json(c)</code>, when the table has masked columns</td>
+</tr>
+<tr>
+<td><code>empty query</code>, <code>could not parse SQL safely: ...</code></td>
+<td>Nothing to run, or SQL Lokra cannot parse</td>
+</tr>
+</tbody>
+</table>
+<p>Anything else goes to Postgres, which has the final say. Its refusals come back as <code>database refused the query: &lt;message&gt;</code>, for example <code>database refused the query: permission denied for table invoices</code> for a table outside the policy, or <code>database refused the query: canceling statement due to statement timeout</code> for a query that ran longer than 5 seconds.</p>
+<h2 id="propose_write">propose_write<a class="anchor" href="#propose_write" title="Permanent link">#</a></h2>
+<p>Proposes one <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code>. Lokra runs it as the agent's role inside a transaction, counts the rows it changes, and rolls it back. Nothing changes until the write is approved and executed.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sql</code></td>
+<td>string</td>
+<td>Exactly one <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code></td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td>string</td>
+<td>Why the agent wants this change, shown to whoever approves it</td>
+</tr>
+</tbody>
+</table>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span>
+<span class="t-w">  </span><span class="t-nt">"next_step"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"A human must approve this with `lokra approve w_4de7597e`. Then call execute_write with this write_id."</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_id</code></td>
+<td>The id to pass to <code>write_status</code> and <code>execute_write</code></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>pending</code>, or <code>approved</code> if the policy approved it on its own</td>
+</tr>
+<tr>
+<td><code>would_affect_rows</code></td>
+<td>Rows the dry run changed</td>
+</tr>
+<tr>
+<td><code>approvals_needed</code></td>
+<td><code>0</code> if already approved, <code>1</code> for one person, <code>2</code> for two different people</td>
+</tr>
+<tr>
+<td><code>warnings</code></td>
+<td>Anything worth a second look; see below</td>
+</tr>
+<tr>
+<td><code>next_step</code></td>
+<td>What the agent should do next, in plain words</td>
+</tr>
+</tbody>
+</table>
+<p>When the agent's <a href="/docs/approvals">approval rules</a> let a small write through, the same call comes back already approved:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_0429f71d"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">0</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span>
+<span class="t-w">  </span><span class="t-nt">"next_step"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Approved by policy: it changes 1 row(s), within this agent's limit of 1. Call execute_write with this write_id now."</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>A write that needs two people says so in <code>next_step</code>: <code>Two different people must approve this, for example with lokra approve w_3763431e. Then call execute_write with this write_id.</code></p>
+<table>
+<thead>
+<tr>
+<th>Warning</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>no WHERE clause: this changes every row the agent can see</code></td>
+<td>An <code>UPDATE</code> or <code>DELETE</code> with no <code>WHERE</code></td>
+</tr>
+<tr>
+<td><code>changes no rows: they may not exist, or be outside this agent's scope</code></td>
+<td>The dry run changed nothing</td>
+</tr>
+</tbody>
+</table>
+<p>The dry run is a real statement that is rolled back, so triggers fire inside it, and an <code>INSERT</code> still advances sequences.</p>
+<h3 id="proposal-errors">Proposal errors<a class="anchor" href="#proposal-errors" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>propose_write accepts a single INSERT, UPDATE or DELETE</code></td>
+<td>Any other statement, such as <code>SELECT</code>, <code>DROP</code> or <code>TRUNCATE</code></td>
+</tr>
+<tr>
+<td><code>send exactly one SQL statement per call</code></td>
+<td>More than one statement</td>
+</tr>
+<tr>
+<td><code>the function pg_sleep() is not allowed</code></td>
+<td>A blocked function anywhere in the write</td>
+</tr>
+<tr>
+<td><code>database refused the query: permission denied for table orders</code></td>
+<td>The agent has no grant for this write</td>
+</tr>
+<tr>
+<td><code>database refused the query: new row violates row-level security policy for table "orders"</code></td>
+<td>The new row would fall outside the agent's row lock</td>
+</tr>
+</tbody>
+</table>
+<h2 id="write_status">write_status<a class="anchor" href="#write_status" title="Permanent link">#</a></h2>
+<p>Shows the current state of a write this agent proposed.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_id</code></td>
+<td>string</td>
+<td>The id from <code>propose_write</code></td>
+</tr>
+</tbody>
+</table>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"orders"</span><span class="t-p">],</span>
+<span class="t-w">  </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"customer asked to cancel"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approved_by"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"sam (slack)"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span>
+<span class="t-w">  </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approvals"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"sam (slack)"</span><span class="t-p">],</span>
+<span class="t-w">  </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'cancelled' WHERE customer_id = 4"</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>The write id</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>See <a href="#write-statuses">write statuses</a></td>
+</tr>
+<tr>
+<td><code>statement</code></td>
+<td><code>insert</code>, <code>update</code> or <code>delete</code></td>
+</tr>
+<tr>
+<td><code>tables</code></td>
+<td>Tables the statement names</td>
+</tr>
+<tr>
+<td><code>reason</code></td>
+<td>The reason the agent gave</td>
+</tr>
+<tr>
+<td><code>on_behalf_of</code></td>
+<td>The person on the token that proposed it</td>
+</tr>
+<tr>
+<td><code>approved_by</code>, <code>denied_by</code></td>
+<td>Who decided, once someone has</td>
+</tr>
+<tr>
+<td><code>would_affect_rows</code></td>
+<td>Rows the dry run changed</td>
+</tr>
+<tr>
+<td><code>affected_rows</code></td>
+<td>Rows actually changed, once executed</td>
+</tr>
+<tr>
+<td><code>warnings</code></td>
+<td>Warnings from the proposal</td>
+</tr>
+<tr>
+<td><code>approvals_needed</code></td>
+<td>How many people must approve: <code>1</code> or <code>2</code></td>
+</tr>
+<tr>
+<td><code>approvals</code></td>
+<td>Who has approved so far</td>
+</tr>
+<tr>
+<td><code>failure</code></td>
+<td>Why execution failed, if it did</td>
+</tr>
+<tr>
+<td><code>sql</code></td>
+<td>The statement, with values the policy's detectors recognise masked</td>
+</tr>
+</tbody>
+</table>
+<p>Fields with no value are left out. An agent asking about another agent's write gets <code>unknown write_id</code>, and an id in the wrong format gets <code>invalid write_id</code>.</p>
+<blockquote class="callout tip">
+<p><strong>Tip:</strong> <code>write_status</code> counts towards the agent's rate limit. An agent waiting for a person should check every few seconds, not in a tight loop.</p>
+</blockquote>
+<h2 id="execute_write">execute_write<a class="anchor" href="#execute_write" title="Permanent link">#</a></h2>
+<p>Runs an approved write as the agent's role, and commits it only if it changes no more rows than the dry run showed.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write_id</code></td>
+<td>string</td>
+<td>The id of an approved write</td>
+</tr>
+</tbody>
+</table>
+<p>It returns <code>write_id</code> followed by the same fields as <code>write_status</code>, now with <code>status</code> set to <code>executed</code> and <code>affected_rows</code> filled in:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_4de7597e"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"executed"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"orders"</span><span class="t-p">],</span>
+<span class="t-w">  </span><span class="t-nt">"approved_by"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"sam (slack)"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"affected_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">3</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'cancelled' WHERE customer_id = 4"</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>This example leaves out <code>reason</code>, <code>on_behalf_of</code>, <code>warnings</code>, <code>approvals_needed</code> and <code>approvals</code>, which come back as in <code>write_status</code>. A write that changes fewer rows than approved still commits. One that would change more is rolled back.</p>
+<h3 id="execution-errors">Execution errors<a class="anchor" href="#execution-errors" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>write w_4de7597e is 'pending', not approved</code></td>
+<td>Not approved yet. The same form is used for <code>denied</code>, <code>executed</code>, <code>failed</code> and <code>expired</code>.</td>
+</tr>
+<tr>
+<td><code>approval for w_4de7597e expired; propose it again</code></td>
+<td>More than <code>approval_ttl_seconds</code> (one hour by default) passed since approval</td>
+</tr>
+<tr>
+<td><code>it would now change 3 rows, more than the 0 that were approved, so nothing was changed. Propose it again for a fresh approval.</code></td>
+<td>The data changed since the dry run</td>
+</tr>
+<tr>
+<td><code>database refused the query: ...</code></td>
+<td>Postgres refused the write; it is marked <code>failed</code></td>
+</tr>
+<tr>
+<td><code>unknown write_id</code></td>
+<td>No such write for this agent</td>
+</tr>
+</tbody>
+</table>
+<h2 id="write-statuses">Write statuses<a class="anchor" href="#write-statuses" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>What the agent can do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pending</code></td>
+<td>Waiting for one or two people</td>
+<td>Wait, then check <code>write_status</code></td>
+</tr>
+<tr>
+<td><code>approved</code></td>
+<td>Approved by a person or by the policy</td>
+<td>Call <code>execute_write</code> within the approval window</td>
+</tr>
+<tr>
+<td><code>denied</code></td>
+<td>A person denied it</td>
+<td>Nothing; explain to the user</td>
+</tr>
+<tr>
+<td><code>executed</code></td>
+<td>It ran and committed</td>
+<td>Report <code>affected_rows</code></td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>It would have changed more rows than approved, or Postgres refused it</td>
+<td>Propose it again</td>
+</tr>
+<tr>
+<td><code>expired</code></td>
+<td>It was approved, but <code>execute_write</code> came too late</td>
+<td>Propose it again</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example-a-write-from-start-to-finish">Example: a write from start to finish<a class="anchor" href="#example-a-write-from-start-to-finish" title="Permanent link">#</a></h2>
+<p>Here <code>ops-bot</code> has <code>read: {orders: "*"}</code> and <code>write: {orders: [update]}</code>, with no approval rules, so every write waits for a person. The user asks: "The courier picked up order 1042, mark it shipped."</p>
+<p>The agent checks the order first, with <code>query</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"SELECT id, status FROM orders WHERE id = 1042"</span><span class="t-p">}</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"columns"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"id"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"status"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[[</span><span class="t-mi">1042</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">]],</span><span class="t-w"> </span><span class="t-nt">"row_count"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"truncated"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-kc">false</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"masked"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">{}}</span>
+</code></pre></div>
+
+<p>Then it proposes the change, with <code>propose_write</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">}</span>
+</code></pre></div>
+
+<div class="hl"><pre><span></span><code><span class="t-p">{</span>
+<span class="t-w">  </span><span class="t-nt">"write_id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_a4e81f7f"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"pending"</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span>
+<span class="t-w">  </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span>
+<span class="t-w">  </span><span class="t-nt">"next_step"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"A human must approve this with `lokra approve w_a4e81f7f`. Then call execute_write with this write_id."</span>
+<span class="t-p">}</span>
+</code></pre></div>
+
+<p>The agent tells the user it is waiting for approval. A person sees the write, its reason and the one-row dry run, in the terminal with <code>lokra pending</code>, in the dashboard, in <a href="/docs/slack">Slack</a> or in <a href="/docs/cloud">Lokra Cloud</a>, and approves it. A moment later the agent calls <code>write_status</code> with <code>{"write_id": "w_a4e81f7f"}</code>:</p>
+<div class="hl"><pre><span></span><code><span class="t-p">{</span><span class="t-nt">"id"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"w_a4e81f7f"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"status"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"approved"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"statement"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"update"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"tables"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"orders"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"reason"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"Courier collected order 1042"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"on_behalf_of"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"dana"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approved_by"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"sam (slack)"</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"would_affect_rows"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"warnings"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[],</span><span class="t-w"> </span><span class="t-nt">"approvals_needed"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-mi">1</span><span class="t-p">,</span><span class="t-w"> </span><span class="t-nt">"approvals"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-p">[</span><span class="t-s2">"sam (slack)"</span><span class="t-p">],</span><span class="t-w"> </span><span class="t-nt">"sql"</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s2">"UPDATE orders SET status = 'shipped' WHERE id = 1042"</span><span class="t-p">}</span>
+</code></pre></div>
+
+<p>Finally it calls <code>execute_write</code> with the same id. The result has <code>"status": "executed"</code> and <code>"affected_rows": 1</code>, and the agent confirms to the user that order 1042 is marked shipped.</p>
+<p>The ledger now holds the proposal, the approval with who made it, and the execution, each signed and chained to the last. <code>lokra log</code> shows them in order; see <a href="/docs/audit">audit ledger and reports</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/policy-reference"><span>Previous</span>Policy file reference</a><a class="next" href="/docs/environment"><span>Next</span>Environment variables</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/mcp-tools.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#server-instructions">Server instructions</a></li><li><a href="#results-and-errors">Results and errors</a></li><li><a href="#whoami">whoami</a></li><li><a href="#list_tables">list_tables</a></li><li><a href="#query">query</a></li><li><a href="#propose_write">propose_write</a></li><li><a href="#write_status">write_status</a></li><li><a href="#execute_write">execute_write</a></li><li><a href="#write-statuses">Write statuses</a></li><li><a href="#example-a-write-from-start-to-finish">Example: a write from start to finish</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

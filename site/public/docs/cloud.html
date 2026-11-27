@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Lokra Cloud · Lokra docs</title>
+<meta name="description" content="What Lokra Cloud does, how a gate connects to it, and exactly what data it receives and sends back.">
+<link rel="canonical" href="https://lokra.dev/docs/cloud">
+<meta property="og:title" content="Lokra Cloud · Lokra docs">
+<meta property="og:description" content="What Lokra Cloud does, how a gate connects to it, and exactly what data it receives and sends back.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud" class="on" aria-current="page">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Lokra Cloud</p>
+    <h1>Lokra Cloud</h1>
+    <p class="docs-lede">What Lokra Cloud does, how a gate connects to it, and exactly what data it receives and sends back.</p>
+    <div class="docs-body">
+<p><a href="https://cloud.lokra.dev">Lokra Cloud</a> is a hosted inbox for every Lokra gate you run. From a laptop or a phone you can approve or deny the writes your agents propose, pause and resume agents, read the activity of every gate, and get an alert when a write needs you. The gate stays open source and keeps running in your network. Cloud only sees what the gate chooses to send it, and it never sees query results.</p>
+<h2 id="what-you-can-do-in-cloud">What you can do in Cloud<a class="anchor" href="#what-you-can-do-in-cloud" title="Permanent link">#</a></h2>
+<p>Cloud has six pages. On a wide screen they sit in the left rail; on a phone, Inbox, Agents, Activity and Gates are in the tab bar and the rest are under <strong>More</strong>. Press <code>1</code> to <code>6</code> to switch pages, or <code>?</code> to see every shortcut.</p>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inbox</td>
+<td>Every write waiting for a decision, from every gate. <strong>Hold to approve</strong>, <strong>Deny</strong>, or pause the agent. Recently decided writes are listed under <strong>Decided today</strong>.</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>Every agent each gate serves, its last 60 minutes of activity, and whether it is paused. <strong>Pause</strong> and <strong>Hold to resume</strong>.</td>
+</tr>
+<tr>
+<td>Activity</td>
+<td>The signed ledger from every gate, with filters, a chain check and CSV export. See <a href="/docs/cloud-activity">Activity and export</a>.</td>
+</tr>
+<tr>
+<td>Gates</td>
+<td>Each connected gate, whether it is live, its Lokra version and agent count. Owners create gate tokens here. See <a href="/docs/cloud-gates">Connect a gate</a>.</td>
+</tr>
+<tr>
+<td>Team</td>
+<td>Who is in your organisation and their role. Owners invite people here. See <a href="/docs/cloud-team">Team and roles</a>.</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>Your plan, this month's usage and the plans on offer. See <a href="/docs/cloud-billing">Plans and billing</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Each request in the Inbox shows the statement and tables, the gate, the agent and who it acts for, the agent's reason, the masked SQL, how many rows the dry run says would change, any warnings, and whether it needs two people. On the keyboard, <code>J</code> and <code>K</code> move between requests, hold <code>A</code> to approve, <code>D</code> denies and <code>P</code> pauses the agent.</p>
+<p>Phone alerts, hold to approve and two-person approvals are covered in <a href="/docs/cloud-alerts">Approve from your phone</a>.</p>
+<h2 id="how-a-gate-connects">How a gate connects<a class="anchor" href="#how-a-gate-connects" title="Permanent link">#</a></h2>
+<p>A gate connects by running <code>lokra cloud</code> next to its <code>policies.yaml</code>, with a gate token from Cloud:</p>
+<div class="hl"><pre><span></span><code><span class="t-nv">LOKRA_CLOUD_TOKEN</span><span class="t-o">=</span>lkg_…<span class="t-w"> </span>lokra<span class="t-w"> </span>cloud
+</code></pre></div>
+
+<p>About every 3 seconds, <code>lokra cloud</code> sends one HTTPS request out to <code>https://cloud.lokra.dev/v1/sync</code>, with the gate token as a bearer token. The response carries any decisions people have made in Cloud. Nothing connects in to the gate, so it needs no public address, no open port and no VPN. It only needs to reach <code>cloud.lokra.dev</code> on port 443.</p>
+<p><code>lokra cloud</code> reads and writes the same state as the gate: the pending writes, pauses and ledger in the <code>.lokra</code> folder next to <code>policies.yaml</code>. That is why it has to run where the gate runs. <a href="/docs/cloud-gates">Connect a gate</a> has the details.</p>
+<p>If Cloud cannot be reached, <code>lokra cloud</code> keeps retrying, waiting longer each time up to 60 seconds. The gate itself does not depend on Cloud. Agents keep working, and you can still approve in the terminal, the local dashboard or <a href="/docs/slack">Slack</a>.</p>
+<h2 id="what-cloud-receives">What Cloud receives<a class="anchor" href="#what-cloud-receives" title="Permanent link">#</a></h2>
+<p>Each sync sends the following, and nothing else.</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The gate</td>
+<td>The Lokra version it runs.</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>Each agent in the policy: name, description, rate limit, and, if it is paused, who paused it, when and why.</td>
+</tr>
+<tr>
+<td>Writes</td>
+<td>Every pending write, and every write proposed, decided or run in the last 24 hours, up to 200: ID, status, agent, who it acts for, reason, statement, tables, masked SQL, warnings, rows the dry run would change, rows changed, who decided it, approvals so far, approvals needed, any failure, and when it was proposed.</td>
+</tr>
+<tr>
+<td>Ledger entries</td>
+<td>New entries since the last sync, up to 500 at a time, with every field except the signature: sequence number, time, event, agent, database role, who it acts for, purpose, token ID, tool, tables, masked SQL, row counts, how many values were masked, reason or database error, write ID, who decided, and the entry's hash and the previous entry's hash.</td>
+</tr>
+<tr>
+<td>Results</td>
+<td>For each decision the gate applied: whether it worked, and a short message.</td>
+</tr>
+</tbody>
+</table>
+<p>The SQL in writes and in ledger entries is masked on the gate before it is sent, the same way Lokra masks it in the ledger. Cloud shows masked values as labels such as <code>EMAIL</code> or <code>CARD</code>.</p>
+<blockquote class="callout note">
+<p><strong>Note:</strong> SQL text is masked by Lokra's detectors, which recognise values such as email addresses and card numbers. A value no detector recognises, such as a name in a <code>WHERE</code> clause, is sent as written. See <a href="/docs/masking">Masking</a> to choose which detectors run.</p>
+</blockquote>
+<p>When a gate connects for the first time, it also sends the entries already in its ledger, oldest first, 500 per sync, until Cloud has caught up.</p>
+<h2 id="what-cloud-never-receives">What Cloud never receives<a class="anchor" href="#what-cloud-never-receives" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Query results.</strong> The rows an agent reads never leave your network. Ledger entries carry row counts, not rows.</li>
+<li><strong>Credentials.</strong> Database connection strings, including the one you pass to <code>--admin-dsn</code>, agent database passwords, agent tokens and the ledger signing key all stay on the gate. Ledger entries carry a token's ID, never the token.</li>
+<li><strong>Signatures.</strong> Cloud gets each entry's hash and the previous entry's hash, but not its signature.</li>
+<li><strong>The rest of your policy.</strong> Table rules, masking rules, row locks and approval rules are not sent. Cloud sees only the agent fields listed above.</li>
+</ul>
+<h2 id="how-decisions-come-back">How decisions come back<a class="anchor" href="#how-decisions-come-back" title="Permanent link">#</a></h2>
+<ol>
+<li>Someone with the owner or approver role approves, denies, pauses or resumes in Cloud.</li>
+<li>Cloud checks their role and, for a write, that it is still pending. Then it queues a command for that gate.</li>
+<li>On its next sync, a few seconds later, the gate picks the command up. Cloud shows <strong>Gate received</strong>.</li>
+<li>The gate applies it with the same code as <code>lokra approve</code>, <code>lokra deny</code>, <code>lokra pause</code> and <code>lokra resume</code>, and records it in its own signed ledger. The decision is recorded under the person's GitHub username followed by <code>(cloud)</code>, such as <code>dana (cloud)</code>.</li>
+<li>The gate reports the result at once, and Cloud shows the outcome, or <strong>Failed</strong> with the gate's reason.</li>
+</ol>
+<p>There are only four commands: approve, deny, pause and resume. Cloud cannot run SQL, read data, change the policy or mint tokens. If the gate is offline, the command waits in Cloud and the gate applies it when it reconnects.</p>
+<p>Approving a write does not run it. As with any approval, the agent then runs the approved write through Lokra, within the policy's <code>approval_ttl_seconds</code> (one hour by default). See <a href="/docs/approvals">Approvals</a>.</p>
+<h2 id="security">Security<a class="anchor" href="#security" title="Permanent link">#</a></h2>
+<ul>
+<li><strong>Sign-in.</strong> You sign in with GitHub. Cloud asks GitHub only to read your profile (the <code>read:user</code> scope), and keeps your username, name and avatar. Your session is a signed cookie that scripts cannot read, sent only over HTTPS, and it lasts 30 days.</li>
+<li><strong>Gate tokens.</strong> A gate token starts with <code>lkg_</code> and holds 24 random bytes. Cloud stores only its SHA-256 hash, so it shows you the token once. Removing the gate revokes its token.</li>
+<li><strong>Roles.</strong> Cloud checks your role on the server for every decision, gate change, invite and billing action. See <a href="/docs/cloud-team">Team and roles</a>.</li>
+<li><strong>Phone alerts.</strong> Alerts are encrypted end to end for your device (RFC 8291), so the push service that delivers them cannot read them. They name the agent, statement, table, reason, gate and row count, never the SQL. Cloud accepts subscriptions only for the browsers' own push services.</li>
+<li><strong>Page protections.</strong> Cloud's pages load scripts, styles, fonts and data only from <code>cloud.lokra.dev</code>, and images only from there and from GitHub avatars. They cannot be framed by another site. Requests that change anything must carry a header other sites cannot add.</li>
+<li><strong>The ledger stays yours.</strong> Each gate keeps its complete signed ledger. Cloud's copy is for reading and searching. To check signatures, run <code>lokra verify-ledger</code> on the gate. See <a href="/docs/audit">Audit ledger</a>.</li>
+</ul>
+<h2 id="how-to-start">How to start<a class="anchor" href="#how-to-start" title="Permanent link">#</a></h2>
+<ol>
+<li>Open <a href="https://cloud.lokra.dev">cloud.lokra.dev</a> and choose <strong>Continue with GitHub</strong>. The first time you sign in, unless someone has invited you, Cloud creates an organisation named after your GitHub username, with you as its owner.</li>
+<li>Open <strong>Gates</strong>, name the gate and choose <strong>Create token</strong>.</li>
+<li>Run the command Cloud shows next to the gate's <code>policies.yaml</code>.</li>
+</ol>
+<p><a href="/docs/cloud-gates">Connect a gate</a> walks through each step and how to keep <code>lokra cloud</code> running. After that, <a href="/docs/cloud-alerts">turn on phone alerts</a> and <a href="/docs/cloud-team">invite your team</a>. The Free plan needs no card; see <a href="/docs/cloud-billing">Plans and billing</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/ci"><span>Previous</span>Use Lokra in CI</a><a class="next" href="/docs/cloud-gates"><span>Next</span>Connect a gate</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/cloud.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#what-you-can-do-in-cloud">What you can do in Cloud</a></li><li><a href="#how-a-gate-connects">How a gate connects</a></li><li><a href="#what-cloud-receives">What Cloud receives</a></li><li><a href="#what-cloud-never-receives">What Cloud never receives</a></li><li><a href="#how-decisions-come-back">How decisions come back</a></li><li><a href="#security">Security</a></li><li><a href="#how-to-start">How to start</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

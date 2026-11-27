@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/docs/docs.css">
+<meta name="theme-color" content="#ffffff">
+<title>Team and roles · Lokra docs</title>
+<meta name="description" content="Invite people to your Lokra Cloud organisation by GitHub username, and what owners, approvers and viewers can each do.">
+<link rel="canonical" href="https://lokra.dev/docs/cloud-team">
+<meta property="og:title" content="Team and roles · Lokra docs">
+<meta property="og:description" content="Invite people to your Lokra Cloud organisation by GitHub username, and what owners, approvers and viewers can each do.">
+<meta property="og:image" content="https://lokra.dev/social-preview.png">
+</head>
+<body class="docs">
+<header class="wrap nav docs-top">
+  <div class="docs-brand"><a class="brand" href="/"><svg viewBox="21.5 26 57 48" aria-hidden="true"><path d="M33 54.5V46.5a17 17 0 0 1 34 0V54.5" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M25 70.5H75" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/></svg><span>lokra</span></a><a class="docs-label" href="/docs/">Docs</a></div>
+  <div class="docs-search" role="search">
+    <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" data-search>
+    <kbd>/</kbd>
+    <div class="docs-results" data-results hidden></div>
+  </div>
+  <nav class="links">
+    <a class="hide-sm" href="https://cloud.lokra.dev">Lokra Cloud</a>
+    <a class="gh" href="https://github.com/lokrahq/lokra"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+  </nav>
+</header>
+<div class="wrap docs-shell">
+  <aside class="docs-side">
+    <button class="docs-menu" type="button" aria-expanded="false" data-menu>Menu</button>
+    <nav class="docs-nav" aria-label="Docs" data-nav><p>Getting started</p><ul><li><a href="/docs/">Introduction</a></li><li><a href="/docs/quickstart">Quickstart</a></li><li><a href="/docs/install">Install</a></li></ul><p>Self-hosting</p><ul><li><a href="/docs/connect-database">Connect your database</a></li><li><a href="/docs/policies">Write a policy</a></li><li><a href="/docs/masking">Masking</a></li><li><a href="/docs/row-locks">Row locks</a></li><li><a href="/docs/approvals">Approve writes</a></li></ul><p>Running agents</p><ul><li><a href="/docs/connect-clients">Connect AI clients</a></li><li><a href="/docs/production">Run in production</a></li><li><a href="/docs/stop-agents">Stop an agent</a></li><li><a href="/docs/slack">Approve in Slack</a></li><li><a href="/docs/audit">Audit ledger and reports</a></li><li><a href="/docs/ci">Use Lokra in CI</a></li></ul><p>Lokra Cloud</p><ul><li><a href="/docs/cloud">Lokra Cloud</a></li><li><a href="/docs/cloud-gates">Connect a gate</a></li><li><a href="/docs/cloud-alerts">Approve from your phone</a></li><li><a href="/docs/cloud-team" class="on" aria-current="page">Team and roles</a></li><li><a href="/docs/cloud-activity">Activity and export</a></li><li><a href="/docs/cloud-billing">Plans and billing</a></li></ul><p>Reference</p><ul><li><a href="/docs/cli">CLI reference</a></li><li><a href="/docs/policy-reference">Policy file reference</a></li><li><a href="/docs/mcp-tools">MCP tools reference</a></li><li><a href="/docs/environment">Environment variables</a></li><li><a href="/docs/security-model">Security model</a></li><li><a href="/docs/troubleshooting">Troubleshooting</a></li></ul></nav>
+  </aside>
+  <main class="docs-main">
+    <p class="docs-eyebrow">Lokra Cloud</p>
+    <h1>Team and roles</h1>
+    <p class="docs-lede">Invite people to your Lokra Cloud organisation by GitHub username, and what owners, approvers and viewers can each do.</p>
+    <div class="docs-body">
+<p>Everyone in a Lokra Cloud organisation sees the same gates, agents, requests and activity. What they can change depends on their role: owner, approver or viewer. You invite people by their GitHub username, and they join when they sign in with GitHub.</p>
+<h2 id="your-organisation">Your organisation<a class="anchor" href="#your-organisation" title="Permanent link">#</a></h2>
+<p>The first time you sign in to <a href="https://cloud.lokra.dev">cloud.lokra.dev</a>, unless someone has invited you, Cloud creates an organisation named after your GitHub username and makes you its owner. Your organisation and role appear under the Lokra Cloud name in the left rail, such as <code>dana · owner</code>. On the Team plan, the plan name follows, such as <code>dana · owner · Team</code>.</p>
+<h2 id="roles">Roles<a class="anchor" href="#roles" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>What you can do</th>
+<th>Owner</th>
+<th>Approver</th>
+<th>Viewer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>See the Inbox, Agents, Activity, Gates, Team and Billing pages</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Export activity as CSV or JSON lines</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Approve and deny writes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Pause and resume agents</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Get phone alerts when a write is waiting</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Create gate tokens and remove gates</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Invite people, with any role</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Start a trial, upgrade and manage billing</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>The Team page sums it up: approvers decide and pause, and viewers only watch.</p>
+<p>Cloud checks the role on the server for every action, not only in the page. If someone tries anyway, Cloud refuses with a message such as:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A viewer approves, denies, pauses or resumes</td>
+<td><code>your role can view but not approve or pause</code></td>
+</tr>
+<tr>
+<td>A non-owner creates a gate token</td>
+<td><code>only owners can add gates</code></td>
+</tr>
+<tr>
+<td>A non-owner removes a gate</td>
+<td><code>only owners can remove gates</code></td>
+</tr>
+<tr>
+<td>A non-owner invites someone</td>
+<td><code>only owners can invite</code></td>
+</tr>
+<tr>
+<td>A non-owner starts checkout</td>
+<td><code>only owners can change the plan</code></td>
+</tr>
+<tr>
+<td>A non-owner opens Manage billing</td>
+<td><code>only owners can manage billing</code></td>
+</tr>
+</tbody>
+</table>
+<p>In the page, people without the role do not see those controls. Viewers see <strong>view only</strong> on each request. Approvers and viewers do not see <strong>Connect a database</strong> or <strong>Remove gate</strong> on the Gates page, or the invite form on the Team page. On the Billing page they see <strong>Ask an owner to upgrade</strong>.</p>
+<h3 id="choosing-roles">Choosing roles<a class="anchor" href="#choosing-roles" title="Permanent link">#</a></h3>
+<ul>
+<li><strong>Owner</strong> for the people who run Lokra and pay for it. Keep this group small: owners can connect and remove gates, and removing a gate deletes its history in Cloud.</li>
+<li><strong>Approver</strong> for anyone who should decide on writes and be woken by an alert, such as on-call engineers and data owners.</li>
+<li><strong>Viewer</strong> for people who need to see what agents do without acting on it, such as auditors and security reviewers.</li>
+</ul>
+<p>Lokra charges nothing per person, so you can give each person the narrowest role that fits.</p>
+<h2 id="invite-someone">Invite someone<a class="anchor" href="#invite-someone" title="Permanent link">#</a></h2>
+<p>Only owners can invite.</p>
+<ol>
+<li>Open <strong>Team</strong>. On a phone, tap <strong>More</strong>, then <strong>Team</strong>.</li>
+<li>Under <strong>Invite by GitHub username</strong>, type their GitHub username. A leading <code>@</code> is fine.</li>
+<li>Choose a role: <strong>Approver</strong> (the default), <strong>Viewer</strong> or <strong>Owner</strong>.</li>
+<li>Choose <strong>Invite</strong>.</li>
+</ol>
+<p>Cloud confirms with <strong>Invited</strong>. The invite appears in the list with their username and role, marked <code>invited by &lt;you&gt; · joins on first sign-in</code>.</p>
+<p>If the username is not valid, Cloud says <code>enter a GitHub username</code>. To change the role on an invite that is still pending, invite the same username again with the new role.</p>
+<h2 id="accept-an-invite">Accept an invite<a class="anchor" href="#accept-an-invite" title="Permanent link">#</a></h2>
+<p>Cloud does not send an email, so tell them yourself. The invited person:</p>
+<ol>
+<li>Opens <a href="https://cloud.lokra.dev">cloud.lokra.dev</a>.</li>
+<li>Chooses <strong>Continue with GitHub</strong> and signs in with the GitHub account you invited.</li>
+</ol>
+<p>Cloud matches the invite to their GitHub username, ignoring upper and lower case, and adds them to your organisation with the role you chose. They land in the Inbox and see your gates straight away. The invite then leaves the list and they appear as a member.</p>
+<p>Cloud asks GitHub only to read their profile (the <code>read:user</code> scope), and keeps their username, name and avatar.</p>
+<blockquote class="callout note">
+<p><strong>Note:</strong> Each person sees one organisation in Cloud: the first one they joined. Someone who signed in on their own before you invited them already owns an organisation of their own, and stays in it. Invite people before they first sign in.</p>
+</blockquote>
+<h2 id="removing-people-and-changing-roles">Removing people and changing roles<a class="anchor" href="#removing-people-and-changing-roles" title="Permanent link">#</a></h2>
+<p>Cloud has no way yet to remove a member, change a member's role or cancel a pending invite from the Team page. Choose roles with that in mind, and start people as viewers or approvers rather than owners.</p>
+<h2 id="how-people-appear-in-the-ledger">How people appear in the ledger<a class="anchor" href="#how-people-appear-in-the-ledger" title="Permanent link">#</a></h2>
+<p>When someone decides in Cloud, the gate records it in its signed ledger under their GitHub username followed by <code>(cloud)</code>, such as <code>dana (cloud)</code>. The same name appears on the Agents page for a paused agent (<code>paused by dana (cloud)</code>), in Cloud's Activity page (<code>by dana (cloud)</code>) and in the <code>decided_by</code> column of exports. See <a href="/docs/cloud#how-decisions-come-back">Lokra Cloud</a>.</p>
+<p>A write that needs two people needs two different names. One person cannot approve it twice from Cloud. See <a href="/docs/cloud-alerts#two-person-approvals">Two-person approvals</a>.</p>
+<h2 id="no-per-seat-pricing">No per-seat pricing<a class="anchor" href="#no-per-seat-pricing" title="Permanent link">#</a></h2>
+<p>Every plan includes unlimited people, agents and databases. In the words of the Billing page: more approvers and narrower agents make you safer, so Lokra never charges for them. Plans differ only in how much activity Cloud keeps and for how long. See <a href="/docs/cloud-billing">Plans and billing</a>.</p>
+    </div>
+    <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/cloud-alerts"><span>Previous</span>Approve from your phone</a><a class="next" href="/docs/cloud-activity"><span>Next</span>Activity and export</a></nav>
+    <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/cloud-team.md">Edit this page on GitHub</a></p>
+  </main>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#your-organisation">Your organisation</a></li><li><a href="#roles">Roles</a></li><li><a href="#invite-someone">Invite someone</a></li><li><a href="#accept-an-invite">Accept an invite</a></li><li><a href="#removing-people-and-changing-roles">Removing people and changing roles</a></li><li><a href="#how-people-appear-in-the-ledger">How people appear in the ledger</a></li><li><a href="#no-per-seat-pricing">No per-seat pricing</a></li></ul></aside>
+</div>
+<footer>
+  <div class="wrap">
+    <span>© 2026 Lokra</span>
+    <nav>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/lokrahq/lokra">GitHub</a>
+      <a href="https://github.com/lokrahq/lokra/blob/main/SECURITY.md">Security</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/llm-context">LLM context</a>
+      <a href="mailto:hello@lokra.dev">Contact</a>
+    </nav>
+  </div>
+</footer>
+<script src="/docs/docs.js" defer></script>
+</body>
+</html>

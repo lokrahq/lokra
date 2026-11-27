@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://lokra.dev/sitemap.xml
+Sitemap: https://lokra.dev/docs/sitemap.xml

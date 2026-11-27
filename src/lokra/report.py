@@ -89,7 +89,7 @@ def build_report(entries: list[dict]) -> dict:
             a.writes_proposed += 1
             if int(e.get("would_affect_rows", 0) or 0) >= BIG_WRITE_ROWS:
                 a.big_writes += 1
-            if e.get("warnings"):
+            if any("no WHERE clause" in w for w in e.get("warnings") or []):
                 a.unscoped_writes += 1
         elif event == "write_approved":
             a.writes_approved += 1

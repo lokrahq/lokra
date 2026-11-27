@@ -51,6 +51,13 @@ class RowLock:
 
 
 STATEMENTS = ("insert", "update", "delete")
+AGENT_KEYS = ("description", "rows", "read", "write", "max_rows", "purposes", "rate_limit", "approval")
+
+
+def valid_strategy(strategy: str) -> bool:
+    """redact, none, year_only, hash, or lastN for N of 1 or more; last0 would reveal the whole value."""
+    s = str(strategy)
+    return s in ("none", "redact", "year_only", "hash") or (s.startswith("last") and s[4:].isdigit() and int(s[4:]) > 0)
 
 
 @dataclass
@@ -167,6 +174,29 @@ def dump_policy(doc: dict) -> str:
     return yaml.dump(doc, Dumper=Dumper, sort_keys=False, default_flow_style=False, allow_unicode=True)
 
 
+def _whole(agent: str, key: str, raw, default: int, least: int) -> int:
+    value = default if raw is None else raw
+    if isinstance(value, bool) or not isinstance(value, int) or value < least:
+        raise ConfigError(f"{agent}: {key} should be a whole number, {least} or more")
+    return value
+
+
+def _grants(agent: str, read, write) -> tuple[dict, dict]:
+    if not isinstance(read or {}, dict) or not isinstance(write or {}, dict):
+        raise ConfigError(f"{agent}: read and write should map tables to columns or operations, e.g. read: {{orders: '*'}}")
+    out_read = {}
+    for table, cols in (read or {}).items():
+        if not (cols == "*" or (isinstance(cols, list) and cols and all(isinstance(c, str) for c in cols))):
+            raise ConfigError(f"{agent}: read {table} should be \"*\" or a list of columns, e.g. [id, name]")
+        out_read[normalize_table(table)] = cols
+    out_write = {}
+    for table, ops in (write or {}).items():
+        if not (isinstance(ops, list) and ops and set(ops) <= set(STATEMENTS)):
+            raise ConfigError(f"{agent}: write {table} should list operations from insert, update and delete, e.g. [update]")
+        out_write[normalize_table(table)] = ops
+    return out_read, out_write
+
+
 def _approval(agent: str, raw) -> Approval:
     if raw is None:
         return Approval()
@@ -214,21 +244,37 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
     agents = {}
     for name, a in (raw.get("agents") or {}).items():
         a = a or {}
+        if not isinstance(a, dict):
+            raise ConfigError(f"{name}: an agent should be a set of settings, e.g. read: {{orders: '*'}}")
         if "clinic_ids" in a:
             raise ConfigError(f"{name}: clinic_ids was replaced by rows, e.g. "
                               f"rows: {{column: clinic_id, values: {a['clinic_ids']}, tables: {{clinics: id}}}}")
+        unknown = sorted(set(a) - set(AGENT_KEYS))
+        if unknown:
+            raise ConfigError(f"{name}: unknown setting {', '.join(unknown)}; an agent can have {', '.join(AGENT_KEYS)}")
+        read, write = _grants(name, a.get("read"), a.get("write"))
         agents[name] = AgentPolicy(
             name=name,
             description=a.get("description", ""),
             rows=_row_lock(name, a.get("rows")),
-            read={normalize_table(k): v for k, v in (a.get("read") or {}).items()},
-            write={normalize_table(k): v for k, v in (a.get("write") or {}).items()},
-            max_rows=int(a.get("max_rows", 200)),
+            read=read,
+            write=write,
+            max_rows=_whole(name, "max_rows", a.get("max_rows"), 200, 1),
             purposes=[str(p) for p in (a.get("purposes") or [])],
-            rate_limit=int(a.get("rate_limit") or 0),
+            rate_limit=_whole(name, "rate_limit", a.get("rate_limit"), 0, 0),
             approval=_approval(name, a.get("approval")),
         )
+    roles: dict[str, str] = {}
+    for agent in agents.values():
+        if agent.role in roles:
+            raise ConfigError(f"agents {roles[agent.role]} and {agent.name} would share the database role "
+                              f"{agent.role}; rename one")
+        roles[agent.role] = agent.name
     masking = raw.get("masking", {}) or {}
+    for column, strategy in (masking.get("columns") or {}).items():
+        if not valid_strategy(strategy):
+            raise ConfigError(f"masking rule for {column}: unknown strategy {strategy!r}; "
+                              f"use redact, last4 (any last1 or more), year_only, hash or none")
     slack = raw.get("slack") or {}
     if not isinstance(slack, dict):
         raise ConfigError("slack should look like: slack: {channel: C0123ABCD, approvers: [U0123ABCD]}")
