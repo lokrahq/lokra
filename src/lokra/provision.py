@@ -6,7 +6,8 @@ import psycopg
 from psycopg import sql
 
 from . import controls
-from .config import AgentPolicy, Config, split_table, table_key
+from .config import AgentPolicy, Config, split_table
+from .introspect import relations, view_problems
 
 WRITE_OPS = {"insert": "INSERT", "update": "UPDATE", "delete": "DELETE"}
 AGENT_GROUP = "lokra_agents"
@@ -67,28 +68,19 @@ def _granted(conn: psycopg.Connection, role: str) -> list[tuple[str, str, str]]:
         "WHERE att.attrelid = c.oid AND a.grantee = r.oid) ORDER BY 1, 2", (role,)).fetchall()
 
 
-def _columns(conn: psycopg.Connection, schemas: list[str]) -> dict[str, set[str]]:
-    rows = conn.execute("SELECT table_schema, table_name, column_name FROM information_schema.columns "
-                        "WHERE table_schema = ANY(%s)", (schemas,)).fetchall()
-    out: dict[str, set[str]] = {}
-    for schema, table, column in rows:
-        out.setdefault(table_key(schema, table), set()).add(column)
-    return out
-
-
 def _rls_enabled(conn: psycopg.Connection, table: str) -> bool:
     row = conn.execute("SELECT c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace "
                        "WHERE n.nspname = %s AND c.relname = %s", split_table(table)).fetchone()
     return bool(row and row[0])
 
 
-def _locked_tables(agent: AgentPolicy, columns: dict[str, set[str]]) -> dict[str, str]:
+def _locked_tables(agent: AgentPolicy, columns: dict[str, set[str]], views: dict[str, str]) -> dict[str, str]:
     if not agent.rows:
         return {}
     out = {}
     for table in agent.tables:
         column = agent.rows.column_for(table)
-        if column in columns.get(table, set()):
+        if table not in views and column in columns.get(table, set()):
             out[table] = column
     return out
 
@@ -189,11 +181,14 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
         admin_is_super = conn.execute("SELECT rolsuper FROM pg_roles WHERE rolname = current_user").fetchone()[0]
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone():
             conn.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(AGENT_GROUP)))
-        columns = _columns(conn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
+        columns, views = relations(conn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
         missing = sorted({t for a in cfg.agents.values() for t in a.tables} - set(columns))
         if missing:
             raise ValueError(f"tables in the policy that do not exist: {', '.join(missing)}")
-        locks = {name: _locked_tables(agent, columns) for name, agent in cfg.agents.items()}
+        problems = [p for agent in cfg.agents.values() for p in view_problems(agent, views)]
+        if problems:
+            raise ValueError("; ".join(problems))
+        locks = {name: _locked_tables(agent, columns, views) for name, agent in cfg.agents.items()}
         with conn.transaction():
             for table in sorted({t for tables in locks.values() for t in tables}):
                 if not _rls_enabled(conn, table):
@@ -232,7 +227,7 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
             locked = locks[agent.name]
             if locked:
                 scope = f"{agent.rows.describe()} on {sorted(locked)}"
-                unlocked = sorted(set(agent.tables) - set(locked))
+                unlocked = sorted(set(agent.tables) - set(locked) - set(views))
                 if unlocked:
                     scope += f"; all rows on {unlocked}"
             else:

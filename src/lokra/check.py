@@ -9,26 +9,30 @@ from __future__ import annotations
 import psycopg
 
 from .config import Config
-from .introspect import _match, introspect
+from .introspect import _match, relations, view_problems
 from .provision import ensure_same_database
 
 
 def check(cfg: Config, dsn: str) -> list[tuple[str, str]]:
     """Introspect the database (read-only) and validate the policy against it."""
     with psycopg.connect(dsn, connect_timeout=10) as conn:
+        conn.read_only = True
         ensure_same_database(conn, cfg)
-    tables = introspect(dsn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
-    return analyze(cfg, {t: {c for c, _ in cols} for t, cols in tables.items()})
+        colmap, views = relations(conn, sorted({s for a in cfg.agents.values() for s in a.schemas}))
+    return analyze(cfg, colmap, views)
 
 
-def analyze(cfg: Config, colmap: dict[str, set[str]]) -> list[tuple[str, str]]:
+def analyze(cfg: Config, colmap: dict[str, set[str]],
+            views: dict[str, str] | None = None) -> list[tuple[str, str]]:
     """Return a list of (level, message); level is 'error', 'warn' or 'info'."""
+    views = views or {}
     all_columns = {c.lower() for cols in colmap.values() for c in cols}
     masked = set(cfg.masking_columns)           # already lowercased by load_config
     detectors = set(cfg.masking_detectors)
     findings: list[tuple[str, str]] = []
 
     for agent in cfg.agents.values():
+        findings.extend(("error", p) for p in view_problems(agent, views))
         for table, cols in agent.read.items():
             if table not in colmap:
                 findings.append(("error", f"{agent.name}: reads table '{table}' which does not exist"))
@@ -49,7 +53,7 @@ def analyze(cfg: Config, colmap: dict[str, set[str]]) -> list[tuple[str, str]]:
                 findings.append(("warn", f"{agent.name}: can read '{table}.{c}', which looks sensitive, "
                                          f"with no masking rule or detector"))
         if agent.rows:
-            for table in sorted((set(agent.read) | set(agent.write)) & set(colmap)):
+            for table in sorted((set(agent.read) | set(agent.write)) & set(colmap) - set(views)):
                 column = agent.rows.column_for(table)
                 if column not in colmap[table]:
                     findings.append(("warn", f"{agent.name}: sees every row of '{table}', which has no "

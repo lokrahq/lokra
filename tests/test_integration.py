@@ -645,3 +645,40 @@ def test_non_superuser_admin_can_provision_again(tmp_path, admin):
             provision(c, dsn)
     finally:
         reset()
+
+
+def test_views_cannot_carry_rows_past_a_row_lock(tmp_path, admin):
+    from lokra.check import check
+
+    def reset():
+        admin.execute("DROP SCHEMA IF EXISTS lokra_v CASCADE")
+        if admin.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_v_bot'").fetchone():
+            admin.execute("DROP OWNED BY lokra_v_bot CASCADE")
+            admin.execute("DROP ROLE lokra_v_bot")
+
+    reset()
+    admin.execute("CREATE SCHEMA lokra_v")
+    admin.execute("CREATE TABLE lokra_v.items (id int, org int)")
+    admin.execute("INSERT INTO lokra_v.items VALUES (1, 1), (2, 2)")
+    admin.execute("CREATE VIEW lokra_v.all_items AS SELECT id FROM lokra_v.items")
+    admin.execute("CREATE VIEW lokra_v.my_items WITH (security_invoker = true) AS SELECT id FROM lokra_v.items")
+    admin.execute("CREATE MATERIALIZED VIEW lokra_v.item_count AS SELECT count(*) AS n FROM lokra_v.items")
+    policy = tmp_path / "policies.yaml"
+    head = ("database: {host: 127.0.0.1, port: 55432, dbname: clinic}\n"
+            "agents:\n  v-bot:\n    rows: {column: org, values: [1]}\n")
+    try:
+        for extra, refusal in (("lokra_v.all_items", "all_items is a view, which runs with its owner's rights"),
+                               ("lokra_v.item_count", "item_count is a materialized view")):
+            policy.write_text(head + f"    read: {{lokra_v.items: '*', {extra}: '*'}}\n")
+            c = load_config(policy)
+            with pytest.raises(ValueError, match=refusal):
+                provision(c, LAB_ADMIN_DSN)
+            assert any(lvl == "error" and refusal in m for lvl, m in check(c, LAB_ADMIN_DSN))
+        assert not admin.execute("SELECT 1 FROM pg_roles WHERE rolname = 'lokra_v_bot'").fetchone()
+        policy.write_text(head + "    read: {lokra_v.items: '*', lokra_v.my_items: '*'}\n")
+        c = load_config(policy)
+        provision(c, LAB_ADMIN_DSN)
+        assert gw(c, "v-bot").query("SELECT id FROM lokra_v.my_items")["rows"] == [[1]]
+        assert not [f for f in check(c, LAB_ADMIN_DSN) if f[0] == "error"]
+    finally:
+        reset()

@@ -123,6 +123,11 @@ there. Where a table names the scope differently, map it with
 `tables: {accounts: id}`. `lokra check` warns about tables the agent can read that have
 no column to lock by.
 
+A view normally runs with its owner's rights, which would read past the lock, so an agent with
+a row lock can only be given views that run as the agent (`security_invoker`, Postgres 15+).
+The lock then holds on the tables underneath. `lokra provision` and `lokra check` refuse other
+views and materialized views for that agent.
+
 ## Connect your agent
 
 ```bash
@@ -294,10 +299,10 @@ lokra evidence --json                # structured, for your own templating
 
 ## Conformance
 
-`conformance/` is a benchmark of nine safety guarantees a database access layer
+`conformance/` is a benchmark of twelve safety guarantees a database access layer
 should uphold against a hostile agent (reject stacked statements, no OS command
 execution, no cross-tenant reads, identifiers masked, and more). It scores Lokra
-and a deliberately broken reference. Lokra upholds all nine.
+and a deliberately broken reference. Lokra upholds all twelve.
 
 ```bash
 python -m conformance.run
@@ -337,7 +342,7 @@ src/lokra/
   config.py            loads policies.yaml, local state in .lokra/ (gitignored)
   tokens.py            short-lived signed agent tokens
   sqlcheck.py          read/write classification (usability layer)
-  provision.py         creates per-agent Postgres roles, grants and clinic scope
+  provision.py         creates per-agent Postgres roles, grants and row locks
   masking.py           column rules and Medicare/IHI/email/phone detectors
   ledger.py            hash-chained, signed audit log
   gateway.py           the request pipeline and write approvals

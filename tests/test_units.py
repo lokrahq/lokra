@@ -299,6 +299,27 @@ def test_policy_check_clean(tmp_path):
     assert analyze(cfg, {"orders": {"id", "total", "note"}}) == []
 
 
+def test_policy_check_views_under_a_row_lock(tmp_path):
+    from lokra.check import analyze
+    from lokra.config import load_config
+
+    (tmp_path / "policies.yaml").write_text(
+        "agents:\n"
+        "  locked:\n    rows: {column: org, values: [1]}\n"
+        "    read: {orders: '*', order_totals: '*', order_stats: '*', my_orders: '*'}\n"
+        "  open:\n    read: {order_totals: '*', order_stats: '*'}\n")
+    cfg = load_config(tmp_path / "policies.yaml")
+    colmap = {"orders": {"id", "org"}, "order_totals": {"total"}, "order_stats": {"n"}, "my_orders": {"id"}}
+    views = {"order_totals": "view", "order_stats": "materialized", "my_orders": "invoker_view"}
+    findings = analyze(cfg, colmap, views)
+    errors = " | ".join(m for lvl, m in findings if lvl == "error")
+    assert len([1 for lvl, _ in findings if lvl == "error"]) == 2
+    assert "locked: order_totals is a view, which runs with its owner's rights" in errors
+    assert "SET (security_invoker = true)" in errors
+    assert "locked: order_stats is a materialized view" in errors
+    assert not any("my_orders" in m or m.startswith("open:") for _, m in findings)
+
+
 def test_token_carries_purpose():
     key = b"k" * 32
     t = tokens.mint(key, "bot", "sam", 300, purpose="billing")

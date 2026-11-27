@@ -6,7 +6,7 @@ import re
 import psycopg
 from psycopg import conninfo
 
-from .config import table_key
+from .config import AgentPolicy, table_key
 
 # (keyword, masking strategy, value detector or None), most specific first.
 _PII = [
@@ -48,6 +48,15 @@ WHERE c.table_schema = ANY(%s) AND t.table_type = 'BASE TABLE'
 ORDER BY c.table_schema, c.table_name, c.ordinal_position
 """
 
+_RELATIONS_QUERY = """
+SELECT n.nspname, c.relname, c.relkind, coalesce(c.reloptions, '{}'), a.attname
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+LEFT JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+WHERE n.nspname = ANY(%s) AND c.relkind IN ('r', 'p', 'f', 'v', 'm')
+"""
+_INVOKER = {f"security_invoker={v}" for v in ("true", "on", "yes", "1")}
+
 
 def _words(column: str) -> set[str]:
     spaced = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", column)
@@ -79,6 +88,39 @@ def introspect(dsn: str, schemas: list[str] | tuple[str, ...] = ("public",)) -> 
     for schema, table, column, dtype in rows:
         tables.setdefault(table_key(schema, table), []).append((column, dtype))
     return tables
+
+
+def relations(conn: psycopg.Connection, schemas: list[str]) -> tuple[dict[str, set[str]], dict[str, str]]:
+    """Columns of every table, view and materialized view in the schemas, and what each one that is not a
+    table is: 'view' (runs with its owner's rights), 'invoker_view' (security_invoker) or 'materialized'."""
+    columns: dict[str, set[str]] = {}
+    kinds: dict[str, str] = {}
+    for schema, name, relkind, options, column in conn.execute(_RELATIONS_QUERY, (list(schemas),)).fetchall():
+        key = table_key(schema, name)
+        cols = columns.setdefault(key, set())
+        if column:
+            cols.add(column)
+        if relkind == "m":
+            kinds[key] = "materialized"
+        elif relkind == "v":
+            kinds[key] = "invoker_view" if _INVOKER & {o.lower() for o in options} else "view"
+    return columns, kinds
+
+
+def view_problems(agent: AgentPolicy, kinds: dict[str, str]) -> list[str]:
+    """A row lock is row-level security on tables, which a view respects only when it runs as the agent."""
+    if not agent.rows:
+        return []
+    problems = []
+    for table in agent.tables:
+        if kinds.get(table) == "view":
+            problems.append(f"{agent.name}: {table} is a view, which runs with its owner's rights, so the row lock "
+                            f"would not apply through it; grant the tables it reads instead, or make it run as "
+                            f"the agent (Postgres 15+): ALTER VIEW {table} SET (security_invoker = true)")
+        elif kinds.get(table) == "materialized":
+            problems.append(f"{agent.name}: {table} is a materialized view, which a row lock cannot reach; "
+                            f"grant the tables it reads instead")
+    return problems
 
 
 def build_policy(dsn: str, tables: dict[str, list[tuple[str, str]]]) -> dict:
