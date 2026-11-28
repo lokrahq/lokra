@@ -29,6 +29,8 @@ jobs:
           python -m build
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
 
   image:
     needs: publish
@@ -71,7 +73,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {runner: macos-14, target: macos-arm64}
+          - {runner: macos-15, target: macos-arm64}
           - {runner: macos-15-intel, target: macos-x86_64}
           - {runner: ubuntu-22.04, target: linux-x86_64}
           - {runner: ubuntu-22.04-arm, target: linux-arm64}
@@ -183,7 +185,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-14, ubuntu-24.04]
+        runner: [macos-15, ubuntu-24.04]
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Install from the tap and check the version
@@ -225,6 +227,11 @@ jobs:
 
       - name: Publish to the MCP registry
         run: |
+          version="${GITHUB_REF_NAME#v}"
+          if curl -fsS -o /dev/null "https://registry.modelcontextprotocol.io/v0/servers/io.github.lokrahq%2Flokra/versions/$version"; then
+            echo "io.github.lokrahq/lokra $version is already in the registry"
+            exit 0
+          fi
           ./mcp-publisher login github-oidc
           for attempt in 1 2 3 4 5 6; do
             ./mcp-publisher publish && exit 0
