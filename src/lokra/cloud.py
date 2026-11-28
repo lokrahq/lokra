@@ -65,13 +65,13 @@ class CloudSync:
         self.masker = Masker(cfg.masking_columns, cfg.masking_detectors)
         self.path = cfg.home / "cloud.json"
         gate = hashlib.sha256(f"{self.url}|{token}".encode()).hexdigest()[:16]
-        self.state = json.loads(self.path.read_text()) if self.path.exists() else {}
+        self.state = json.loads(self.path.read_text(encoding="utf-8")) if self.path.exists() else {}
         if self.state.get("gate") != gate:
             self.state = {"gate": gate, "cursor": 0, "results": []}
 
     def _save(self) -> None:
         self.cfg.ensure_home()
-        self.path.write_text(json.dumps(self.state, indent=2))
+        self.path.write_text(json.dumps(self.state, indent=2), encoding="utf-8")
         self.path.chmod(0o600)
 
     def payload(self) -> dict:

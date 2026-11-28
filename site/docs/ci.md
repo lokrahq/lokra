@@ -107,7 +107,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Lokra
-        run: pip install "lokra==0.8.2"
+        run: pip install "lokra==0.8.3"
 
       - name: Check the policy against the schema
         run: lokra check --dsn "$DATABASE_URL" --strict
@@ -162,7 +162,7 @@ If you use path filters, make sure they cover every place a migration can live. 
 Any CI that can start Postgres can run the same three steps: apply migrations, `pip install lokra`, then `lokra check --dsn "<dsn>" --strict`. Lokra needs Python 3.11 or later. The [container image](/docs/production#run-in-a-container) works too, if your CI prefers containers:
 
 ```bash
-docker run --rm -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2 \
+docker run --rm -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3 \
   check --dsn "postgresql://postgres:postgres@db:5432/app" --strict
 ```
 

@@ -7,16 +7,16 @@ This takes about ten minutes. You will install the `lokra` command, run the buil
 ## 1. Install
 
 ```bash
-pipx install lokra
+brew install lokrahq/tap/lokra
 ```
 
-`uv tool install lokra` works too. Check it is on your path:
+No Homebrew? `curl -fsSL https://lokra.dev/install.sh | sh` installs the same build, and `pipx install lokra` or `uv tool install lokra` work if you prefer Python. Check it is on your path:
 
 ```bash
 lokra --version
 ```
 
-Other options, including the container image, are on the [install](/docs/install) page.
+Windows, the container image and every other option are on the [install](/docs/install) page.
 
 ## 2. Watch the demo
 

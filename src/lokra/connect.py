@@ -66,6 +66,9 @@ def client(name: str, cwd: Path | None = None) -> Client:
 
 def lokra_command() -> list[str]:
     """How a GUI app, which does not see your shell's PATH, should start this lokra."""
+    if getattr(sys, "frozen", False):
+        found = shutil.which("lokra")
+        return [str(Path(found).absolute())] if found else [sys.executable]
     script = Path(sys.argv[0])
     if script.name == "__main__.py":
         return [sys.executable, "-m", "lokra"]
@@ -112,9 +115,9 @@ def _is_lokra(server) -> bool:
 def install(target: Client, name: str, server: dict, force: bool = False) -> str:
     """Add or update one server in the client's JSON config, keeping everything else in it."""
     doc: dict = {}
-    if target.path.exists() and target.path.read_text().strip():
+    if target.path.exists() and target.path.read_text(encoding="utf-8").strip():
         try:
-            doc = json.loads(target.path.read_text())
+            doc = json.loads(target.path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as e:
             raise ConnectError(f"{target.path} is not plain JSON ({e.msg}, line {e.lineno}); add the entry "
                                f"by hand from `lokra connect --print`") from None
@@ -132,7 +135,7 @@ def install(target: Client, name: str, server: dict, force: bool = False) -> str
     servers[name] = server
     target.path.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.path.with_name(target.path.name + ".lokra-tmp")
-    tmp.write_text(json.dumps(doc, indent=2) + "\n")
+    tmp.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
     if target.path.exists():
         shutil.copymode(target.path, tmp)
     os.replace(tmp, target.path)

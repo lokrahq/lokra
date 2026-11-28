@@ -265,7 +265,7 @@ def _pending_path(cfg: Config, write_id: str) -> Path:
 def _save_pending(cfg: Config, record: dict) -> None:
     cfg.ensure_home()
     p = _pending_path(cfg, record["id"])
-    p.write_text(json.dumps(record, indent=2))
+    p.write_text(json.dumps(record, indent=2), encoding="utf-8")
     p.chmod(0o600)
 
 
@@ -273,13 +273,13 @@ def _load_pending(cfg: Config, write_id: str) -> dict:
     p = _pending_path(cfg, write_id)
     if not p.exists():
         raise GatewayError("unknown write_id")
-    return json.loads(p.read_text())
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def list_pending(cfg: Config) -> list[dict]:
     if not cfg.pending_dir.exists():
         return []
-    records = [json.loads(p.read_text()) for p in cfg.pending_dir.glob("w_*.json")]
+    records = [json.loads(p.read_text(encoding="utf-8")) for p in cfg.pending_dir.glob("w_*.json")]
     return sorted(records, key=lambda r: r["created_at"])
 
 

@@ -91,11 +91,11 @@ class SlackApprovals:
         self.masker = Masker(cfg.masking_columns, cfg.masking_detectors)
         self.path = cfg.home / "slack.json"
         self.lock = threading.Lock()
-        self.posted: dict[str, dict] = json.loads(self.path.read_text()) if self.path.exists() else {}
+        self.posted: dict[str, dict] = json.loads(self.path.read_text(encoding="utf-8")) if self.path.exists() else {}
 
     def _save(self) -> None:
         self.cfg.ensure_home()
-        self.path.write_text(json.dumps(self.posted, indent=2))
+        self.path.write_text(json.dumps(self.posted, indent=2), encoding="utf-8")
         self.path.chmod(0o600)
 
     def _views(self) -> dict[str, dict]:

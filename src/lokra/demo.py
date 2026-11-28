@@ -274,7 +274,7 @@ def run_demo(dsn: str | None = None, keep: bool = False, out=print, style: Style
             policy = Path(tmp) / "policies.yaml"
             policy.write_text(POLICY.replace("{host}", info.get("host") or "127.0.0.1")
                               .replace("{port}", str(info.get("port") or 5432))
-                              .replace("{dbname}", info.get("dbname") or "postgres"))
+                              .replace("{dbname}", info.get("dbname") or "postgres"), encoding="utf-8")
             cfg = load_config(policy, Path(tmp) / "home")
             roles = [a.role for a in cfg.agents.values()]
             provision(cfg, dsn)

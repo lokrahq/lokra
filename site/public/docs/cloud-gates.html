@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css?v=f18517988e">
-<link rel="stylesheet" href="/docs/docs.css?v=fea86d49fb">
+<link rel="stylesheet" href="/docs/docs.css?v=28ec45fd89">
 <meta name="theme-color" content="#ffffff">
 <title>Connect a gate · Lokra docs</title>
 <meta name="description" content="Create a gate token in Lokra Cloud, run lokra cloud next to your policy, and keep it running.">
@@ -46,7 +46,7 @@
 <h2 id="before-you-start">Before you start<a class="anchor" href="#before-you-start" title="Permanent link">#</a></h2>
 <ul>
 <li>A working gate: a <code>policies.yaml</code> and Lokra serving agents from it. If you don't have one yet, start with the <a href="/docs/quickstart">Quickstart</a>.</li>
-<li>Lokra 0.6.0 or later. The startup lines on this page are from 0.8.2. Check with <code>lokra --version</code>.</li>
+<li>Lokra 0.6.0 or later. The startup lines on this page are from 0.8.3. Check with <code>lokra --version</code>.</li>
 <li>The owner role in your Cloud organisation. Only owners can create gate tokens.</li>
 </ul>
 <h2 id="create-a-gate-token">Create a gate token<a class="anchor" href="#create-a-gate-token" title="Permanent link">#</a></h2>
@@ -188,7 +188,7 @@ journalctl<span class="t-w"> </span>-u<span class="t-w"> </span>lokra-cloud<span
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>-d<span class="t-w"> </span>--name<span class="t-w"> </span>lokra-cloud<span class="t-w"> </span>--restart<span class="t-w"> </span>unless-stopped<span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>--env-file<span class="t-w"> </span>/etc/lokra/cloud.env<span class="t-w"> </span><span class="t-se">\</span>
-<span class="t-w">  </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span>cloud
+<span class="t-w">  </span>ghcr.io/lokrahq/lokra:0.8.3<span class="t-w"> </span>cloud
 </code></pre></div>
 
 <p>The database host in <code>LOKRA_ADMIN_DSN</code> has to be reachable from inside the container, so not <code>127.0.0.1</code>. Follow the output with <code>docker logs -f lokra-cloud</code>.</p>

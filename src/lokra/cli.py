@@ -34,7 +34,7 @@ def cmd_init(args):
         print(f"no base tables found in schema(s): {', '.join(schemas)}", file=sys.stderr)
         return 1
     doc = build_policy(args.dsn, tables)
-    out.write_text(dump_policy(doc))
+    out.write_text(dump_policy(doc), encoding="utf-8")
     cols = doc["masking"]["columns"]
     n_cols = sum(len(c) for c in tables.values())
     print(f"introspected {len(tables)} table(s), {n_cols} column(s) (read-only)")
@@ -143,7 +143,7 @@ def cmd_evidence(args):
     text = ev_mod.format_markdown(ev)
     if args.out:
         from pathlib import Path
-        Path(args.out).write_text(text)
+        Path(args.out).write_text(text, encoding="utf-8")
         print(f"wrote {args.out}")
     else:
         print(text)
@@ -444,6 +444,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None):
+    if os.name == "nt":
+        for stream in (sys.stdout, sys.stderr):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     args = build_parser().parse_args(argv)
     if args.cmd is None:
         from .term import Style, welcome

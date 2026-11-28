@@ -109,7 +109,7 @@ Each release is published to `ghcr.io/lokrahq/lokra` for `linux/amd64` and `linu
 
 | Tag | Follows |
 |---|---|
-| `0.8.2` | That exact release. Pin this in production. |
+| `0.8.3` | That exact release. Pin this in production. |
 | `0.8` | The latest patch release of 0.8. |
 | `latest` | The latest release. |
 
@@ -117,15 +117,15 @@ The image runs `lokra serve --http --host 0.0.0.0 --port 8787`, with `/work` as 
 
 ```bash
 docker run -d --name lokra -p 127.0.0.1:8787:8787 \
-  --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2
+  --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3
 ```
 
 Run other commands against the same mount:
 
 ```bash
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2 \
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3 \
   provision --admin-dsn "postgresql://admin:secret@db.internal:5432/app"
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2 \
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3 \
   mint-token support-bot --ttl 28800
 ```
 
@@ -141,7 +141,7 @@ This runs the HTTP server, `lokra cloud` and Caddy, all sharing one state direct
 ```yaml compose.yaml
 services:
   lokra:
-    image: ghcr.io/lokrahq/lokra:0.8.2
+    image: ghcr.io/lokrahq/lokra:0.8.3
     restart: unless-stopped
     volumes:
       - ./lokra:/work
@@ -149,7 +149,7 @@ services:
       - "8787"
 
   lokra-cloud:
-    image: ghcr.io/lokrahq/lokra:0.8.2
+    image: ghcr.io/lokrahq/lokra:0.8.3
     restart: unless-stopped
     command: ["cloud"]
     env_file: ./cloud.env
@@ -334,7 +334,7 @@ Check what you are running with `lokra --version`, then upgrade the way you inst
 | pipx | `pipx upgrade lokra` |
 | uv | `uv tool upgrade lokra` |
 | A virtual environment | `/opt/lokra/bin/pip install --upgrade lokra` |
-| The container image | Change the tag, for example `0.8.2` to the new version, and recreate the container |
+| The container image | Change the tag, for example `0.8.3` to the new version, and recreate the container |
 
 After upgrading, run `lokra check`, then `lokra provision`, so the roles match what the new version expects, and restart the long-running processes. The state directory carries over between versions.
 

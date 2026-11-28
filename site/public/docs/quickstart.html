@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css?v=f18517988e">
-<link rel="stylesheet" href="/docs/docs.css?v=fea86d49fb">
+<link rel="stylesheet" href="/docs/docs.css?v=28ec45fd89">
 <meta name="theme-color" content="#ffffff">
 <title>Quickstart · Lokra docs</title>
 <meta name="description" content="Install Lokra, watch it work against a throwaway database, then connect an agent to your own Postgres.">
@@ -44,14 +44,14 @@
     <div class="docs-body">
 <p>This takes about ten minutes. You will install the <code>lokra</code> command, run the built-in demo, then put one read-only agent in front of your own database and connect it to Claude Code.</p>
 <h2 id="1-install">1. Install<a class="anchor" href="#1-install" title="Permanent link">#</a></h2>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span>lokra
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>brew<span class="t-w"> </span>install<span class="t-w"> </span>lokrahq/tap/lokra
 </code></pre></div>
 
-<p><code>uv tool install lokra</code> works too. Check it is on your path:</p>
+<p>No Homebrew? <code>curl -fsSL https://lokra.dev/install.sh | sh</code> installs the same build, and <code>pipx install lokra</code> or <code>uv tool install lokra</code> work if you prefer Python. Check it is on your path:</p>
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>--version
 </code></pre></div>
 
-<p>Other options, including the container image, are on the <a href="/docs/install">install</a> page.</p>
+<p>Windows, the container image and every other option are on the <a href="/docs/install">install</a> page.</p>
 <h2 id="2-watch-the-demo">2. Watch the demo<a class="anchor" href="#2-watch-the-demo" title="Permanent link">#</a></h2>
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>demo
 </code></pre></div>

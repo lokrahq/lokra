@@ -140,7 +140,7 @@ def decide_write(cfg: Config, write_id: str, approve: bool, by: str | None = Non
 
 
 def policy_payload(cfg: Config) -> dict:
-    raw = yaml.safe_load(cfg.path.read_text()) or {}
+    raw = yaml.safe_load(cfg.path.read_text(encoding="utf-8")) or {}
     agents = []
     for name, a in (raw.get("agents") or {}).items():
         a = a or {}
@@ -202,7 +202,7 @@ def _build_doc(cfg: Config, data: dict) -> dict:
     errs: list[str] = []
     agents: dict = {}
     seen: set[str] = set()
-    kept = (yaml.safe_load(cfg.path.read_text()) if cfg.path.exists() else {}) or {}
+    kept = (yaml.safe_load(cfg.path.read_text(encoding="utf-8")) if cfg.path.exists() else {}) or {}
     kept_agents = kept.get("agents") or {}
     for a in data.get("agents", []):
         name = (a.get("name") or "").strip()
@@ -320,7 +320,7 @@ def apply_policy(cfg: Config, admin_dsn: str | None, data: dict) -> dict:
     if not admin_dsn:
         raise ValueError("start the dashboard with --admin-dsn (or LOKRA_ADMIN_DSN) to apply policy changes")
     doc = _build_doc(cfg, data)
-    cfg.path.write_text(dump_policy(doc))
+    cfg.path.write_text(dump_policy(doc), encoding="utf-8")
     new_cfg = load_config(cfg.path, cfg.home)
     dropped = _drop_removed_roles(new_cfg, admin_dsn)
     log = provision(new_cfg, admin_dsn)
@@ -329,7 +329,7 @@ def apply_policy(cfg: Config, admin_dsn: str | None, data: dict) -> dict:
 
 def make_handler(cfg: Config, admin_dsn: str):
     from importlib import resources
-    html = resources.files("lokra").joinpath("dashboard.html").read_text()
+    html = resources.files("lokra").joinpath("dashboard.html").read_text(encoding="utf-8")
 
     class Handler(http.server.BaseHTTPRequestHandler):
         def log_message(self, *args):  # quiet

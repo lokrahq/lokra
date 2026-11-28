@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.lokrahq/lokra",
+  "title": "Lokra",
+  "description": "Postgres for AI agents with row locks, masking, approved writes and a signed audit ledger.",
+  "repository": {
+    "url": "https://github.com/lokrahq/lokra",
+    "source": "github"
+  },
+  "websiteUrl": "https://lokra.dev/docs/",
+  "version": "0.8.3",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "lokra",
+      "version": "0.8.3",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "serve"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "LOKRA_CONFIG",
+          "description": "Path to the policies.yaml that defines this agent's access",
+          "isRequired": true,
+          "format": "filepath"
+        },
+        {
+          "name": "LOKRA_TOKEN",
+          "description": "The agent's token, from lokra mint-token <agent>",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}

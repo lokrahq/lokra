@@ -8,13 +8,13 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css?v=f18517988e">
-<link rel="stylesheet" href="/docs/docs.css?v=fea86d49fb">
+<link rel="stylesheet" href="/docs/docs.css?v=28ec45fd89">
 <meta name="theme-color" content="#ffffff">
 <title>Install · Lokra docs</title>
-<meta name="description" content="Every way to install Lokra, how to upgrade it, and how to check which version you run.">
+<meta name="description" content="Every way to install Lokra on macOS, Linux and Windows, how to upgrade it, and how to check which version you run.">
 <link rel="canonical" href="https://lokra.dev/docs/install">
 <meta property="og:title" content="Install · Lokra docs">
-<meta property="og:description" content="Every way to install Lokra, how to upgrade it, and how to check which version you run.">
+<meta property="og:description" content="Every way to install Lokra on macOS, Linux and Windows, how to upgrade it, and how to check which version you run.">
 <meta property="og:image" content="https://lokra.dev/social-preview.png">
 </head>
 <body class="docs">
@@ -40,10 +40,54 @@
   <main class="docs-main">
     <p class="docs-eyebrow">Getting started</p>
     <h1>Install</h1>
-    <p class="docs-lede">Every way to install Lokra, how to upgrade it, and how to check which version you run.</p>
+    <p class="docs-lede">Every way to install Lokra on macOS, Linux and Windows, how to upgrade it, and how to check which version you run.</p>
     <div class="docs-body">
-<p>Lokra is one Python package, <code>lokra</code>, with one command, also called <code>lokra</code>. It needs Python 3.11 or newer. There is also a container image for servers.</p>
-<h2 id="pipx-recommended">pipx (recommended)<a class="anchor" href="#pipx-recommended" title="Permanent link">#</a></h2>
+<p>Lokra is one command, <code>lokra</code>. Homebrew and the install script give you a standalone build that needs no Python. The Python package needs Python 3.11 or newer, and there is a container image for servers. Every route installs the same Lokra, and the standalone build includes Slack support.</p>
+<table>
+<thead>
+<tr>
+<th>You have</th>
+<th>Install with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS or Linux with Homebrew</td>
+<td><code>brew install lokrahq/tap/lokra</code></td>
+</tr>
+<tr>
+<td>macOS or Linux, no Homebrew</td>
+<td>The <a href="#install-script">install script</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>pipx install lokra</code> or <code>uv tool install lokra</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>pipx install lokra</code>, or the <a href="#download-a-build">Windows download</a></td>
+</tr>
+<tr>
+<td>A server or Kubernetes</td>
+<td>The <a href="#container-image">container image</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="homebrew">Homebrew<a class="anchor" href="#homebrew" title="Permanent link">#</a></h2>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>brew<span class="t-w"> </span>install<span class="t-w"> </span>lokrahq/tap/lokra
+</code></pre></div>
+
+<p>Installing by its full name trusts only this formula from the <code>lokrahq/tap</code> tap, as Homebrew asks for any tap outside its own. If Homebrew stops with "Your Command Line Tools are too outdated", update them from Software Update in System Settings and run the command again.</p>
+<h2 id="install-script">Install script<a class="anchor" href="#install-script" title="Permanent link">#</a></h2>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>curl<span class="t-w"> </span>-fsSL<span class="t-w"> </span>https://lokra.dev/install.sh<span class="t-w"> </span><span class="t-p">|</span><span class="t-w"> </span>sh
+</code></pre></div>
+
+<p>The script picks the build for your system from the latest <a href="https://github.com/lokrahq/lokra/releases">GitHub release</a>, checks it against the release's <code>SHA256SUMS</code> and installs it in <code>~/.local/share/lokra</code>, with the <code>lokra</code> command in <code>~/.local/bin</code>. It stops without changing anything if the checksum does not match, or if <code>~/.local/bin/lokra</code> already exists from pipx or uv. <a href="https://lokra.dev/install.sh">Read the script</a> before you run it if you prefer.</p>
+<p>To install a particular release, or put the command somewhere else:</p>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>curl<span class="t-w"> </span>-fsSL<span class="t-w"> </span>https://lokra.dev/install.sh<span class="t-w"> </span><span class="t-p">|</span><span class="t-w"> </span><span class="t-nv">LOKRA_VERSION</span><span class="t-o">=</span><span class="t-m">0</span>.8.3<span class="t-w"> </span><span class="t-nv">LOKRA_BIN_DIR</span><span class="t-o">=</span><span class="t-s2">"</span><span class="t-nv">$HOME</span><span class="t-s2">/bin"</span><span class="t-w"> </span>sh
+</code></pre></div>
+
+<h2 id="pipx">pipx<a class="anchor" href="#pipx" title="Permanent link">#</a></h2>
 <p><a href="https://pipx.pypa.io">pipx</a> installs command-line tools in their own environment, so Lokra's dependencies never clash with your projects:</p>
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>install<span class="t-w"> </span>lokra
 </code></pre></div>
@@ -56,19 +100,58 @@
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>uv<span class="t-w"> </span>tool<span class="t-w"> </span>install<span class="t-w"> </span>lokra
 </code></pre></div>
 
+<p><code>uvx</code> runs Lokra without installing it, which suits trying the demo:</p>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>uvx<span class="t-w"> </span>lokra<span class="t-w"> </span>demo
+</code></pre></div>
+
 <h2 id="pip-in-a-virtual-environment">pip in a virtual environment<a class="anchor" href="#pip-in-a-virtual-environment" title="Permanent link">#</a></h2>
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>python3<span class="t-w"> </span>-m<span class="t-w"> </span>venv<span class="t-w"> </span>.venv
 .venv/bin/pip<span class="t-w"> </span>install<span class="t-w"> </span>lokra
 .venv/bin/lokra<span class="t-w"> </span>--version
 </code></pre></div>
 
+<h2 id="download-a-build">Download a build<a class="anchor" href="#download-a-build" title="Permanent link">#</a></h2>
+<p>Each <a href="https://github.com/lokrahq/lokra/releases">GitHub release</a> has a standalone build for every system, and a <code>SHA256SUMS</code> file to check them against:</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS, Apple silicon</td>
+<td><code>lokra-&lt;version&gt;-macos-arm64.tar.gz</code></td>
+</tr>
+<tr>
+<td>macOS, Intel</td>
+<td><code>lokra-&lt;version&gt;-macos-x86_64.tar.gz</code></td>
+</tr>
+<tr>
+<td>Linux, x86-64</td>
+<td><code>lokra-&lt;version&gt;-linux-x86_64.tar.gz</code></td>
+</tr>
+<tr>
+<td>Linux, ARM64</td>
+<td><code>lokra-&lt;version&gt;-linux-arm64.tar.gz</code></td>
+</tr>
+<tr>
+<td>Windows, x86-64</td>
+<td><code>lokra-&lt;version&gt;-windows-x86_64.zip</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each holds a <code>lokra</code> folder. Keep the folder together and run <code>lokra</code> (or <code>lokra.exe</code>) from inside it, or put a link to it on your PATH. The Linux builds need glibc 2.35 or newer, as on Ubuntu 22.04, Debian 12 and Fedora 36; on an older system use pipx or the container image.</p>
+<h2 id="windows">Windows<a class="anchor" href="#windows" title="Permanent link">#</a></h2>
+<p>Lokra runs on Windows 10 and 11. Install it with <code>pipx install lokra</code> or <code>uv tool install lokra</code>, or unzip the Windows build and add its <code>lokra</code> folder to your PATH. <code>lokra connect</code> writes Claude Desktop's config to <code>%APPDATA%\Claude</code>. <code>lokra demo</code> needs Docker Desktop, or pass <code>--dsn</code> to use a Postgres you already have. The command examples in these docs use a Unix shell; in PowerShell, write <code>$env:LOKRA_TOKEN = "…"</code> instead of <code>export LOKRA_TOKEN=…</code>.</p>
 <h2 id="container-image">Container image<a class="anchor" href="#container-image" title="Permanent link">#</a></h2>
 <p>Each release is published for amd64 and arm64:</p>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>pull<span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>pull<span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.3
 </code></pre></div>
 
-<p>Tags: an exact version such as <code>0.8.2</code>, the minor line such as <code>0.8</code>, and <code>latest</code>. The image runs <code>lokra serve --http</code> on port 8787 as a non-root user, reads <code>policies.yaml</code> from <code>/work</code> and keeps its state in <code>/work/.lokra</code>. Any other command works by naming it:</p>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://..."</span>
+<p>Tags: an exact version such as <code>0.8.3</code>, the minor line such as <code>0.8</code>, and <code>latest</code>. The image runs <code>lokra serve --http</code> on port 8787 as a non-root user, reads <code>policies.yaml</code> from <code>/work</code> and keeps its state in <code>/work/.lokra</code>. Any other command works by naming it:</p>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>--user<span class="t-w"> </span><span class="t-s2">"</span><span class="t-k">$(</span>id<span class="t-w"> </span>-u<span class="t-k">)</span><span class="t-s2">:</span><span class="t-k">$(</span>id<span class="t-w"> </span>-g<span class="t-k">)</span><span class="t-s2">"</span><span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.3<span class="t-w"> </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://..."</span>
 </code></pre></div>
 
 <p><a href="/docs/production#run-in-a-container">Run in production</a> covers volumes, networking and compose files.</p>
@@ -85,29 +168,79 @@ docker<span class="t-w"> </span>compose<span class="t-w"> </span>up<span class="
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>lokra<span class="t-w"> </span>--version
 </code></pre></div>
 
-<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra 0.8.2
+<div class="hl" data-lang="text"><div class="code-head"><span>Output</span></div><pre><span></span><code>lokra 0.8.3
 </code></pre></div>
 
 <p>Run <code>lokra</code> with no command to see a short welcome screen with the main commands.</p>
 <h2 id="upgrade">Upgrade<a class="anchor" href="#upgrade" title="Permanent link">#</a></h2>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>upgrade<span class="t-w"> </span>lokra
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Installed with</th>
+<th>Upgrade with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homebrew</td>
+<td><code>brew upgrade lokra</code></td>
+</tr>
+<tr>
+<td>Install script</td>
+<td>Run the script again</td>
+</tr>
+<tr>
+<td>pipx</td>
+<td><code>pipx upgrade lokra</code></td>
+</tr>
+<tr>
+<td>uv</td>
+<td><code>uv tool upgrade lokra</code></td>
+</tr>
+<tr>
+<td>Container image</td>
+<td>Change the tag and recreate the container</td>
+</tr>
+</tbody>
+</table>
 <p>Right after a release, pip can briefly keep serving a cached list of versions. If <code>pipx upgrade</code> says you already have the latest version when you know you don't, skip the cache:</p>
 <div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>upgrade<span class="t-w"> </span>lokra<span class="t-w"> </span>--pip-args<span class="t-o">=</span><span class="t-s2">"--no-cache-dir"</span>
 </code></pre></div>
 
-<p>For the image, change the tag and restart the container. Upgrades keep your policy and the <code>.lokra</code> state folder as they are. Before upgrading a production gate, read what changed: each <a href="https://github.com/lokrahq/lokra/tags">release tag on GitHub</a> points at a commit whose message describes the release.</p>
+<p>Upgrades keep your policy and the <code>.lokra</code> state folder as they are. Before upgrading a production gate, read what changed in the <a href="https://github.com/lokrahq/lokra/releases">release notes on GitHub</a>.</p>
 <h2 id="uninstall">Uninstall<a class="anchor" href="#uninstall" title="Permanent link">#</a></h2>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>pipx<span class="t-w"> </span>uninstall<span class="t-w"> </span>lokra
-</code></pre></div>
-
+<table>
+<thead>
+<tr>
+<th>Installed with</th>
+<th>Uninstall with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Homebrew</td>
+<td><code>brew uninstall lokra</code></td>
+</tr>
+<tr>
+<td>Install script</td>
+<td><code>rm -r ~/.local/share/lokra ~/.local/bin/lokra</code></td>
+</tr>
+<tr>
+<td>pipx</td>
+<td><code>pipx uninstall lokra</code></td>
+</tr>
+<tr>
+<td>uv</td>
+<td><code>uv tool uninstall lokra</code></td>
+</tr>
+</tbody>
+</table>
 <p>This removes the command. It does not touch your database: the agent roles and row-level security policies Lokra provisioned stay until you drop them. Your <code>policies.yaml</code> and <code>.lokra</code> folder also stay where they are.</p>
     </div>
     <nav class="docs-pager" aria-label="Pages"><a class="prev" href="/docs/quickstart"><span>Previous</span>Quickstart</a><a class="next" href="/docs/connect-database"><span>Next</span>Connect your database</a></nav>
     <p class="docs-edit"><a href="https://github.com/lokrahq/lokra/edit/main/site/docs/install.md">Edit this page on GitHub</a></p>
   </main>
-  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#pipx-recommended">pipx (recommended)</a></li><li><a href="#uv">uv</a></li><li><a href="#pip-in-a-virtual-environment">pip in a virtual environment</a></li><li><a href="#container-image">Container image</a></li><li><a href="#from-source">From source</a></li><li><a href="#check-your-version">Check your version</a></li><li><a href="#upgrade">Upgrade</a></li><li><a href="#uninstall">Uninstall</a></li></ul></aside>
+  <aside class="docs-toc"><p>On this page</p><ul><li><a href="#homebrew">Homebrew</a></li><li><a href="#install-script">Install script</a></li><li><a href="#pipx">pipx</a></li><li><a href="#uv">uv</a></li><li><a href="#pip-in-a-virtual-environment">pip in a virtual environment</a></li><li><a href="#download-a-build">Download a build</a></li><li><a href="#windows">Windows</a></li><li><a href="#container-image">Container image</a></li><li><a href="#from-source">From source</a></li><li><a href="#check-your-version">Check your version</a></li><li><a href="#upgrade">Upgrade</a></li><li><a href="#uninstall">Uninstall</a></li></ul></aside>
 </div>
 <footer>
   <div class="wrap">

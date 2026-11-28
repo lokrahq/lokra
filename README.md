@@ -5,6 +5,8 @@
   </picture>
 </p>
 
+<!-- mcp-name: io.github.lokrahq/lokra -->
+
 <p align="center"><b>Lock rows for AI agents.</b> · <a href="https://lokra.dev">lokra.dev</a> · <a href="https://lokra.dev/docs/">Docs</a></p>
 
 <p align="center"><img src="docs/demo.svg" alt="lokra demo: two AI agents meet a production-like Postgres. Row locks, masking, blocked prompt injection, an approved write, a rate limit and pause, and the signed ledger." width="820"></p>
@@ -40,7 +42,7 @@ locked-down identity instead, and puts these controls on every request:
 ## See it in a minute
 
 ```bash
-pipx install lokra
+brew install lokrahq/tap/lokra   # or: pipx install lokra
 lokra demo
 ```
 
@@ -75,7 +77,7 @@ Try it from the terminal as an agent:
 
 ## Use your own database
 
-Install it with `pipx install lokra` (or `uv tool install lokra`), then point it at any
+Install it with Homebrew, pipx, uv or the [other ways in the docs](https://lokra.dev/docs/install), then point it at any
 Postgres, including a Supabase database. `lokra init` connects
 **read-only**, introspects the schema, flags likely PII columns (email, phone,
 health and government identifiers) and writes a starter policy for you to review:
@@ -280,8 +282,8 @@ port 8787 with the `policies.yaml` in `/work`, and keeps its state (signing key,
 pending writes, ledger) in `/work/.lokra`, so mount a directory that persists:
 
 ```bash
-docker run -d --name lokra -p 8787:8787 --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.2 mint-token support-bot
+docker run -d --name lokra -p 8787:8787 --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" ghcr.io/lokrahq/lokra:0.8.3 mint-token support-bot
 ```
 
 The database host in the policy has to be reachable from the container, so not `127.0.0.1`. Any

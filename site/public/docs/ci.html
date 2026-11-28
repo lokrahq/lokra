@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/fonts/geist-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css?v=f18517988e">
-<link rel="stylesheet" href="/docs/docs.css?v=fea86d49fb">
+<link rel="stylesheet" href="/docs/docs.css?v=28ec45fd89">
 <meta name="theme-color" content="#ffffff">
 <title>Use Lokra in CI · Lokra docs</title>
 <meta name="description" content="Run lokra check --strict in GitHub Actions against a throwaway Postgres with your migrations applied, so policy mistakes fail the build.">
@@ -187,7 +187,7 @@
 <span class="t-w">          </span><span class="t-nt">python-version</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-s">"3.12"</span>
 
 <span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Install Lokra</span>
-<span class="t-w">        </span><span class="t-nt">run</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">pip install "lokra==0.8.2"</span>
+<span class="t-w">        </span><span class="t-nt">run</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">pip install "lokra==0.8.3"</span>
 
 <span class="t-w">      </span><span class="t-p t-p-Indicator">-</span><span class="t-w"> </span><span class="t-nt">name</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">Check the policy against the schema</span>
 <span class="t-w">        </span><span class="t-nt">run</span><span class="t-p">:</span><span class="t-w"> </span><span class="t-l t-l-Scalar t-l-Scalar-Plain">lokra check --dsn "$DATABASE_URL" --strict</span>
@@ -254,7 +254,7 @@
 <p>If you use path filters, make sure they cover every place a migration can live. A migration that slips past the filter is exactly the change this check is for.</p>
 <h2 id="other-ci-systems">Other CI systems<a class="anchor" href="#other-ci-systems" title="Permanent link">#</a></h2>
 <p>Any CI that can start Postgres can run the same three steps: apply migrations, <code>pip install lokra</code>, then <code>lokra check --dsn "&lt;dsn&gt;" --strict</code>. Lokra needs Python 3.11 or later. The <a href="/docs/production#run-in-a-container">container image</a> works too, if your CI prefers containers:</p>
-<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.2<span class="t-w"> </span><span class="t-se">\</span>
+<div class="hl" data-lang="bash"><div class="code-head"><span>Terminal</span></div><pre><span></span><code>docker<span class="t-w"> </span>run<span class="t-w"> </span>--rm<span class="t-w"> </span>-v<span class="t-w"> </span><span class="t-s2">"</span><span class="t-nv">$PWD</span><span class="t-s2">:/work"</span><span class="t-w"> </span>ghcr.io/lokrahq/lokra:0.8.3<span class="t-w"> </span><span class="t-se">\</span>
 <span class="t-w">  </span>check<span class="t-w"> </span>--dsn<span class="t-w"> </span><span class="t-s2">"postgresql://postgres:postgres@db:5432/app"</span><span class="t-w"> </span>--strict
 </code></pre></div>
 

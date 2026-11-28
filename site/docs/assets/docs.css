@@ -127,6 +127,7 @@
   .js .docs-side.open .docs-nav a { padding: 9px 10px; font-size: 16px; }
   .menu-open { overflow: hidden; }
   .docs-body h2 { font-size: 21px; }
+  .docs-body td code { white-space: normal; }
   .code-head { height: 36px; }
   .hl pre { padding: 12px 14px 14px; font-size: 12.5px; }
   .docs-pager { grid-template-columns: 1fr; }

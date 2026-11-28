@@ -8,7 +8,7 @@ A gate is one Lokra install guarding one database. To bring it into [Lokra Cloud
 ## Before you start
 
 - A working gate: a `policies.yaml` and Lokra serving agents from it. If you don't have one yet, start with the [Quickstart](/docs/quickstart).
-- Lokra 0.6.0 or later. The startup lines on this page are from 0.8.2. Check with `lokra --version`.
+- Lokra 0.6.0 or later. The startup lines on this page are from 0.8.3. Check with `lokra --version`.
 - The owner role in your Cloud organisation. Only owners can create gate tokens.
 
 ## Create a gate token
@@ -168,7 +168,7 @@ The Lokra image runs any `lokra` command. Run `cloud` with the same folder mount
 docker run -d --name lokra-cloud --restart unless-stopped \
   --user "$(id -u):$(id -g)" -v "$PWD:/work" \
   --env-file /etc/lokra/cloud.env \
-  ghcr.io/lokrahq/lokra:0.8.2 cloud
+  ghcr.io/lokrahq/lokra:0.8.3 cloud
 ```
 
 The database host in `LOKRA_ADMIN_DSN` has to be reachable from inside the container, so not `127.0.0.1`. Follow the output with `docker logs -f lokra-cloud`.

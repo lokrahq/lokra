@@ -5,12 +5,12 @@ revocation takes effect immediately for every Lokra process that shares the same
 """
 from __future__ import annotations
 
-import fcntl
 import json
 import time
 from contextlib import contextmanager
 
 from .config import AgentPolicy, Config
+from .locks import hold
 
 WINDOW_SECONDS = 60
 
@@ -19,14 +19,13 @@ WINDOW_SECONDS = 60
 def _state(cfg: Config, write: bool):
     cfg.ensure_home()
     path = cfg.home / "controls.json"
-    with (cfg.home / "controls.lock").open("a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX if write else fcntl.LOCK_SH)
-        data = json.loads(path.read_text()) if path.exists() else {}
+    with hold(cfg.home / "controls.lock", shared=not write):
+        data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
         for key in ("paused", "revoked", "recent"):
             data.setdefault(key, {})
         yield data
         if write:
-            path.write_text(json.dumps(data, indent=2))
+            path.write_text(json.dumps(data, indent=2), encoding="utf-8")
             path.chmod(0o600)
 
 

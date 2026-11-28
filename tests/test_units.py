@@ -591,3 +591,24 @@ def test_the_dashboard_counts_as_the_same_person_too(tmp_path):
     decide(cfg, "w_0004", True, "dana (dashboard)")
     with pytest.raises(GatewayError, match="needs a different person"):
         decide(cfg, "w_0004", True, "dana (cloud)")
+
+
+def _append_many(path: str, worker: int) -> None:
+    ledger = Ledger(Path(path), b"k")
+    for i in range(25):
+        ledger.append({"event": "read", "agent": f"w{worker}", "n": i})
+
+
+def test_ledger_stays_one_chain_when_processes_append_at_once(tmp_path):
+    import multiprocessing
+
+    path = tmp_path / "ledger.jsonl"
+    workers = [multiprocessing.get_context("spawn").Process(target=_append_many, args=(str(path), w)) for w in range(4)]
+    for p in workers:
+        p.start()
+    for p in workers:
+        p.join(60)
+        assert p.exitcode == 0
+    ledger = Ledger(path, b"k")
+    assert [e["seq"] for e in ledger.entries()] == list(range(1, 101))
+    assert ledger.verify()[0]

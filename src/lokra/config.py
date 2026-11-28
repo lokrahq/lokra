@@ -142,11 +142,11 @@ class Config:
     def db_secrets(self) -> dict[str, str]:
         if not self.secrets_path.exists():
             return {}
-        return json.loads(self.secrets_path.read_text())
+        return json.loads(self.secrets_path.read_text(encoding="utf-8"))
 
     def save_db_secrets(self, data: dict[str, str]) -> None:
         self.ensure_home()
-        self.secrets_path.write_text(json.dumps(data, indent=2))
+        self.secrets_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
         self.secrets_path.chmod(0o600)
 
     def agent(self, name: str) -> AgentPolicy:
@@ -239,7 +239,7 @@ def load_config(path: str | os.PathLike | None = None, home: str | os.PathLike |
     path = Path(path or os.environ.get("LOKRA_CONFIG", "policies.yaml")).resolve()
     if not path.exists():
         raise ConfigError(f"config not found: {path}")
-    raw = yaml.safe_load(path.read_text()) or {}
+    raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     db = raw.get("database", {})
     agents = {}
     for name, a in (raw.get("agents") or {}).items():
