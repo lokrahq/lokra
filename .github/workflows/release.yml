@@ -166,8 +166,8 @@ jobs:
           TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
           if [ -z "$TAP_TOKEN" ]; then
-            echo "::warning::HOMEBREW_TAP_TOKEN is not set, so the Homebrew formula was not updated"
-            exit 0
+            echo "::error::HOMEBREW_TAP_TOKEN is not a repository secret here, so the Homebrew formula was not updated"
+            exit 1
           fi
           version="${GITHUB_REF_NAME#v}"
           git clone "https://x-access-token:${TAP_TOKEN}@github.com/lokrahq/homebrew-tap.git" tap
@@ -189,10 +189,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Install from the tap and check the version
-        env:
-          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
-          if [ -z "$TAP_TOKEN" ]; then exit 0; fi
           eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install lokrahq/tap/lokra
           lokra --version | grep -F "${GITHUB_REF_NAME#v}"
