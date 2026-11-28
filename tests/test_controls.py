@@ -70,11 +70,11 @@ def test_cli_pause_resume_and_revoke(cfg, capsys):
     conf = str(cfg.path)
     t = _token(cfg, "ops-bot")
     assert main(["--config", conf, "pause", "ops-bot", "--reason", "incident", "--admin-dsn",
-                 "postgresql://nobody@127.0.0.1:1/none"]) == 0
+                 "postgresql://nobody@127.0.0.1:1/none?connect_timeout=2"]) == 0
     assert "paused" in capsys.readouterr().out
     with pytest.raises(GatewayError, match="paused"):
         Gateway(cfg, t).whoami()
-    assert main(["--config", conf, "resume", "ops-bot", "--admin-dsn", "postgresql://nobody@127.0.0.1:1/none"]) == 0
+    assert main(["--config", conf, "resume", "ops-bot", "--admin-dsn", "postgresql://nobody@127.0.0.1:1/none?connect_timeout=2"]) == 0
     assert main(["--config", conf, "revoke-token", t]) == 0
     with pytest.raises(GatewayError, match="revoked"):
         Gateway(cfg, t).whoami()
@@ -91,7 +91,7 @@ def test_dashboard_pauses_and_resumes_agents(cfg):
 
     from lokra.dashboard import make_handler
 
-    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), make_handler(cfg, "postgresql://nobody@127.0.0.1:1/none"))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), make_handler(cfg, "postgresql://nobody@127.0.0.1:1/none?connect_timeout=2"))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{server.server_address[1]}"
 

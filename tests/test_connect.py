@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -27,7 +28,10 @@ def project(tmp_path, monkeypatch):
     work = tmp_path / "work"
     work.mkdir()
     monkeypatch.chdir(work)
-    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    home = tmp_path / "home"
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))
+    monkeypatch.setenv("APPDATA", str(home / "AppData/Roaming"))
     monkeypatch.delenv("LOKRA_HOME", raising=False)
     return tmp_path
 
@@ -47,7 +51,7 @@ def test_writes_claude_code_config_for_the_only_agent(project):
     assert _connect(conf) == 0
     server = json.loads((project / "work/.mcp.json").read_text())["mcpServers"]["lokra-app-reader"]
     assert server["args"][-5:] == ["--config", conf, "serve", "--dev-agent", "app-reader"]
-    assert server["command"].startswith("/")
+    assert Path(server["command"]).is_absolute()
 
 
 def test_keeps_other_servers_and_is_idempotent(project, capsys):

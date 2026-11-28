@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from lokra import sqlcheck, tokens
+from lokra import introspect, sqlcheck, tokens
 from lokra.ledger import Ledger
 from lokra.masking import Masker, luhn_valid, medicare_valid
 
@@ -612,3 +612,14 @@ def test_ledger_stays_one_chain_when_processes_append_at_once(tmp_path):
     ledger = Ledger(path, b"k")
     assert [e["seq"] for e in ledger.entries()] == list(range(1, 101))
     assert ledger.verify()[0]
+
+
+def test_admin_connections_give_up_after_ten_seconds_unless_told_otherwise(monkeypatch):
+    seen = []
+    monkeypatch.setattr(introspect.psycopg, "connect", lambda dsn, **kw: seen.append(kw.get("connect_timeout")))
+    monkeypatch.delenv("PGCONNECT_TIMEOUT", raising=False)
+    introspect.connect("postgresql://admin@db.internal/shop")
+    introspect.connect("postgresql://admin@db.internal/shop?connect_timeout=30")
+    monkeypatch.setenv("PGCONNECT_TIMEOUT", "3")
+    introspect.connect("postgresql://admin@db.internal/shop")
+    assert seen == [10, None, None]

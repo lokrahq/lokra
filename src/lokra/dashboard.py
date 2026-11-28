@@ -20,6 +20,7 @@ from psycopg import sql
 from . import controls
 from .config import Config, ConfigError, dump_policy, load_config, valid_strategy
 from .gateway import GatewayError, decide, list_pending
+from .introspect import connect
 from .ledger import Ledger
 from .masking import DETECTORS, Masker
 from .provision import WRITE_OPS, ensure_same_database, provision
@@ -302,7 +303,7 @@ def _drop_removed_roles(new_cfg: Config, admin_dsn: str) -> list[str]:
     if not stale:
         return []
     out: list[str] = []
-    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+    with connect(admin_dsn, autocommit=True) as conn:
         ensure_same_database(conn, new_cfg)
         for role in stale:
             exists = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone()

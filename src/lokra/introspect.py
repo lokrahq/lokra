@@ -1,6 +1,7 @@
 """Read-only database introspection to scaffold a starter policy."""
 from __future__ import annotations
 
+import os
 import re
 
 import psycopg
@@ -76,12 +77,19 @@ def _match(column: str):
     return None
 
 
+def connect(dsn: str, **kwargs) -> psycopg.Connection:
+    """Connect with a DSN, giving up after 10 seconds unless the DSN or PGCONNECT_TIMEOUT sets a timeout."""
+    if "connect_timeout" not in conninfo.conninfo_to_dict(dsn) and "PGCONNECT_TIMEOUT" not in os.environ:
+        kwargs["connect_timeout"] = 10
+    return psycopg.connect(dsn, **kwargs)
+
+
 def introspect(dsn: str, schemas: list[str] | tuple[str, ...] = ("public",)) -> dict[str, list[tuple[str, str]]]:
     """Return {table: [(column, type)]} for base tables in the given schemas. Read-only.
 
     Tables outside public are keyed as 'schema.table', the same way policies name them.
     """
-    with psycopg.connect(dsn, connect_timeout=10) as conn:
+    with connect(dsn) as conn:
         conn.read_only = True
         rows = conn.execute(_TABLES_QUERY, (list(schemas),)).fetchall()
     tables: dict[str, list[tuple[str, str]]] = {}

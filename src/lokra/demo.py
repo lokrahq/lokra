@@ -20,6 +20,7 @@ from psycopg import conninfo
 from . import controls, tokens
 from .config import load_config
 from .gateway import Gateway, GatewayError, decide
+from .introspect import connect
 from .ledger import Ledger
 from .provision import AGENT_GROUP, provision
 from .report import BLOCKED_EVENTS, build_report
@@ -109,7 +110,7 @@ def _start_postgres(say, st: Style) -> tuple[str, str]:
 
 
 def _cleanup(admin_dsn: str, roles: list[str], drop_group: bool) -> None:
-    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+    with connect(admin_dsn, autocommit=True) as conn:
         conn.execute(f"DROP SCHEMA IF EXISTS {SCHEMA} CASCADE")
         for role in roles + ([AGENT_GROUP] if drop_group else []):
             if conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (role,)).fetchone():
@@ -262,7 +263,7 @@ def run_demo(dsn: str | None = None, keep: bool = False, out=print, style: Style
         dsn, container = _start_postgres(say, st)
     else:
         say("  " + st.ok(f"Using your database. Everything goes in schema {SCHEMA} and is removed at the end."))
-    with psycopg.connect(dsn, autocommit=True) as conn:
+    with connect(dsn, autocommit=True) as conn:
         if conn.execute("SELECT 1 FROM pg_namespace WHERE nspname = %s", (SCHEMA,)).fetchone():
             raise DemoError(f"schema {SCHEMA} already exists in that database; drop it first")
         had_group = conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone()

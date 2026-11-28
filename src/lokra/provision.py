@@ -7,7 +7,7 @@ from psycopg import sql
 
 from . import controls
 from .config import AgentPolicy, Config, split_table
-from .introspect import relations, view_problems
+from .introspect import connect, relations, view_problems
 
 WRITE_OPS = {"insert": "INSERT", "update": "UPDATE", "delete": "DELETE"}
 AGENT_GROUP = "lokra_agents"
@@ -141,7 +141,7 @@ def ensure_same_database(conn: psycopg.Connection, cfg: Config) -> None:
 
 def set_login(cfg: Config, admin_dsn: str, agent: AgentPolicy, allowed: bool) -> int:
     """Allow or block the agent's database login. Blocking also ends its open sessions."""
-    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+    with connect(admin_dsn, autocommit=True) as conn:
         ensure_same_database(conn, cfg)
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (agent.role,)).fetchone():
             return 0
@@ -176,7 +176,7 @@ def provision(cfg: Config, admin_dsn: str) -> list[str]:
     log: list[str] = []
     saved = cfg.db_secrets()
     paused = controls.snapshot(cfg)["paused"]
-    with psycopg.connect(admin_dsn, autocommit=True) as conn:
+    with connect(admin_dsn, autocommit=True) as conn:
         ensure_same_database(conn, cfg)
         admin_is_super = conn.execute("SELECT rolsuper FROM pg_roles WHERE rolname = current_user").fetchone()[0]
         if not conn.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", (AGENT_GROUP,)).fetchone():
